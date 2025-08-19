@@ -193,6 +193,34 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         {
             GameObject gg =Instantiate(GameObject.Find("ignoring").transform.Find("cart icon atack").gameObject, gm.transform.Find("mini pn comb carts"));
             gg.GetComponent<Image>().sprite = GameObject.Find(st).GetComponent<SpriteRenderer>().sprite;
+            
+        }
+        ui_atack.lt_cart_comb_ui.Add(gm);
+    }
+    public void del_atack()
+    {
+        
+        List<GameObject> lt_rem = new List<GameObject>();
+        foreach (ui_atack.atack_comb at in ui_atack.lt_cart_comb_selected)
+        {
+            lt_rem.Add(ui_atack.lt_cart_comb_ui[ui_atack.lt_cart_comb.IndexOf(at)]);
+            //Debug.Log(ui_atack.lt_cart_comb_selected.IndexOf(at));
+            //ui_atack.lt_cart_comb_ui.Add(gm);
+            //GameObject gg = Instantiate(GameObject.Find("ignoring").transform.Find("cart icon atack").gameObject, gm.transform.Find("mini pn comb carts"));
+            //gg.GetComponent<Image>().sprite = GameObject.Find(st).GetComponent<SpriteRenderer>().sprite;
+        }
+        foreach (GameObject g in lt_rem)
+        {
+            ui_atack.lt_cart_comb_ui.Remove(g);
+            Destroy(g);
+        }
+
+        ui_atack.lt_cart_comb.RemoveAll(x=>ui_atack.lt_cart_comb_selected.Contains(x));
+        ui_atack.lt_cart_comb_selected.Clear();
+
+        for (int i = 0; i < ui_atack.lt_cart_comb.Count; i++)
+        {
+            ui_atack.lt_cart_comb_ui[i].GetComponent<ui_button>().num = i;
         }
     }
     public void select_atack()
@@ -353,8 +381,21 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                 else
                     lt_cart[st]++;
             }
+            /*
+            if(type== "cart sp derlorg" || type == "cart derlorg act" || type== "cart derlorg speed"|| type== "cart derlorg potoc" || type== "cart derlorg pow")
+            {
+                foreach (Transform tr in GameObject.Find("list carts").transform)
+                {
+                    if (mb.carts_count_max.ContainsKey(tr.gameObject.name))
+                    {
+                        if (mb.carts_count_max[tr.gameObject.name] < 2)
+                            return;
+                    }
+                }
+            }
+            */
             
-            if (mb.col_art > mb.lt_carts_art.Count&&!(lt_cart.ContainsKey("cart mast") && lt_cart["cart mast"]>4) && !(lt_cart.ContainsKey("cart inven") && lt_cart["cart inven"] > 2))
+            if (mb.col_art > mb.lt_carts_art.Count)
             {
                 //mb.add_cart(func.carts[mb.x, mb.y].GetComponent<par_cart>());
                 mb.remove_cart(type);
@@ -363,7 +404,7 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                 opened_closed(GameObject.Find("bt drop"));
                 opened_closed(gameObject);
             }
-
+            
         }
 
     }
@@ -629,6 +670,8 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             mb.add_cart(st);
         }
         mb.lt_carts_active_now.Clear();
+        mb.lt_carts_active_now_ui.Clear();
+        //mb.par_lt_sila = mb.par_lt_sila_save;
         ui.clean_pricels();
 
         //anim.col_anim--;
@@ -746,7 +789,7 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                                 {
                                     if (way_now[j, i] != -1)
                                     {// 
-                                        if (type == "cart crystall" && func.nature[j, i] != null && func.nature[j, i].name == "crystall")
+                                        if (type == "cart bomb" && func.nature[j, i] != null && func.nature[j, i].name == "crystall")
                                         {
                                             ui.create_pricel(func.nature[j, i].transform.position);
                                         }

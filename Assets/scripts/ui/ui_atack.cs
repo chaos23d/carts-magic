@@ -22,6 +22,7 @@ public class ui_atack : MonoBehaviour
     public static atack_comb atack_comb_now;
     public static type_atack last_type_atack;
     public static List<atack_comb> lt_cart_comb = new List<atack_comb>();
+    public static List<GameObject> lt_cart_comb_ui = new List<GameObject>();
     public static List<atack_comb> lt_cart_comb_selected = new List<atack_comb>();
     public static void add_cart_ui(string type)
     {

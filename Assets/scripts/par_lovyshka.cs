@@ -35,7 +35,8 @@ public class par_lovyshka : MonoBehaviour
             if(mb!=null && func.distance(mb.x,mb.y,x,y) <=3)
                 mb.spawn_cart(par_carts[0], gameObject);
         }
-        
+
+        /*
         if(gameObject.name== "spirit fire")
         {
             if(func.mob[x,y]!=null)
@@ -66,12 +67,20 @@ public class par_lovyshka : MonoBehaviour
             if (func.mob[x, y] != null)
                 gm = func.create_effect("cart blood", x, y, parent, true, 1, new List<string> { "cart blood"});
         }
-
-        else if (gameObject.name == "mini crystall" && time==1)
+        */
+        if (gameObject.name == "spirit base")
         {
-            func.create_effect("crystall destroy", x, y, parent, true, 1, par_carts).GetComponent<par_effect>().st_par = st_par;
-
-            gameObject.GetComponent<SpriteRenderer>().color = new Color(0, 0, 0, 0);
+            //if (func.mob[x, y] != null)
+                gm = func.create_effect(func.get_name_effect(par_carts,null), x, y, parent, true, 1, new List<string> (par_carts));
+        }
+        else if (gameObject.name == "lov bomb" && time==1)
+        {
+            //st_par.
+            GameObject g=func.create_effect("bomb destroy", x, y, parent, true, power, par_carts);
+            g.GetComponent<par_effect>().st_par = st_par;
+            List<string> l = new List<string>(par_carts);
+            g.GetComponent<SpriteRenderer>().color = anim_color.static_colors[func.baza[l[1]].GetComponent<par_cart>().type];
+            gameObject.GetComponent<SpriteRenderer>().color = new Color32(0, 0, 0, 0);
         }
 
         return gm;

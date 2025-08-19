@@ -12,6 +12,7 @@ public class anim : MonoBehaviour
         }
         set
         {
+            func.test_message = "col anim is "+value;
             Debug.Log("col_anim is " + value);
             cl_an = value;
         }

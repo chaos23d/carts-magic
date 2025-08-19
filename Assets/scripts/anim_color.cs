@@ -12,36 +12,32 @@ public class anim_color : MonoBehaviour
     public Queue<par_cart.type_cart> lt_colors = new Queue<par_cart.type_cart>();
     public Queue<par_cart.type_cart> lt_colors_now = new Queue<par_cart.type_cart>();
 
-    public float time_now = -0.5f;
+    public float time_now =1;
     public Color d_color = new Color(0,0,0);
     public Color final_color = new Color(0, 0, 0);
+
+    public void init(par_cart.type_cart tp)
+    {
+        //Debug.Log(tp);
+        final_color = static_colors[tp];
+        gameObject.GetComponent<SpriteRenderer>().color = final_color;
+                
+        lt_colors_now = new Queue<par_cart.type_cart>(lt_colors);
+        //gameObject.GetComponent<SpriteRenderer>().color = final_color;
+        tp = lt_colors_now.Dequeue();
+        Color cl = static_colors[tp];
+
+        d_color = (cl - final_color) * Time.deltaTime;
+        //Debug.Log(tp + " " +d_color+"  "+tp);
+        final_color = cl;
+    }
     void Start()
     {
-        if (static_colors.Count == 0)
-        {
-            static_colors.Add(par_cart.type_cart.bases, new Color32 (255, 255, 255,255));
 
-            static_colors.Add(par_cart.type_cart.damage, new Color32(189, 104, 255, 255));
-            static_colors.Add(par_cart.type_cart.sp_barier, new Color32(255, 104, 177, 255));
-
-            static_colors.Add(par_cart.type_cart.blood, new Color32(219, 11, 11, 255));
-            static_colors.Add(par_cart.type_cart.fire, new Color32(255, 160, 29, 255));
-            static_colors.Add(par_cart.type_cart.energy, new Color(123, 191, 255, 255));
-            static_colors.Add(par_cart.type_cart.ice, new Color32(229, 252, 255, 255));
-            static_colors.Add(par_cart.type_cart.poition, new Color32(96, 229, 83, 255));
-            static_colors.Add(par_cart.type_cart.rock, new Color32(123, 83, 59, 255));
-
-            static_colors.Add(par_cart.type_cart.spirit_blood, static_colors[par_cart.type_cart.blood]);
-            static_colors.Add(par_cart.type_cart.spirit_fire, static_colors[par_cart.type_cart.fire]);
-            static_colors.Add(par_cart.type_cart.spirit_energy, static_colors[par_cart.type_cart.energy]);
-            static_colors.Add(par_cart.type_cart.spirit_ice, static_colors[par_cart.type_cart.ice]);
-            static_colors.Add(par_cart.type_cart.spirit_poition, static_colors[par_cart.type_cart.poition]);
-            static_colors.Add(par_cart.type_cart.spirit_rock, static_colors[par_cart.type_cart.rock]);
-        }
         //lt_colors.Enqueue(par_cart.type_cart.damage);
         //lt_colors.Enqueue(par_cart.type_cart.fire);
         //lt_colors.Enqueue(par_cart.type_cart.bases);
-        final_color = static_colors[par_cart.type_cart.bases];
+        //final_color = static_colors[lt_colors.Peek()];
     }
 
     // Update is called once per frame
@@ -74,14 +70,18 @@ public class anim_color : MonoBehaviour
                 lt_colors_now = new Queue<par_cart.type_cart>(lt_colors);
 
             }
-            gameObject.GetComponent<SpriteRenderer>().color = final_color;
-            par_cart.type_cart tp = lt_colors_now.Dequeue();
-            Color cl =static_colors[tp];
+            if (lt_colors.Count != 0)
+            {
+                gameObject.GetComponent<SpriteRenderer>().color = final_color;
+                par_cart.type_cart tp = lt_colors_now.Dequeue();
+                Color cl = static_colors[tp];
 
-            d_color = (cl - final_color)*Time.deltaTime;
-            //Debug.Log(tp + " " +d_color+"  "+tp);
-            final_color = cl;
-            time_now = -0.5f;
+                d_color = (cl - final_color) * Time.deltaTime;
+                //Debug.Log(tp + " " +d_color+"  "+tp);
+                final_color = cl;
+                time_now = -0.5f;
+            }
+
         }
     }
 }

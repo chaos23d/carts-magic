@@ -33,7 +33,7 @@ public class data : MonoBehaviour
         public players type;
     }
     // Start is called before the first frame update
-    public const int version = 11;
+    public const int version = 12;
     public static string path = "/data.dat";
     public static bool is_open = false;
     public static SaveData data_now;
@@ -58,6 +58,7 @@ public class data : MonoBehaviour
         public int cl_cart_poition = 0;
         public int cl_cart_ice = 0;
 
+        public int cl_shop = 0;
 
         public int cl_mob_dead_derlorg = 0;
         public int cl_mob_dead_now = 0;
@@ -77,29 +78,32 @@ public class data : MonoBehaviour
             first_game = true;
 
 
-            lt_achives.Add("умелый","дойдите до 5 этажа и убейте босса");
+            lt_achives.Add("умелый", "дойдите до 5 этажа и убейте босса");
 
             //lt_achives.Add("умелый", "дойдите до 4 этажа и убейте босса");
 
             lt_achives.Add("опытный", "убейте 100 врагов");
 
             lt_achives.Add("хорошая атака", "Успешно примените 200 карт атаки\n\n(открывает персонажа: боевой маг)");
-            lt_achives.Add("хорошая защита", "Успешно примените 100 карт барьера\n\n(открывает персонажа: барьерный маг)");
 
-            lt_achives.Add("сила огня", "Примените успешно 100 огненных карт\n\n(открывает персонажа: огненный маг)");
-            lt_achives.Add("сила яда", "Примените успешно 100 ядовитых карт\n\n(открывает персонажа: ядовитый маг)");
-            lt_achives.Add("сила льда", "Примените успешно 100 ледяных карт\n\n(открывает персонажа: барьерный маг)");
-            lt_achives.Add("сила электричества", "Примените успешно 100 электрических карт\n\n(открывает персонажа: электрический маг)");
-            lt_achives.Add("сила камня", "Примените успешно 100 каменных карт\n\n(открывает персонажа: каменный маг)");
-            lt_achives.Add("сила крови", "Примените успешно 100 кровавых карт\n\n(открывает персонажа: кровавый маг)");
+            lt_achives.Add("хорошая защита", "Успешно примените 100 карт барьера\n\n(открывает персонажа: барьерный маг)");
+            //lt_achives.Add("увлечение взрывами", "Успешно примените 100 карт взрыва\n\n(открывает персонажа: маг-подрывник)");
+            //lt_achives.Add("армия мёртвых", "Успешно примените 100 карт некроманта\n\n(открывает персонажа: маг-некромант)");
+
+            lt_achives.Add("сила огня", "Примените успешно 200 огненных карт\n\n(открывает персонажа: огненный маг)");
+            lt_achives.Add("сила яда", "Примените успешно 200 ядовитых карт\n\n(открывает персонажа: ядовитый маг)");
+            lt_achives.Add("сила льда", "Примените успешно 200 ледяных карт\n\n(открывает персонажа: барьерный маг)");
+            lt_achives.Add("сила электричества", "Примените успешно 200 электрических карт\n\n(открывает персонажа: электрический маг)");
+            lt_achives.Add("сила камня", "Примените успешно 200 каменных карт\n\n(открывает персонажа: каменный маг)");
+            lt_achives.Add("сила крови", "Примените успешно 200 кровавых карт\n\n(открывает персонажа: кровавый маг)");
 
             lt_achives.Add("Истребитель", "Убейте 50 дерлоргов\n\n(открывает персонажа: маг-дерлорг)");
 
             lt_achives.Add("живучий", "Получите 30 единиц максимального здоровья\n\n(открывает персонажа: маг-берсерк)");
 
-            lt_achives.Add("Кузнец", "Объедините карты 50 раз\n\n(открывает карту: карта древней кузни)");
+            lt_achives.Add("Кузнец", "Объедините карты 20 раз\n\n(открывает карту: карта древней кузни)");
             lt_achives.Add("любитель артефактов", "Соберите 50 артефактов");
-            lt_achives.Add("постоянный покупатель", "совершите 20 покупок");
+            lt_achives.Add("постоянный покупатель", "совершите 20 покупок\n\n(открывает карту: бриллиантовая карта)");
             lt_achives.Add("большая колода", "Соберите 75 карт в инвентаре за одну игру\n\n(открывает карту: карта колоды)");
 
             lt_achives.Add("быстрее некуда", "Примените 4 или более раза карты за один ход\n\n(открывает карту: карта скорости)");
@@ -150,7 +154,7 @@ public class data : MonoBehaviour
             //par.lt_carts_st.Add("cart barier", 3);
             //par.lt_art_st.Add("cart base st");
             par.lt_art_st.Add("cart att st");
-            par.infa = "+1 к множителю мощности карты атаки\n \n+2 к месту в инвентаре для карты атаки любой мощности";
+            par.infa = "+1 к мощности карты атаки\n \n+2 к месту в инвентаре для карты атаки любой мощности";
             par.type = players.atack;
             lt_par_pl.Add(par);
 
@@ -163,7 +167,7 @@ public class data : MonoBehaviour
             par.lt_carts_st.Add("cart damage",6);
             //par.lt_art_st.Add("cart base st");
             par.lt_art_st.Add("cart bar st");
-            par.infa = "+1 к множителю мощности карты защиты\n \n+1 к месту в инвентаре для карты защиты любой мощности";
+            par.infa = "+1 к мощности карты защиты\n \n+1 к месту в инвентаре для карты защиты любой мощности";
             par.type = players.barier;
             lt_par_pl.Add(par);
 
@@ -177,7 +181,7 @@ public class data : MonoBehaviour
             par.lt_carts_st.Add("cart fire",12);
             //par.lt_art_st.Add("cart base st");
             par.lt_art_st.Add("cart fire st");
-            par.infa = "+1 к множителю мощности огненной карты\n \n+2 к месту в инвентаре для огненной карты любой мощности";
+            par.infa = "+1 к мощности огненной карты\n \n+2 к месту в инвентаре для огненной карты любой мощности";
             par.type = players.fire;
             lt_par_pl.Add(par);
 
@@ -192,7 +196,7 @@ public class data : MonoBehaviour
 
             //par.lt_art_st.Add("cart base st");
             par.lt_art_st.Add("cart rock st");
-            par.infa = "+1 к множителю мощности каменной карты\n \n+2 к месту в инвентаре для каменной карты любой мощности";
+            par.infa = "+1 к мощности каменной карты\n \n+2 к месту в инвентаре для каменной карты любой мощности";
             par.type = players.rock;
             lt_par_pl.Add(par);
 
@@ -207,7 +211,7 @@ public class data : MonoBehaviour
 
             //par.lt_art_st.Add("cart base st");
             par.lt_art_st.Add("cart blood st");
-            par.infa = "+1 к множителю мощности кровавой карты\n \n+2 к месту в инвентаре для кровавой карты любой мощности";
+            par.infa = "+1 к мощности кровавой карты\n \n+2 к месту в инвентаре для кровавой карты любой мощности";
             par.type = players.blood;
             lt_par_pl.Add(par);
 
@@ -222,7 +226,7 @@ public class data : MonoBehaviour
 
             //par.lt_art_st.Add("cart base st");
             par.lt_art_st.Add("cart energy st");
-            par.infa = "+1 к множителю мощности электрической карты\n \n+2 к месту в инвентаре для электрической карты любой мощности";
+            par.infa = "+1 к мощности электрической карты\n \n+2 к месту в инвентаре для электрической карты любой мощности";
             par.type = players.energy;
             lt_par_pl.Add(par);
 
@@ -237,7 +241,7 @@ public class data : MonoBehaviour
 
             //par.lt_art_st.Add("cart base st");
             par.lt_art_st.Add("cart ice st");
-            par.infa = "+1 к множителю мощности ледяной карты\n \n+2 к месту в инвентаре для ледяной карты любой мощности";
+            par.infa = "+1 к мощности ледяной карты\n \n+2 к месту в инвентаре для ледяной карты любой мощности";
             par.type = players.ice;
             lt_par_pl.Add(par);
 
@@ -252,7 +256,7 @@ public class data : MonoBehaviour
 
             //par.lt_art_st.Add("cart base st");
             par.lt_art_st.Add("cart poition st");
-            par.infa = "+1 к множителю мощности ядовитой карты\n \n+2 к месту в инвентаре для ядовитой карты любой мощности";
+            par.infa = "+1 к мощности ядовитой карты\n \n+2 к месту в инвентаре для ядовитой карты любой мощности";
             par.type = players.poition;
             lt_par_pl.Add(par);
 
@@ -265,7 +269,7 @@ public class data : MonoBehaviour
 
             //par.lt_art_st.Add("cart base st");
             par.lt_art_st.Add("cart berserk st");
-            par.infa = "После смерти врага увеличивает мощность применяемых карт на 1\n(длительность эффекта зависит от максимального запаса здоровья врага)\n \n+10 к масимальному запасу здоровья";
+            par.infa = "Удваивает мощность применения карт\nСмерть врага восстанавливает здоровье(в размере макс. здоровья врага)\n-1 к здоровью при применении карты\n+10 к максимальному запасу здоровья";
             par.type = players.berserk;
             lt_par_pl.Add(par);
 
@@ -273,12 +277,12 @@ public class data : MonoBehaviour
             par.name = "маг-дерлорг";
 
             //par.lt_carts_st.Add("cart barier", 2);
-            par.lt_carts_st.Add("cart damage", 8);
-            par.lt_carts_st.Add("cart derlorg", 12);
+            par.lt_carts_st.Add("cart damage", 4);
+            par.lt_carts_st.Add("cart derlorg", 4);
 
             //par.lt_art_st.Add("cart base st");
             par.lt_art_st.Add("cart derlorg st");
-            par.infa = "+1 к мощности применяемых карт за каждые 4 карты дерлорга в инвентаре\n+2 к месту в инвентаре для обычных карт и +1 к месту в инвентаре для специальных карт\n+2 дополнительных слота для артефакта\n-1 к дальности атаки\n-5 к масимальному запасу здоровья";
+            par.infa = "+1 к мощности карты дерлорга\n-2 к месту в инвентаре для обычных карт и -1 к месту в инвентаре для специальных карт\n-5 к максимальному запасу здоровья";
             par.type = players.derlorg;
             lt_par_pl.Add(par);
         }
@@ -370,10 +374,20 @@ public class data : MonoBehaviour
             if (data_now.version_now != version)
             {
                 SaveData data_now1 = new SaveData();
+                List<string> lt_key = new List<string>();
                 foreach (string str in data_now1.lt_achives.Keys)
                 {
                     if (!data_now.lt_achives.ContainsKey(str))
                         data_now.lt_achives.Add(str, data_now1.lt_achives[str]);
+                    lt_key.Add(str);
+                }
+                foreach (string str in data_now.lt_achives.Keys)
+                {
+                    if (!data_now1.lt_achives.ContainsKey(str))
+                    {
+                        data_now.lt_achives.Remove(str);
+                        data_now.lt_achives_open.Remove(str);
+                    }
                 }
                 foreach (par_player pl1 in data_now1.lt_par_pl)
                 {
@@ -436,7 +450,7 @@ public class data : MonoBehaviour
 
         }
 
-        if (data_now.first_game && GameObject.Find("pn6")!=null)
+        if (data_now.first_game && GameObject.Find("pn7")!=null)
         {
             data_now.first_game = false;
 

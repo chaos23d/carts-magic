@@ -4,6 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using static par_mob;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Runtime.ConstrainedExecution;
+using static par_cart;
 
 
 public class func : MonoBehaviour
@@ -48,10 +52,6 @@ public class func : MonoBehaviour
             return lt[Random.Range(0, lt.Count)];
         else
             return default(T);
-    }
-    public static GameObject rand_list(List<GameObject> lt)
-    {
-        return create(lt[Random.Range(0, lt.Count)].name, -1, -1);
     }
     public static int distance(int x1,int y1,int x2,int y2)
     {
@@ -340,7 +340,7 @@ public class func : MonoBehaviour
 
         return lt;
     }
-
+    /*
     public static List<GameObject> way_find_lt_in_list(List<GameObject>[,] bl, string name, int x_st, int y_st, int way_col)
     {
         List<GameObject> lt = new List<GameObject>();
@@ -392,7 +392,7 @@ public class func : MonoBehaviour
 
         return lt;
     }
-
+    */
     public static Stack<Vector2> way_wolk(int x_st, int y_st, int x_end, int y_end)
     {
         Stack<Vector2> lt = new Stack<Vector2>();
@@ -502,40 +502,10 @@ public class func : MonoBehaviour
             if (anim.col_anim == 0 && mb.friend && stay_friend_wolk_now())
             {
                 bool bl_r_att = false;
-                if (mb.lt_carts_active_now.Count > 0)
-                {
-                    par_cart.type_cart dych = par_cart.type_cart.bases;
-                    foreach (string cart_st in mb.lt_carts_active_now)
-                    {
-                        par_cart.type_cart type_cart = GameObject.Find(cart_st).GetComponent<par_cart>().type;
-                        if (type_cart == par_cart.type_cart.fire || type_cart == par_cart.type_cart.blood || type_cart == par_cart.type_cart.poition || type_cart == par_cart.type_cart.ice || type_cart == par_cart.type_cart.rock || type_cart == par_cart.type_cart.energy)
-                        {
-                            dych = type_cart;
-                            break;
-                        }
-                    }
 
-
-                    foreach (GameObject gm_ch in mb.childs)
-                    {
-                        par_mob mb_ch = gm_ch.GetComponent<par_mob>();
-                        if ((gm_ch.name == "dych fire" && dych == par_cart.type_cart.fire) || (gm_ch.name == "dych blood" && dych == par_cart.type_cart.blood) || (gm_ch.name == "dych energy" && dych == par_cart.type_cart.energy) || (gm_ch.name == "dych ice" && dych == par_cart.type_cart.ice) || (gm_ch.name == "dych rock" && dych == par_cart.type_cart.rock) || (gm_ch.name == "dych poition" && dych == par_cart.type_cart.poition))
-                        {
-                            int cx = Mathf.Abs(x_cl - mb_ch.x);
-                            int cy = Mathf.Abs(y_cl - mb_ch.y);
-                            if (cx + cy <= mb_ch.distanse_attack)
-                            {
-                                bl_r_att = true;
-                                break;
-                            }
-
-                        }
-                    }
-                }
-
-                int col_way = way(mb.x, mb.y, mb.distanse_attack)[x_cl, y_cl];
+                int col_way = distance(mb.x, mb.y, x_cl, y_cl);// way(mb.x, mb.y, mb.distanse_attack)[x_cl, y_cl];
                 ui_atack.atack_comb at = null;
-                if (hod_mob_now_int == 0 && ui_atack.lt_cart_comb_selected.Count > 0 && (col_way != -1 || bl_r_att))
+                if (hod_mob_now_int == 0 && ui_atack.lt_cart_comb_selected.Count > 0&&mb.lt_carts_active_now.Count==0 && (col_way <=mb.distanse_attack || bl_r_att))
                 {
                     foreach (ui_atack.atack_comb comb in ui_atack.lt_cart_comb_selected)
                     {
@@ -584,7 +554,7 @@ public class func : MonoBehaviour
                         }
                     }
 
-                    if (bl && mb.proverka_atack(new List<string>(at.carts), true, true))
+                    if (bl && mb.proverka_atack(new List<string>(at.carts), true, false))
                     {
                         if (x_cl > mb.x)
                             mb.simm(1);
@@ -592,6 +562,7 @@ public class func : MonoBehaviour
                             mb.simm(-1);
 
                         string type;
+                        mb.proverka_atack(new List<string>(at.carts), true, true);
                         //Stack<string> stack = new Stack<string>(at.carts);
                         //while (stack.Count != 1)
                         //{
@@ -632,19 +603,31 @@ public class func : MonoBehaviour
                 else if (gm_click.GetComponent<par_nat>() != null && hod_mob_now_int == 0 && stay_friend_atack_now())
                 {
                     par_mob pl = GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>();
-                    if ((gm_click.name == "cave" || gm_click.name == "cave 1" || gm_click.name == "cave derlorg") && way(x_cl, y_cl, 1)[pl.x, pl.y] != -1)
+                    if ((gm_click.name == "cave" || gm_click.name == "cave 1" || gm_click.name == "cave derlorg" || gm_click.name == "fire portal" || gm_click.name == "ice portal" || gm_click.name == "poition portal" || gm_click.name == "blood portal" || gm_click.name == "rock portal" || gm_click.name == "energy portal") && distance(x_cl, y_cl, pl.x, pl.y) ==1)
                     {
                         type_lvl type_lvl_base = type_lvl_now;
                         if (gm_click.name == "cave derlorg")
                         {
                             type_lvl_now = type_lvl.derlorg;
+                            num_lev--;
                         }
                         else
                         {
+                            foreach (type_lvl lvl in cave_location.Keys)
+                            {
+                                if (cave_location[lvl]==gm_click.name)
+                                {
+
+                                    type_lvl_now = lvl;
+                                    break;
+                                }
+                            }
+                            /*
                             if (num_lev < 5)
                                 type_lvl_now = type_lvl.bases;
                             else
                                 type_lvl_now = type_lvl.bases_1;
+                            */
                         }
                         if (type_lvl_now != type_lvl_base)
                         {
@@ -660,29 +643,91 @@ public class func : MonoBehaviour
                 }
                 else if (gm_click.GetComponent<par_prise>() != null)
                 {
-                    if (way(mb.x, mb.y, 1)[x_cl, y_cl] != -1)
+                    if (distance(mb.x, mb.y,x_cl, y_cl) ==1)
                     {
-                        if (gm_click.GetComponent<par_prise>().can_buy(mb.lt_carts))
+                        par_prise pr = gm_click.GetComponent<par_prise>();
+                        List<string> lt_buy = new List<string>(pr.lt_price);
+
+                        if (pr.type == par_prise.type_price.gold || pr.type == par_prise.type_price.obmen)
                         {
+                            foreach (par_cart_art art in mb.lt_carts_art)
+                            {
+                                if (art.name == "cart brilliant" && art.q > 0 && lt_buy.Contains("cart gold"))
+                                {
+                                    lt_buy.Remove("cart gold");
+                                    //art.q--;
+                                }
+                            }
+
+                            if (gm_click.GetComponent<par_prise>().can_buy(lt_buy, mb.lt_carts))
+                            {
+                                if (data.data_now.cl_shop < 20)
+                                    data.data_now.cl_shop++;
+                                if (data.data_now.cl_shop >= 20)
+                                    data.give_achive("постоянный покупатель");
+                                data.save_data();
+                                //lt_buy = new List<string>(mb.lt_carts);
+
+                                
+                                    foreach (par_cart_art art in mb.lt_carts_art)
+                                    {
+                                        if (art.name == "cart brilliant" && art.q > 0 && pr.lt_price.Contains("cart gold"))
+                                        {
+                                            if(pr.type == par_prise.type_price.gold)
+                                                pr.lt_price.Remove("cart gold");
+                                            art.q--;
+                                        }
+                                    }
+                                
+
+
+                                gm_click.GetComponent<par_prise>().buy(mb);
+                                //Debug.Log("del canvas");
+                                //gm_click.transform.Find("Canvas price").gameObjectactive = false;
+                                if(pr.type == par_prise.type_price.gold)
+                                    Destroy(gm_click.transform.Find("Canvas price").gameObject);
+                                else
+                                {
+                                    anim.col_anim++;
+                                    mob[x_cl,y_cl].GetComponent<Animator>().SetBool("act", true);
+                                }
+                                //mb_click.nps = false;
+                                //mb_click.friend = true;
+                                //Destroy(gm_click.transform.Find("Canvas hp").Find("pn prise").gameObject);
+                            }
+
+
+                        }
+                        else if(pr.type == par_prise.type_price.hp && int.Parse(pr.lt_price[0])<mb.hp_max)
+                        {
+                            if (data.data_now.cl_shop < 20)
+                                data.data_now.cl_shop++;
+                            if (data.data_now.cl_shop >= 20)
+                                data.give_achive("постоянный покупатель");
+                            data.save_data();
+                            //lt_buy = new List<string>(mb.lt_carts);
+
+
+
+
+
                             gm_click.GetComponent<par_prise>().buy(mb);
                             //Debug.Log("del canvas");
                             //gm_click.transform.Find("Canvas price").gameObjectactive = false;
                             Destroy(gm_click.transform.Find("Canvas price").gameObject);
-                            //mb_click.nps = false;
-                            //mb_click.friend = true;
-                            //Destroy(gm_click.transform.Find("Canvas hp").Find("pn prise").gameObject);
                         }
+
                     }
 
                 }
                 //Debug.Log(mb.lt_carts_active_now.Count+"  "+ mb.lt_carts_active_now[0]);
-                else if (gm_click.GetComponent<par_eath>() != null && stay_friend_atack_now())
+                else if (gm_click.GetComponent<par_eath>() != null && stay_friend_atack_now() && mob_list[hod_mob_now_int].GetComponent<par_mob>().friend_type==par_mob.type_friend.active)
                 {
                     //Debug.Break();
                     //par_mob pl = GameObject.Find("player").GetComponent<par_mob>();
                     par_mob pl = mb;
 
-                    if (way(pl.x, pl.y, 1)[x_cl, y_cl] == 1)
+                    if (distance(pl.x, pl.y, x_cl, y_cl) == 1)
                     {
                         pl.wolk(x_cl, y_cl);
                         next_hod();
@@ -720,7 +765,7 @@ public class func : MonoBehaviour
                     next_hod();
                 }
 
-                else if (mb_click != null && gm_click.name == "nps derlorg" && way(mb.x, mb.y, 1)[x_cl, y_cl] != -1 && mb_click.lt_par.Count != 0)
+                else if (mb_click != null && gm_click.name == "nps derlorg portal" && distance(mb.x, mb.y, x_cl, y_cl) ==1 && mb_click.lt_par.Count != 0)
                 {
                     Debug.Log("derlorg nps");
                     Vector2 v2_par = (Vector2)gm_click.GetComponent<par_mob>().lt_par[0];
@@ -857,28 +902,23 @@ public class func : MonoBehaviour
     }
     public static GameObject create_cart(int x, int y, par_cart.type_cart type)
     {
-        int a1 = num_lev + Random.Range(0, 100);
+        int a1 = num_lev-10 + Random.Range(0, 90);
         string st_lvl = "";
 
-        /*
+        
          
-        эт потом
          
-        if (a1 < 50)
-            lvl = "";
-        else if (lvl < 80)
-            lvl = " 1";
-        else
-            lvl = " 2";
-        */
-        if (a1 < 100)
+        if (a1 < 75)
             st_lvl = "";
-        else
+        else if (a1 < 95)
             st_lvl = " 1";
+        else
+            st_lvl = " 2";
+        
 
         string gm = null;
         List<string> lt_rd = new List<string>();
-        if (type == par_cart.type_cart.bases)
+        if (type == par_cart.type_cart.damage)
         {
             lt_rd.Add("cart damage" + st_lvl);
             //lt_rd.Add("cart barier");
@@ -888,9 +928,14 @@ public class func : MonoBehaviour
             lt_rd.Add("cart barier" + st_lvl);
             //lt_rd.Add("cart barier");
         }
-        else if (type == par_cart.type_cart.sp_crystall)
+        else if (type == par_cart.type_cart.sp_bomb)
         {
-            lt_rd.Add("cart crystall" + st_lvl);
+            lt_rd.Add("cart bomb" + st_lvl);
+            //lt_rd.Add("cart barier");
+        }
+        else if (type == par_cart.type_cart.sp_dych)
+        {
+            lt_rd.Add("cart dych" + st_lvl);
             //lt_rd.Add("cart barier");
         }
         else if (type == par_cart.type_cart.rock)
@@ -940,85 +985,83 @@ public class func : MonoBehaviour
             //lt_rd.Add("cart barier");
         }
 
-        gm = lt_rd[Random.Range(0, lt_rd.Count)];
+        gm = rand_list(lt_rd);
         return create(gm, x, y);
     }
     public static GameObject create_cart_art(int x, int y, par_cart.type_cart type)
+    {
+        return create_cart_art(x, y, type, -1);
+    }
+    public static GameObject create_cart_art(int x, int y, par_cart.type_cart type,int random_lvl)
     {
         string gm = null;
         List<string> lt_rd = new List<string>();
 
         //int a1 = (num_lev + 1) / 5 + Random.Range(0, 21);
-        int a1 = Random.Range(0, 100);
-        int num_lev = 0;
+        int a1 = Random.Range(0, 90)+num_lev-10;
+        int num_lev_rd = 0;
         
         string st_lvl = "";
 
-        /*
-         
-        эт потом
-         
-        if (a1 < 50)
-            lvl = "";
-        else if (lvl < 80)
-            lvl = " 1";
-        else
-            lvl = " 2";
-        */
-        if (a1 < 75)
+        Debug.Log(random_lvl);
+        if ((a1 < 75 && random_lvl==-1) || random_lvl==1)
         {
-            num_lev = 1;
+            num_lev_rd = 1;
             st_lvl = "";
         }
             
-        else if(a1 < 95)
+        else if((a1 < 95 && random_lvl == -1) || random_lvl == 2)
         {
             st_lvl = " 1";
-            num_lev = 2;
+            num_lev_rd = 2;
         }
 
-        else
+        else if((a1 >=95 && random_lvl == -1) ||random_lvl == 4)
         {
             st_lvl = " 2";
-            num_lev = 4;
+            num_lev_rd = 4;
         }
             
-        if (type == par_cart.type_cart.bases)
+        if (type == par_cart.type_cart.damage)
         {
-            //int a_rd = Random.Range(0, 2);
-            //for (int i = 0; i < 7; i++)
-            //{
             lt_rd.Add("cart sp atack" + st_lvl);
+            lt_rd.Add("cart act att" + st_lvl);
+            lt_rd.Add("cart speed att" + st_lvl);
             lt_rd.Add("cart att pow" + st_lvl);
-            /*
-            if (Random.Range(0, 8) != 0)
-            {
-                if (Random.Range(0, 2) == 0)
-                    gm = "cart sp atack";
-                else
-                    gm = "cart sp barier";
-            }
-            else
-            {
-                if (Random.Range(0, 2) == 0)
-                    gm = "cart att pow";
-                else
-                    gm = "cart bar pow";
-            }
-             */
-
+            lt_rd.Add("cart att cuzna" + st_lvl);
+            lt_rd.Add("cart att bomb" + st_lvl);
         }
         else if (type == par_cart.type_cart.sp_barier)
         {
-
             lt_rd.Add("cart sp barier" + st_lvl);
+            lt_rd.Add("cart act bar" + st_lvl);
+            lt_rd.Add("cart speed bar" + st_lvl);
             lt_rd.Add("cart bar pow" + st_lvl);
+            lt_rd.Add("cart bar cuzna" + st_lvl);
+            lt_rd.Add("cart bar bomb" + st_lvl);
 
         }
-        else if (type == par_cart.type_cart.sp_crystall)
+        else if (type == par_cart.type_cart.sp_bomb)
         {
 
-            lt_rd.Add("cart sp crystall" + st_lvl);
+            lt_rd.Add("cart sp bomb" + st_lvl);
+            lt_rd.Add("cart act bomb" + st_lvl);
+            lt_rd.Add("cart speed bomb" + st_lvl);
+            lt_rd.Add("cart bomb pow" + st_lvl);
+            lt_rd.Add("cart bomb cuzna" + st_lvl);
+            //lt_rd.Add("cart bomb bomb" + st_lvl);
+
+        }
+
+        else if (type == par_cart.type_cart.sp_dych)
+        {
+
+            lt_rd.Add("cart sp dych" + st_lvl);
+            lt_rd.Add("cart act dych" + st_lvl);
+            lt_rd.Add("cart speed dych" + st_lvl);
+            lt_rd.Add("cart dych pow" + st_lvl);
+            lt_rd.Add("cart dych cuzna" + st_lvl);
+            lt_rd.Add("cart dych bomb" + st_lvl);
 
         }
         else if (type == par_cart.type_cart.rock)
@@ -1031,15 +1074,16 @@ public class func : MonoBehaviour
                 lt_rd.Add("cart speed rock" + st_lvl);
                 lt_rd.Add("cart rock pow" + st_lvl);
             lt_rd.Add("cart rock cuzna" + st_lvl);
-            lt_rd.Add("cart rock crystall" + st_lvl);
+            lt_rd.Add("cart rock bomb" + st_lvl);
             //}
-            if (num_lev == 2)
+            if (num_lev_rd == 2)
             {
                 lt_rd.Add("cart potoc rock");
                 lt_rd.Add("cart rock touch");
                 lt_rd.Add("cart rock heart");
-                lt_rd.Add("cart potoc rock");
-                
+                lt_rd.Add("cart mini spirit rock");
+                lt_rd.Add("cart mini mast rock");
+
             }
                 
 
@@ -1047,66 +1091,167 @@ public class func : MonoBehaviour
         }
         else if (type == par_cart.type_cart.blood)
         {
-            for (int i = 0; i < 7; i++)
-            {
                 lt_rd.Add("cart sp blood" + st_lvl);
                 lt_rd.Add("cart act blood" + st_lvl);
                 lt_rd.Add("cart speed blood" + st_lvl);
                 lt_rd.Add("cart blood pow" + st_lvl);
+
+            lt_rd.Add("cart blood cuzna" + st_lvl);
+            lt_rd.Add("cart blood bomb" + st_lvl);
+
+            if (num_lev_rd == 2)
+            {
+                lt_rd.Add("cart potoc blood");
+                lt_rd.Add("cart blood touch");
+                lt_rd.Add("cart blood heart");
+                lt_rd.Add("cart mini spirit blood");
+                lt_rd.Add("cart mini mast blood");
+
             }
-            lt_rd.Add("cart potoc blood");
         }
         else if (type == par_cart.type_cart.fire)
         {
-            for (int i = 0; i < 7; i++)
-            {
                 lt_rd.Add("cart sp fire" + st_lvl);
                 lt_rd.Add("cart act fire" + st_lvl);
                 lt_rd.Add("cart speed fire" + st_lvl);
                 lt_rd.Add("cart fire pow" + st_lvl);
+            lt_rd.Add("cart fire cuzna" + st_lvl);
+            lt_rd.Add("cart fire bomb" + st_lvl);
+            if (num_lev_rd == 2)
+            {
+                lt_rd.Add("cart potoc fire");
+                lt_rd.Add("cart fire touch");
+                lt_rd.Add("cart fire heart");
+                lt_rd.Add("cart mini spirit fire");
+                lt_rd.Add("cart mini mast fire");
+
             }
-            lt_rd.Add("cart potoc fire");
+           
 
         }
         else if (type == par_cart.type_cart.energy)
         {
-            for (int i = 0; i < 7; i++)
-            {
                 lt_rd.Add("cart sp energy" + st_lvl);
                 lt_rd.Add("cart act energy" + st_lvl);
                 lt_rd.Add("cart speed energy" + st_lvl);
                 lt_rd.Add("cart energy pow" + st_lvl);
+            lt_rd.Add("cart energy cuzna" + st_lvl);
+            lt_rd.Add("cart energy bomb" + st_lvl);
+            if (num_lev_rd == 2)
+            {
+                lt_rd.Add("cart potoc energy");
+                lt_rd.Add("cart energy touch");
+                lt_rd.Add("cart energy heart");
+                lt_rd.Add("cart mini spirit energy");
+                lt_rd.Add("cart mini mast energy");
+
             }
-            lt_rd.Add("cart potoc energy");
 
         }
         else if (type == par_cart.type_cart.ice)
         {
 
-            for (int i = 0; i < 7; i++)
-            {
+
                 lt_rd.Add("cart sp ice" + st_lvl);
                 lt_rd.Add("cart act ice" + st_lvl);
                 lt_rd.Add("cart speed ice" + st_lvl);
                 lt_rd.Add("cart ice pow" + st_lvl);
+            lt_rd.Add("cart ice cuzna" + st_lvl);
+            lt_rd.Add("cart ice bomb" + st_lvl);
+
+            if (num_lev_rd == 2)
+            {
+                lt_rd.Add("cart potoc ice");
+                lt_rd.Add("cart ice touch");
+                lt_rd.Add("cart ice heart");
+                lt_rd.Add("cart mini spirit ice");
+                lt_rd.Add("cart mini mast ice");
+
             }
-            lt_rd.Add("cart potoc ice");
 
         }
         else if (type == par_cart.type_cart.poition)
         {
-            for (int i = 0; i < 7; i++)
-            {
                 lt_rd.Add("cart sp poition" + st_lvl);
                 lt_rd.Add("cart act poition" + st_lvl);
                 lt_rd.Add("cart speed poition" + st_lvl);
                 lt_rd.Add("cart poition pow" + st_lvl);
+            lt_rd.Add("cart poition cuzna" + st_lvl);
+            lt_rd.Add("cart poition bomb" + st_lvl);
+            if (num_lev_rd == 2)
+            {
+                lt_rd.Add("cart potoc poition");
+                lt_rd.Add("cart poition touch");
+                lt_rd.Add("cart poition heart");
+                lt_rd.Add("cart mini spirit poition");
+                lt_rd.Add("cart mini mast poition");
+
             }
-            lt_rd.Add("cart potoc poition");
+        }
+        else if(type == par_cart.type_cart.derlorg)
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                lt_rd.Add("cart sp derlorg");
+                lt_rd.Add("cart derlorg act");
+                lt_rd.Add("cart derlorg speed");
+                lt_rd.Add("cart derlorg potoc");
+                lt_rd.Add("cart derlorg pow");
+            }
+
+
+            lt_rd.Add("cart derlorg att");
+            lt_rd.Add("cart derlorg bar");
+            lt_rd.Add("cart derlorg bomb");
+            lt_rd.Add("cart derlorg fire");
+            lt_rd.Add("cart derlorg poition");
+            lt_rd.Add("cart derlorg ice");
+            lt_rd.Add("cart derlorg energy");
+            lt_rd.Add("cart derlorg rock");
+            lt_rd.Add("cart derlorg blood");
         }
 
-        gm = lt_rd[Random.Range(0, lt_rd.Count)];
-        return create(gm, x, y);
+        else if (type == par_cart.type_cart.bases)
+        {
+            bool bl_leg = true;
+            if (num_lev_rd == 4)
+            {
+                if (GameObject.Find("cart speed").GetComponent<par_cart_art>().open)
+                    lt_rd.Add("cart speed");
+                if (GameObject.Find("cart pow").GetComponent<par_cart_art>().open)
+                    lt_rd.Add("cart pow");
+                if (GameObject.Find("cart sila").GetComponent<par_cart_art>().open)
+                    lt_rd.Add("cart sila");
+                if (GameObject.Find("cart respawn").GetComponent<par_cart_art>().open)
+                    lt_rd.Add("cart respawn");
+                bl_leg = lt_rd.Count>0;
+            }
+            if (num_lev_rd == 2 || (num_lev_rd == 4 && !bl_leg))
+            {
+                if (GameObject.Find("cart inven").GetComponent<par_cart_art>().open)
+                    lt_rd.Add("cart inven");
+                lt_rd.Add("cart mast");
+                lt_rd.Add("cart elemental");
+                lt_rd.Add("cart universal");
+                lt_rd.Add("cart berserk");
+                lt_rd.Add("cart dop hill");
+                lt_rd.Add("cart mini spirit");
+                lt_rd.Add("cart mini shaman");
+
+                if (GameObject.Find("cart brilliant").GetComponent<par_cart_art>().open)
+                    lt_rd.Add("cart brilliant");
+            }
+            Debug.Log(lt_rd.Count +"  "+num_lev_rd+ " count bases");
+
+        }
+        if (lt_rd.Count > 0)
+        {
+            gm = lt_rd[Random.Range(0, lt_rd.Count)];
+            return create(gm, x, y);
+        }
+        else
+            return create_cart_art(x, y);
+
     }
     public static GameObject create_cart(int x, int y)
     {
@@ -1123,19 +1268,17 @@ public class func : MonoBehaviour
         {
             if (Random.Range(0, 4) == 0)
             {
-                a = Random.Range(0, 2);
+                a = Random.Range(0, 3);
                 if (a == 0)
                     type_cart = par_cart.type_cart.sp_barier;
-                else
-                    type_cart = par_cart.type_cart.sp_crystall;
+                else if(a==1)
+                    type_cart = par_cart.type_cart.sp_bomb;
+                else if (a == 2)
+                    type_cart = par_cart.type_cart.sp_dych;
             }
             else
             {
-                if (Random.Range(0, 2) == 0)
-                    type_cart = par_cart.type_cart.bases;
-                else
-                {
-                    a = Random.Range(0, 6);
+                    a = Random.Range(0, 7);
                     if (a == 0)
                         type_cart = par_cart.type_cart.fire;
                     else if (a == 1)
@@ -1148,317 +1291,159 @@ public class func : MonoBehaviour
                         type_cart = par_cart.type_cart.ice;
                     else if (a == 5)
                         type_cart = par_cart.type_cart.rock;
-                }
+                else if (a == 6)
+                    type_cart = par_cart.type_cart.damage;
+
 
             }
         }
 
-        if (Random.Range(0, 20) == 0 && type_cart != par_cart.type_cart.gold)
+        if (Random.Range(0, 50) == 0 && type_cart != par_cart.type_cart.gold)
             return create_cart_art(x, y, type_cart);
         else
             return create_cart(x, y, type_cart);
-        /*
-        if (Random.Range(0, 3) == 0 &&false)
-        {
-            gm = "cart talon";
-        }
-        else
-        {
-            if (Random.Range(0, 3) == 0)
-            {
-                if(Random.Range(0, 2)==0)
-                    gm = "cart damage";
-                else
-                    gm = "cart barier";
-            }
-            else if (Random.Range(0, 3) == 0 && a==18)
-            {
-                return create_cart_art(x, y);
-
-            }
-            else
-            {
-                int aa = a / 3;
-                a1 = -4;
-                if (aa == 0)
-                {
-                    if (a1 / 4 < 0 ||true)
-                        gm = "cart rock";
-                    else
-                        gm = "cart rock 1";
-                }
-                else if (aa == 1)
-                {
-                    gm = "cart blood";
-                }
-                else if (aa == 2)
-                    gm = "cart fire";
-                else if (aa == 3)
-                    gm = "cart ice";
-                else if (aa == 4)
-                    gm = "cart poition";
-                else
-                    gm = "cart energy";
-
-            }
-
-        }
-        */
-
     }
     public static GameObject create_cart_art(int x, int y)
     {
+        return create_cart_art(x, y, -1);
+    }
+    public static GameObject create_cart_art(int x, int y, int lvl)
+    {
         string gm = null;
-        int a1 = num_lev + num_lev_type * 4 - Random.Range(0, 15);
-        int a = Random.Range(0, 20);
+        //int a1 = num_lev + num_lev_type * 4 - Random.Range(0, 15);
+        //int a = Random.Range(0, 20);
 
         bool bl_leg = true;
-
-        int var = Random.Range(0, 100);
-        if (var >=95)
+        List<par_cart.type_cart> lt_rd = new List<par_cart.type_cart>() {par_cart.type_cart.bases,par_cart.type_cart.damage,par_cart.type_cart.sp_barier,par_cart.type_cart.sp_dych,par_cart.type_cart.sp_bomb,
+            par_cart.type_cart.fire,par_cart.type_cart.poition,par_cart.type_cart.blood,par_cart.type_cart.rock,par_cart.type_cart.energy,par_cart.type_cart.ice };
+        int i_c = lt_rd.Count;
+        if (type_lvl_now == type_lvl.fire)
         {
-            bl_leg = false;
-            List<string> lt_rd = new List<string>();
-            if (GameObject.Find("cart speed").GetComponent<par_cart_art>().open)
-                lt_rd.Add("cart speed");
-            if (!GameObject.Find("cart power").GetComponent<par_cart_art>().open)
-                lt_rd.Add("cart power");
-            if (GameObject.Find("cart respawn").GetComponent<par_cart_art>().open)
-                lt_rd.Add("cart respawn");
-            if (lt_rd.Count > 0)
-                gm = rand_list<string>(lt_rd);
-            else
-                bl_leg = true;
+
+            for (int i = 0; i < i_c; i++)
+            {
+                lt_rd.Add(par_cart.type_cart.fire);
+            }
+            
         }
-        else if (var >= 75)
+            
+        if (type_lvl_now == type_lvl.poition)
         {
-            bl_leg = false;
-            List<string> lt_rd = new List<string>();
-            if (GameObject.Find("cart inven").GetComponent<par_cart_art>().open)
-                lt_rd.Add("cart inven");
-            lt_rd.Add("cart mast");
-            lt_rd.Add("cart elemental");
-            lt_rd.Add("cart universal");
-            gm = rand_list<string>(lt_rd);
+            for (int i = 0; i < i_c; i++)
+            {
+                lt_rd.Add(par_cart.type_cart.poition);
+            }
+
         }
-        if (bl_leg)
+        if (type_lvl_now == type_lvl.blood)
         {
-            par_cart.type_cart type_cart = par_cart.type_cart.bases;
-
-            //a = 14;
-            a = -1;
-            if (Random.Range(0, 4) == 0)
+            for (int i = 0; i < i_c; i++)
             {
-                a = Random.Range(0, 2);
-                if (a == 0)
-                    type_cart = par_cart.type_cart.sp_barier;
-                else
-                    type_cart = par_cart.type_cart.sp_crystall;
-            }
-            else
-            {
-                if (Random.Range(0, 2) == 0)
-                    type_cart = par_cart.type_cart.bases;
-                else
-                {
-                    a = Random.Range(0, 6);
-                    if (a == 0)
-                        type_cart = par_cart.type_cart.fire;
-                    else if (a == 1)
-                        type_cart = par_cart.type_cart.blood;
-                    else if (a == 2)
-                        type_cart = par_cart.type_cart.poition;
-                    else if (a == 3)
-                        type_cart = par_cart.type_cart.energy;
-                    else if (a == 4)
-                        type_cart = par_cart.type_cart.ice;
-                    else if (a == 5)
-                        type_cart = par_cart.type_cart.rock;
-                }
-
-            }
-            return create_cart_art(x, y, type_cart);
-
-
-
-            /*
-            if (Random.Range(0, 5) == 0)
-            {
-                if (Random.Range(0, 8) != 0)
-                {
-                    if (Random.Range(0, 2) == 0)
-                        gm = "cart sp atack";
-                    else
-                        gm = "cart sp barier";
-                }
-                else
-                {
-                    if (Random.Range(0, 2) == 0)
-                        gm = "cart att pow";
-                    else
-                        gm = "cart bar pow";
-                }
-            }
-            if (a < 18)
-            {
-                int aa = a / 3;
-
-                if (aa == 0)
-                {
-                    //int a_rd = Random.Range(0, 2);
-                    int a_rd = Random.Range(0, 3);
-                    a1 = -4;
-                    if (a_rd == 0)
-                    {
-                        if (a1 / 4 < 0)
-                            gm = "cart sp rock";
-                        else
-                            gm = "cart sp rock 1";
-                    }
-                    else if (a_rd == 1)
-                    {
-                        if (a1 / 4 < 0)
-                            gm = "cart act rock";
-                        else
-                            gm = "cart act rock 1";
-                    }
-                    else
-                    {
-                        if (a1 / 4 < 0)
-                            gm = "cart speed rock";
-                        else
-                            gm = "cart speed rock 1";
-                    }
-                }
-                else if (aa == 1)
-                {
-                    int a_rd = Random.Range(0, 3);
-
-                    if (a_rd == 0)
-                    {
-                        gm = "cart sp blood";
-                    }
-                    else if (a_rd == 1)
-                    {
-                        gm = "cart act blood";
-                    }
-                    else
-                    {
-                        gm = "cart speed blood";
-                    }
-                }
-                else if (aa == 2)
-                {
-                    int a_rd = Random.Range(0, 3);
-
-                    if (a_rd == 0)
-                    {
-                        gm = "cart sp fire";
-                    }
-                    else if (a_rd == 1)
-                    {
-                        gm = "cart act fire";
-                    }
-                    else
-                    {
-                        gm = "cart speed fire";
-                    }
-
-
-                }
-                else if (aa == 3)
-                {
-                    int a_rd = Random.Range(0, 3);
-
-                    if (a_rd == 0)
-                    {
-                        gm = "cart sp ice";
-                    }
-                    else if (a_rd == 1)
-                    {
-                        gm = "cart act ice";
-                    }
-                    else
-                    {
-                        gm = "cart speed ice";
-                    }
-
-
-                }
-                else if (aa == 4)
-                {
-                    int a_rd = Random.Range(0, 3);
-
-                    if (a_rd == 0)
-                    {
-                        gm = "cart sp poition";
-                    }
-                    else if (a_rd == 1)
-                    {
-                        gm = "cart act poition";
-                    }
-                    else
-                    {
-                        gm = "cart speed poition";
-                    }
-
-
-                }
-                else
-                {
-                    int a_rd = Random.Range(0, 3);
-
-                    if (a_rd == 0)
-                    {
-                        gm = "cart sp energy";
-                    }
-                    else if (a_rd == 1)
-                    {
-                        gm = "cart act energy";
-                    }
-                    else
-                    {
-                        gm = "cart speed energy";
-                    }
-                }
-            }
-            //gm = "cart sp rock";
-            else if (a < 19)
-            {
-                int a_rd = Random.Range(0, 3);
-                if (a_rd==0 && GameObject.Find("cart inven").GetComponent<par_cart_art>().open)
-                    gm = "cart inven";
-                else
-                    a_rd = Random.Range(1, 3);
-                if (a_rd == 1)
-                    gm = "cart berserk";
-                else
-                    gm = "cart mast";
+                lt_rd.Add(par_cart.type_cart.blood);
             }
 
-            else
-            {
-                int a_rd = Random.Range(0, 11);
-                if (a_rd == 0)
-                    gm = "cart hp blood";
-                else if (a_rd == 1)
-                    gm = "cart hp rock";
-                else if (a_rd == 2)
-                    gm = "cart hp energy";
-                else if (a_rd == 3)
-                    gm = "cart hp fire";
-                else if (a_rd == 4)
-                    gm = "cart hp ice";
-                else if (a_rd == 5)
-                    gm = "cart hp poition";
-                else
-                    gm = "cart dop hill";
-            }
-            */
         }
-        //gm = "cart power";
+        if (type_lvl_now == type_lvl.rock)
+        {
+            for (int i = 0; i < i_c; i++)
+            {
+                lt_rd.Add(par_cart.type_cart.rock);
+            }
 
-        return create(gm, x, y);
+        }
+        if (type_lvl_now == type_lvl.energy)
+        {
+            for (int i = 0; i < i_c; i++)
+            {
+                lt_rd.Add(par_cart.type_cart.energy);
+            }
+
+        }
+        if (type_lvl_now == type_lvl.ice)
+        {
+            for (int i = 0; i < i_c; i++)
+            {
+                lt_rd.Add(par_cart.type_cart.ice);
+            }
+
+        }
+
+        return create_cart_art(x, y, rand_list(lt_rd),lvl);
+        /*
+int var = Random.Range(0, 100);
+if (var >=95)
+{
+    bl_leg = false;
+    List<string> lt_rd = new List<string>();
+    if (GameObject.Find("cart speed").GetComponent<par_cart_art>().open)
+        lt_rd.Add("cart speed");
+    if (GameObject.Find("cart power").GetComponent<par_cart_art>().open)
+        lt_rd.Add("cart power");
+    if (GameObject.Find("cart respawn").GetComponent<par_cart_art>().open)
+        lt_rd.Add("cart respawn");
+    if (lt_rd.Count > 0)
+        gm = rand_list<string>(lt_rd);
+    else
+        bl_leg = true;
+}
+else if (var >= 75)
+{
+    bl_leg = false;
+    List<string> lt_rd = new List<string>();
+    if (GameObject.Find("cart inven").GetComponent<par_cart_art>().open)
+        lt_rd.Add("cart inven");
+    lt_rd.Add("cart mast");
+    lt_rd.Add("cart elemental");
+    lt_rd.Add("cart universal");
+    lt_rd.Add("cart berserk");
+    lt_rd.Add("cart dop hill");
+    lt_rd.Add("cart mini spirit");
+    lt_rd.Add("cart mini shaman");
+    gm = rand_list<string>(lt_rd);
+}
+if (bl_leg)
+{
+    par_cart.type_cart type_cart = par_cart.type_cart.bases;
+
+    //a = 14;
+    a = -1;
+    if (Random.Range(0, 4) == 0)
+    {
+        a = Random.Range(0, 2);
+        if (a == 0)
+            type_cart = par_cart.type_cart.sp_barier;
+        else
+            type_cart = par_cart.type_cart.sp_crystall;
+    }
+    else
+    {
+        if (Random.Range(0, 2) == 0)
+            type_cart = par_cart.type_cart.bases;
+        else
+        {
+            a = Random.Range(0, 7);
+            if (a == 0)
+                type_cart = par_cart.type_cart.fire;
+            else if (a == 1)
+                type_cart = par_cart.type_cart.blood;
+            else if (a == 2)
+                type_cart = par_cart.type_cart.poition;
+            else if (a == 3)
+                type_cart = par_cart.type_cart.energy;
+            else if (a == 4)
+                type_cart = par_cart.type_cart.ice;
+            else if (a == 5)
+                type_cart = par_cart.type_cart.rock;
+            else if (a == 6)
+                type_cart = par_cart.type_cart.damage;
+        }
+
+    }
+    return create_cart_art(x, y, type_cart);
+}
+//gm = "cart power";
+*/
+        //return create(gm, x, y);
     }
     public static GameObject create(string gm_st, int x, int y)
     {
@@ -1486,6 +1471,8 @@ public class func : MonoBehaviour
         //gm.GetComponent<SpriteRenderer>().sortingOrder = (8 - y)*2;
         if (gm.GetComponent<par_mob>() != null)
         {
+            //Debug.Log("start priority " + baza[gm_st].GetComponent<par_mob>().contains_pr_at(priority_atack.type_atack.damage));
+            //Debug.Log("start 1 priority " + gm.GetComponent<par_mob>().contains_pr_at(priority_atack.type_atack.damage));
 
             //Debug.Log("create mob 1 " + gm_st);
             for (int i = 1; i < size_global * size_global; i++)
@@ -1505,12 +1492,13 @@ public class func : MonoBehaviour
             mb.carts_count_max.Clear();
             foreach (string art in baza[gm_st].GetComponent<par_mob>().carts_count_max.Keys)
             {
-                //mb.carts_count_max.Add(art, 5);
-
+                mb.carts_count_max.Add(art, baza[gm_st].GetComponent<par_mob>().carts_count_max[art]);
+                /*
                 if (GameObject.Find(art).GetComponent<par_cart>().spetial)
                     mb.carts_count_max.Add(art, 3);
                 else
                     mb.carts_count_max.Add(art, 6);
+                */
             }
 
             while (mb.lt_carts_art.Count > 0)
@@ -1520,58 +1508,79 @@ public class func : MonoBehaviour
                 mb.remove_cart(st);
             }
             mb.lt_carts_art.Clear();
-
-            /*
-            
-            while (gm.GetComponent<par_cart_art>() != null)
-                DestroyImmediate(gm.GetComponent<par_cart_art>());
-            while (gm.transform.Find("artefacts").transform.childCount > 0)
-            {
-                DestroyImmediate(gm.transform.Find("artefacts").transform.GetChild(0).gameObject);
-            }
-            */
-            /*
-            foreach (Transform tr in gm.transform.Find("artefacts").transform)
-            {
-                if (mb.num == 1)
-                    Debug.Log(true + "  ttttttttttt dellll " + "  " + tr.gameObject.name);
-                Destroy(tr.gameObject);
-            }
-            foreach (Transform tr in gm.transform.Find("artefacts"))
-            {
-                if (mb.num == 1)
-                    Debug.Log(true + "  ttttttttttt dellll1111 " + "  " + tr.gameObject.name);
-                Destroy(tr.gameObject);
-            }
-            */
-            int aa = 0;
-            aa = num_lev;
-            /*
-            if (num_lev < 10)
-            {
-                aa = num_lev / 5;
-            }
-            else
-                aa = 5;
-            */
+            mb.type_priority_attack = new List<priority_atack>(baza[gm_st].GetComponent<par_mob>().type_priority_attack);
             bool bl = true;
 
-            bool bl1 = false;
-            bool bl2 = false;
+            if(Random.Range(0, 100) <= num_lev &&
+                (gm_st=="derlorg" ||
+                gm_st == "derlorg shaman" ||
+                gm_st == "derlorg fire" || gm_st == "derlorg poition" || gm_st == "derlorg blood" || gm_st == "derlorg rock" || gm_st == "derlorg energy" || gm_st == "derlorg ice" ||
+                gm_st == "derlorg bomb" ))
+            {
 
-            //bl1 = true;
-            //gm_st = "goblin rock elit";
+                int dop_rd = Random.Range(0,6);
+                if (dop_rd == 0)
+                {
+                    mb.add_cart_art("cart derlorg act");
+                }
+                else if (dop_rd == 1)
+                {
+                    mb.add_cart_art("cart derlorg speed");
+                }
+                else if (dop_rd == 2)
+                {
+                    mb.add_cart_art("cart derlorg pow");
+                }
+                else
+                {
+                    if (gm_st == "derlorg")
+                    {
+                        mb.add_cart_art("cart derlorg att");
+                    }
+                    else if (gm_st == "derlorg shaman")
+                    {
+                        mb.add_cart_art("cart derlorg bar");
+                    }
+                    else if (gm_st == "derlorg bomb")
+                    {
+                        mb.add_cart_art("cart derlorg bomb");
+                    }
+                    else if (gm_st == "derlorg fire")
+                    {
+                        mb.add_cart_art("cart derlorg fire");
+                    }
+                    else if (gm_st == "derlorg poition")
+                    {
+                        mb.add_cart_art("cart derlorg poition");
+                    }
+                    else if (gm_st == "derlorg rock")
+                    {
+                        mb.add_cart_art("cart derlorg rock");
+                    }
+                    else if (gm_st == "derlorg blood")
+                    {
+                        mb.add_cart_art("cart derlorg blood");
+                    }
+                    else if (gm_st == "derlorg energy")
+                    {
+                        mb.add_cart_art("cart derlorg energy");
+                    }
+                    else if (gm_st == "derlorg ice")
+                    {
+                        mb.add_cart_art("cart derlorg ice");
+                    }
+                }
 
-            if (Random.Range(0, 100) - aa * 2 <= 0)
+            }
+            else if (Random.Range(0, 100) <= num_lev * 2)
             {
                 bl = false;
-                bl1 = true;
-                bl2 = true;
                 //aa = 8;
-                if (gm_st == "goblin")
+                //bool bl_def = true;
+                if (gm_st == "goblin" || gm_st == "dych")
                 {
-                    //bl = true;
-                    mb.add_cart_art("cart dop hill");
+                    bl = true;
+                    //mb.add_cart_art("cart dop hill");
                 }
                 else if (gm_st == "goblin elit")
                 {
@@ -1582,122 +1591,129 @@ public class func : MonoBehaviour
                         mb.add_cart_art("cart bar pow");
                     //mb.add_cart_art("cart act rock 1");
                 }
-                else if (gm_st == "goblin hiller")
+
+                else if (gm_st == "defender")
                 {
-                    bl = true;
+                    //bl = true;
+                    List<string> lt_rd_art = new List<string>();
+                    lt_rd_art.Add("cart att pow");
+                    lt_rd_art.Add("cart act att");
+                    lt_rd_art.Add("cart speed att");
+                    lt_rd_art.Add("cart att pow");
+                    lt_rd_art.Add("cart att bomb");
+
+                    mb.add_cart_art(rand_list(lt_rd_art));
+
+                    //mb.add_cart_art("cart act blood");
+                }
+                else if (gm_st == "defender barier")
+                {
+                    //bl = true;
+                    List<string> lt_rd_art = new List<string>();
+                    lt_rd_art.Add("cart bar pow");
+                    lt_rd_art.Add("cart act bar");
+                    lt_rd_art.Add("cart speed bar");
+                    lt_rd_art.Add("cart bar pow");
+                    lt_rd_art.Add("cart bar bomb");
+
+                    mb.add_cart_art(rand_list(lt_rd_art));
+
                     //mb.add_cart_art("cart act blood");
                 }
 
-                else if (gm_st == "goblin blood elit")
+                else if (gm_st == "defender blood")
                 {
-                    mb.add_cart_art("cart blood pow");
-                    if (Random.Range(0, 5) <= aa / 5)
-                    {
-                        mb.add_cart_art("cart sp atack");
-                        mb.run_mob = true;
-                        bl1 = false;
-                    }
+                    List<string> lt_rd_art = new List<string>();
+                    lt_rd_art.Add("cart blood pow");
+                    lt_rd_art.Add("cart act blood");
+                    lt_rd_art.Add("cart speed blood");
+                    lt_rd_art.Add("cart blood pow");
+                    lt_rd_art.Add("cart blood bomb");
 
-                    if (Random.Range(0, 10) <= aa / 5)
-                    {
-                        mb.add_cart_art("cart sp barier");
-                        bl1 = false;
-                    }
-                    bl2 = false;
+                    mb.add_cart_art(rand_list(lt_rd_art));
                 }
 
-                else if (gm_st == "goblin ice elit")
+                else if (gm_st == "defender ice")
                 {
-                    mb.add_cart_art("cart ice pow");
-                    if (Random.Range(0, 5) <= aa / 5)
-                    {
-                        mb.add_cart_art("cart sp atack");
-                        mb.run_mob = true;
-                        bl1 = false;
-                    }
+                    List<string> lt_rd_art = new List<string>();
+                    lt_rd_art.Add("cart ice pow");
+                    lt_rd_art.Add("cart act ice");
+                    lt_rd_art.Add("cart speed ice");
+                    lt_rd_art.Add("cart ice pow");
+                    lt_rd_art.Add("cart ice bomb");
 
-                    if (Random.Range(0, 10) <= aa / 5)
-                    {
-                        mb.add_cart_art("cart sp barier");
-                        bl1 = false;
-                    }
-                    bl2 = false;
+                    mb.add_cart_art(rand_list(lt_rd_art));
                 }
-                else if (gm_st == "goblin poition elit")
+                else if (gm_st == "defender poition")
                 {
-                    mb.add_cart_art("cart poition pow");
-                    if (Random.Range(0, 5) <= aa / 5)
-                    {
-                        mb.add_cart_art("cart sp atack");
-                        mb.run_mob = true;
-                        bl1 = false;
-                    }
+                    List<string> lt_rd_art = new List<string>();
+                    lt_rd_art.Add("cart poition pow");
+                    lt_rd_art.Add("cart act poition");
+                    lt_rd_art.Add("cart speed poition");
+                    lt_rd_art.Add("cart poition pow");
+                    lt_rd_art.Add("cart poition bomb");
 
-                    if (Random.Range(0, 10) <= aa / 5)
-                    {
-                        mb.add_cart_art("cart sp barier");
-                        bl1 = false;
-                    }
-                    bl2 = false;
+                    mb.add_cart_art(rand_list(lt_rd_art));
                 }
 
-                else if (gm_st == "goblin rock elit")
+                else if (gm_st == "defender rock")
                 {
-                    mb.add_cart_art("cart rock pow");
-                    if (Random.Range(0, 5) <= aa / 5)
-                    {
-                        mb.add_cart_art("cart sp atack");
-                        bl1 = false;
-                    }
+                    List<string> lt_rd_art = new List<string>();
+                    lt_rd_art.Add("cart rock pow");
+                    lt_rd_art.Add("cart act rock");
+                    lt_rd_art.Add("cart speed rock");
+                    lt_rd_art.Add("cart rock pow");
+                    lt_rd_art.Add("cart rock bomb");
 
-                    if (Random.Range(0, 10) <= aa / 5)
-                    {
-                        mb.add_cart_art("cart sp barier");
-                        bl1 = false;
-                    }
-                    bl2 = false;
-                }
-                else if (gm_st == "goblin energy elit")
-                {
-                    mb.add_cart_art("cart energy pow");
-                    if (Random.Range(0, 5) <= aa / 5)
-                    {
-                        mb.add_cart_art("cart sp atack");
-                        mb.run_mob = true;
-                        bl1 = false;
-                    }
-
-                    if (Random.Range(0, 10) <= aa / 5)
-                    {
-                        mb.add_cart_art("cart sp barier");
-                        bl1 = false;
-                    }
-                    bl2 = false;
-                }
-                else if (gm_st == "goblin fire elit")
-                {
-                    mb.add_cart_art("cart fire pow");
-                    if (Random.Range(0, 5) <= aa / 5)
-                    {
-                        mb.add_cart_art("cart sp atack");
-                        bl1 = false;
-                    }
-
-                    if (Random.Range(0, 10) <= aa / 5)
-                    {
-                        mb.add_cart_art("cart sp barier");
-                        bl1 = false;
-                    }
-                    bl2 = false;
+                    mb.add_cart_art(rand_list(lt_rd_art));
                 }
 
-                else if (gm_st == "goblin boss" || gm_st == "goblin shaman" || gm_st == "dungalorg")
+                else if (gm_st == "defender energy")
                 {
-                    //mb.add_cart_art("cart mast");
-                    //if(Random.Range(0,3)==0)
-                    //mb.add_cart_art("cart berserk");
-                    bl = true;
+                    List<string> lt_rd_art = new List<string>();
+                    lt_rd_art.Add("cart energy pow");
+                    lt_rd_art.Add("cart act energy");
+                    lt_rd_art.Add("cart speed energy");
+                    lt_rd_art.Add("cart energy pow");
+                    lt_rd_art.Add("cart energy bomb");
+
+                    mb.add_cart_art(rand_list(lt_rd_art));
                 }
+                else if (gm_st == "defender fire")
+                {
+                    List<string> lt_rd_art = new List<string>();
+                    lt_rd_art.Add("cart fire pow");
+                    lt_rd_art.Add("cart act fire");
+                    lt_rd_art.Add("cart speed fire");
+                    lt_rd_art.Add("cart fire pow");
+                    lt_rd_art.Add("cart fire bomb");
+
+                    mb.add_cart_art(rand_list(lt_rd_art));
+                }
+                else if (gm_st == "defender necro")
+                {
+                    List<string> lt_rd_art = new List<string>();
+                    lt_rd_art.Add("cart dych pow");
+                    lt_rd_art.Add("cart act dych");
+                    lt_rd_art.Add("cart speed dych");
+                    lt_rd_art.Add("cart dych pow");
+                    lt_rd_art.Add("cart dych bomb");
+
+                    mb.add_cart_art(rand_list(lt_rd_art));
+                }
+                else if (gm_st == "defender bomb")
+                {
+                    List<string> lt_rd_art = new List<string>();
+                    lt_rd_art.Add("cart bomb pow");
+                    lt_rd_art.Add("cart act bomb");
+                    lt_rd_art.Add("cart speed bomb");
+                    lt_rd_art.Add("cart bomb pow");
+                    //lt_rd_art.Add("cart dych bomb");
+
+                    mb.add_cart_art(rand_list(lt_rd_art));
+                }
+
+                
 
                 /*
                 if (Random.Range(0, 5) == 0&&bl2)
@@ -1706,229 +1722,107 @@ public class func : MonoBehaviour
                     bl = false;
                 }
                     */
-                mb.hp = mb.hp_max;
+                
+            }
+            if (gm_st == "org berserk" || gm_st == "goblin shaman")
+            {
+                if (Random.Range(0, 2) == 0)
+                {
+                    mb.add_cart_art("cart elemental");
+                    for (int i = 0; i < 2; i++)
+                    {
+                        mb.add_cart("cart rock");
+                        mb.add_cart("cart blood");
+                        mb.add_cart("cart fire");
+                        mb.add_cart("cart poition");
+                        mb.add_cart("cart energy");
+                        mb.add_cart("cart ice");
+                    }
+                    mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.rock, 1));
+                    mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.blood, 1));
+                    mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.ice, 1));
+                    mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.fire, 1));
+                    mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.energy, 1));
+                    mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.poition, 1));
+
+                }
+
+                else
+                {
+                    mb.add_cart_art("cart universal");
+                    for (int i = 0; i < 1; i++)
+                    {
+                        mb.add_cart("cart bomb");
+                        mb.add_cart("cart dych");
+                        mb.add_cart("cart barier");
+                    }
+                    mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.barier, 1));
+                    mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.bomb, 1));
+                    mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.dych, 1));
+                }
+                bl = true;
+            }
+
+            else if (gm_st == "defender barier" || gm_st == "defender bomb" || gm_st == "defender necro" || gm_st == "org" || gm_st == "shaman")
+            {
+                //bl = true;
+                //string st_art_sp = null;
+                if (type_lvl_now == type_lvl.blood)
+                {
+                    mb.add_cart_art("cart sp blood");
+                    //mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.blood, 1));
+                }
+                else if (type_lvl_now == type_lvl.rock)
+                {
+                    mb.add_cart_art("cart sp rock");
+                    //mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.rock, 1));
+                }
+                if (type_lvl_now == type_lvl.fire)
+                {
+                    mb.add_cart_art("cart sp fire");
+                    //mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.barier, 1));
+                }
+                if (type_lvl_now == type_lvl.ice)
+                {
+                    mb.add_cart_art("cart sp ice");
+                    //mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.barier, 1));
+                }
+                if (type_lvl_now == type_lvl.poition)
+                {
+                    mb.add_cart_art("cart sp poition");
+                    //mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.barier, 1));
+                }
+                if (type_lvl_now == type_lvl.energy)
+                {
+                    mb.add_cart_art("cart sp energy");
+                    //mb.type_priority_attack.Add(new priority_atack(priority_atack.type_atack.barier, 1));
+                }
+                //mb.add_cart_art("cart act blood");
             }
 
 
 
 
 
-            if ((gm_st != "goblin blood elit" && gm_st != "goblin rock elit" && gm_st != "goblin fire elit" && gm_st != "goblin energy elit" && gm_st != "goblin ice elit" && gm_st != "goblin poition elit" &&
-                 gm_st != "derlorg blood" && gm_st != "derlorg rock" && gm_st != "derlorg fire" && gm_st != "derlorg energy" && gm_st != "derlorg ice" && gm_st != "derlorg poition"
-                && !mb.nps) && bl)
+            if (!mb.nps && bl)
             {
                 Destroy(gm.transform.Find("artefacts").gameObject);
             }
 
 
-            if (bl1)
-            {
-                int rr = Random.Range(0, 5);
-                if (gm_st == "goblin blood elit")
-                {
-                    if (rr < 2 || rr == 4)
-                        mb.add_cart_art("cart act blood");
-                    if (rr <= 4 && rr > 1)
-                        mb.add_cart_art("cart speed blood");
-                }
-                else if (gm_st == "goblin rock elit")
-                {
-                    if (rr < 2 || rr == 4)
-                        mb.add_cart_art("cart act rock");
-                    if (rr <= 4 && rr > 1)
-                        mb.add_cart_art("cart speed rock");
-                }
-                else if (gm_st == "goblin energy elit")
-                {
-                    if (rr < 2 || rr == 4)
-                        mb.add_cart_art("cart act energy");
-                    if (rr <= 4 && rr > 1)
-                        mb.add_cart_art("cart speed energy");
-                }
-                else if (gm_st == "goblin fire elit")
-                {
-                    if (rr < 2 || rr == 4)
-                        mb.add_cart_art("cart act fire");
-                    if (rr <= 4 && rr > 1)
-                        mb.add_cart_art("cart speed fire");
-                }
-                else if (gm_st == "goblin ice elit")
-                {
-                    if (rr < 2 || rr == 4)
-                        mb.add_cart_art("cart act ice");
-                    if (rr <= 4 && rr > 1)
-                        mb.add_cart_art("cart speed ice");
-                }
-                else if (gm_st == "goblin poition elit")
-                {
-                    if (rr < 2 || rr == 4)
-                        mb.add_cart_art("cart act poition");
-                    if (rr <= 4 && rr > 1)
-                        mb.add_cart_art("cart speed poition");
-                }
-            }
-
-            //if()
+            //Debug.Log(nums_mob.Count + " lt " + mb.num);
             foreach (par_cart_art art in baza[gm_st].GetComponent<par_mob>().lt_carts_art)
             {
                 //Debug.Log(gm.name  +"  "+ art.name);
                 par_cart_art art1 = mb.add_cart_art(art.name);
-                if (art.name == "cart shaman boss" && gm.name == "goblin shaman")
-                {
-                    art1.q = art1.q_max;
-                }
             }
-            //Debug.Log(nums_mob.Count + " lt " + mb.num);
+            mb.hp = mb.hp_max;
+
             mob[x, y] = gm;
 
             if (mb.nps)
             {
-                /*
 
-                GameObject gm_pr = Instantiate(GameObject.Find("Canvas").transform.Find("panels").Find("ignoring").Find("pn prise").gameObject,gm.transform.Find("Canvas hp"));
-                gm_pr.name = "pn prise";
-                gm_pr.transform.localScale = new Vector3(0.02f, 0.02f, 0.02f);
-                gm_pr.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0.75f, 0);
-                
-
-                par_prise pr_buy = gm.GetComponent<par_prise>();
-                int col_rd = 0;
-                string st_pr = null;
-                if (Random.Range(0, 3) == 0)
-                {
-
-                    if (gm_st == "goblin fire naim")
-                    {
-                        
-                        
-                        int rd = Random.Range(0, 7);
-                        if (rd ==0)
-                        {
-                            mb.add_cart_art("cart dop hill");
-                            col_rd = 1;
-                            st_pr = "cart dop hill";
-                        }
-                        else if (rd <3)
-                        {
-                            col_rd = 1;
-                            st_pr = "cart sp fire";
-                        }
-                        else if (rd<5)
-                        {
-                            col_rd = 1;
-                            st_pr = "cart act fire";
-                        }
-                        else
-                        {
-                            col_rd = 3+num_lev / 4;
-                            if (col_rd > 5)
-                                col_rd = 5;
-                            st_pr = "cart fire";
-                        }
-                    }
-                    else if (gm_st == "goblin rock naim")
-                    {
-                        int rd = Random.Range(0, 7);
-                        if (rd == 0)
-                        {
-                            mb.add_cart_art("cart dop hill");
-                            col_rd = 1;
-                            st_pr = "cart dop hill";
-                        }
-                        else if (rd < 3)
-                        {
-                            col_rd = 1;
-                            st_pr = "cart sp rock";
-                        }
-                        else if (rd < 5)
-                        {
-                            col_rd = 1;
-                            st_pr = "cart act rock";
-                        }
-                        else
-                        {
-                            col_rd = 3 + num_lev / 4;
-                            if (col_rd > 5)
-                                col_rd = 5;
-                            st_pr = "cart rock";
-                        }
-                    }
-                    else if (gm_st == "goblin hp naim")
-                    {
-                        int rd = Random.Range(0, 7);
-                        if (rd == 0)
-                        {
-                            mb.add_cart_art("cart dop hill");
-                            col_rd = 1;
-                            st_pr = "cart dop hill";
-                        }
-                        else if (rd < 3)
-                        {
-                            col_rd = 1;
-                            st_pr = "cart sp blood";
-                        }
-                        else if (rd < 5)
-                        {
-                            col_rd = 1;
-                            st_pr = "cart act blood";
-                        }
-                        else
-                        {
-                            col_rd = 3 + num_lev / 4;
-                            if (col_rd > 5)
-                                col_rd = 5;
-                            st_pr = "cart blood";
-                        }
-                    }
-                    else if (gm_st == "goblin energy naim")
-                    {
-                        int rd = Random.Range(0, 7);
-                        if (rd == 0)
-                        {
-                            mb.add_cart_art("cart dop hill");
-                            col_rd = 1;
-                            st_pr = "cart dop hill";
-                        }
-                        else if (rd < 3)
-                        {
-                            col_rd = 1;
-                            st_pr = "cart sp energy";
-                        }
-                        else if (rd < 5)
-                        {
-                            col_rd = 1;
-                            st_pr = "cart act energy";
-                        }
-                        else
-                        {
-                            col_rd = 3 + num_lev / 4;
-                            if (col_rd > 5)
-                                col_rd = 5;
-                            st_pr = "cart energy";
-                        }
-                    }
-
-                    for (int i = 0; i < col_rd; i++)
-                    {
-                        pr_buy.lt_prise.Add(st_pr);
-                    }
-                }
-                else
-                {
-                    col_rd = 7 + num_lev / 2;
-                    st_pr = "cart talon";
-                    if (col_rd > 10)
-                        col_rd = 10;
-                    for (int i = 0; i < col_rd; i++)
-                    {
-                        pr_buy.lt_prise.Add(st_pr);
-                    }
-                }
-
-                gm_pr.transform.Find("im_price").gameObject.GetComponent<Image>().sprite = GameObject.Find(st_pr).GetComponent<SpriteRenderer>().sprite;
-                gm_pr.transform.Find("im_price").Find("tx").gameObject.GetComponent<TMP_Text>().text = col_rd.ToString();
-
-                */
             }
         }
         else if (gm.GetComponent<par_nat>() != null)
@@ -1938,6 +1832,7 @@ public class func : MonoBehaviour
             p_n.x = x;
             p_n.y = y;
             nature[x, y] = gm;
+            /*
             if (gm.name == "stalact" || gm.name == "fakel" || gm.name == "camp")
             {
                 Vector3 v3 = eath[x, y].transform.position;
@@ -1950,7 +1845,7 @@ public class func : MonoBehaviour
                 eath[x, y].GetComponent<par_eath>().y = y;
                 eath[x, y].GetComponent<SpriteRenderer>().sprite = eath[x, y].GetComponent<par_eath>().rd_im_st[0];
             }
-
+            */
         }
         else if (gm.GetComponent<par_eath>() != null)
         {
@@ -1997,6 +1892,27 @@ public class func : MonoBehaviour
         nature[x_r, y_r, x, y] = null;
     }
     */
+    public static List<string> get_bosses()
+    {
+        List<string> lt_el_mob = new List<string>();
+        lt_el_mob.Add("org berserk");
+        lt_el_mob.Add("goblin shaman");
+
+        lt_el_mob.Add("fire elemental");
+        lt_el_mob.Add("poition elemental");
+        lt_el_mob.Add("energy elemental");
+        lt_el_mob.Add("ice elemental");
+        lt_el_mob.Add("blood elemental");
+        lt_el_mob.Add("rock elemental");
+
+        lt_el_mob.Add("fire master");
+        lt_el_mob.Add("poition master");
+        lt_el_mob.Add("energy master");
+        lt_el_mob.Add("ice master");
+        lt_el_mob.Add("blood master");
+        lt_el_mob.Add("rock master");
+        return lt_el_mob;
+    }
     public void generate_nature(int x, int y)
     {
 
@@ -2059,6 +1975,8 @@ public class func : MonoBehaviour
                     carts[j, i] = null;
                     eath[j, i] = null;
                     mob_list[i * size_global + j] = null;
+                    lt_v2_viz_mob[j,i] = new List<GameObject>();
+                    lt_v2_viz_friend[j, i] = new List<GameObject>();
                 }
             }
             nums_mob.Clear();
@@ -2137,91 +2055,32 @@ public class func : MonoBehaviour
         {
             for (int j = 0; j < size_global; j++)
             {
-                //nature[j, i] = null;
-                if (type_lvl_now == type_lvl.bases)
+                if (Random.Range(0, 100) != 0 || (grass_location[type_lvl_now]==null))
+                    create(eath_location[type_lvl_now], j, i);
+                else
                 {
-                    wall_now = "rock";
-                    eath_now = "eath";
-                    decor_now = "stalact";
-                    facel_now = "fakel";
-                    camp_now = "camp";
-                    cave_now = "cave";
-                    //wall_now = "wall";
-                    //eath_now = "eath 1";
-                    if (Random.Range(0, 100) != 0)
-                        create(eath_now, j, i);
-                    else
+                    int rr = Random.Range(1, 3);
+                    int[,] way_rd = way(j, i, rr + 1);
+                    for (int i1 = i - rr; i1 <= i + rr; i1++)
                     {
-                        int rr = Random.Range(1, 3);
-                        int[,] way_rd = way(j, i, rr + 1);
-                        for (int i1 = i - rr; i1 <= i + rr; i1++)
+                        if (i1 >= 0 && i1 < size_global)
                         {
-                            if (i1 >= 0 && i1 < size_global)
+                            for (int j1 = j - rr; j1 <= j + rr; j1++)
                             {
-                                for (int j1 = j - rr; j1 <= j + rr; j1++)
+                                if (j1 >= 0 && j1 < size_global)
                                 {
-                                    if (j1 >= 0 && j1 < size_global)
-                                    {
-                                        if (way_rd[j1, i1] != -1)
-                                            create("grass", j1, i1);
-                                    }
+                                    if (way_rd[j1, i1] != -1)
+                                        create(grass_location[type_lvl_now], j1, i1);
                                 }
                             }
                         }
                     }
-
                 }
-                else if (type_lvl_now == type_lvl.bases_1)
-                {
-                    wall_now = "wall";
-                    eath_now = "eath 1";
-                    facel_now = "fakel 1";
-                    camp_now = "fakel 1";
-                    decor_now = "colonna";
-                    cave_now = "cave 1";
-                    //wall_now = "rock derlorg";
-                    //eath_now = "eath derlorg";
-                    //facel_now = "fakel derlorg";
-                    //camp_now = "camp derlorg";
-                    //decor_now = "stalact";
 
-                    create(eath_now, j, i);
-                    //create("wall", j, i);
-                }
-                else if (type_lvl_now == type_lvl.derlorg)
-                {
-
-                    wall_now = "rock derlorg";
-                    eath_now = "eath derlorg";
-                    facel_now = "fakel derlorg";
-                    camp_now = "camp derlorg";
-                    decor_now = "stalact";
-                    cave_now = "cave derlorg";
-
-                    create(eath_now, j, i);
-                    //create("wall", j, i);
-                }
-                create(wall_now, j, i);
+                create(rock_location[type_lvl_now], j, i);
                 //Debug.Log(nature[j, i] == null);
             }
         }
-        //nature[x_end, y_end] = null;
-        //nature[st_x, st_y] = null;
-        /*
-        do
-        {
-            if (Random.Range(0, 2) == 0)
-            {
-                x_end = Random.Range(3, size_global - 3);
-                y_end = Random.Range(0, 2) * (size_global - 6) + 3;
-            }
-            else
-            {
-                y_end = Random.Range(3, size_global - 3);
-                x_end = Random.Range(0, 2) * (size_global - 6) + 3;
-            }
-        } while (way(x_end,y_end,15)[st_x,st_y]!=-1);
-        */
         int ways_points = Random.Range(3, 6);
         //ways_points = 5;
         int range_way = 8;
@@ -2230,7 +2089,7 @@ public class func : MonoBehaviour
 
         //num_lev = 18;
 
-        if (((num_lev + 1) % 5 == 0 && num_lev != 0))
+        if (((num_lev + 1) % 5 == 0 && num_lev != 0) )
         {
             ways_points = 1;
             range_way = 15;
@@ -2302,15 +2161,6 @@ public class func : MonoBehaviour
                 a_st = 0;
             }
 
-            //int a_end = Random.Range(0, lt_points.Count);
-            /*
-            while (a_st == a_end)
-            {
-                a_end = Random.Range(0, lt_points.Count);
-            }
-
-
-            */
             Vector2 v2 = lt_points[a_st];
             Vector2 v2_now = new Vector2(-1, -1);
             int ln = 0;
@@ -2339,113 +2189,7 @@ public class func : MonoBehaviour
 
             int x_now = (int)v2.x;
             int y_now = (int)v2.y;
-            /*
-            if (Random.Range(0, 3) == 0&& way(x_now,y_now,size_global/2)[(int)v2_now.x,(int)v2_now.y]!=-1&&false)
-            {
-                r = 0;
-                Debug.Log("rd many  "+v2+"    "+v2_now);
-                int[] type_ways = new int[4];
-                if (v2.x > v2_now.x)
-                {
-                    type_ways[0] = (int)v2_now.x;
-                    type_ways[1] = (int)v2.x;
-                }
-                else
-                {
-                    type_ways[0] = (int)v2.x;
-                    type_ways[1] = (int)v2_now.x;
-                }
-                if (v2.y > v2_now.y)
-                {
-                    type_ways[2] = (int)v2_now.y;
-                    type_ways[3] = (int)v2.y;
-                }
-                else
-                {
-                    type_ways[2] = (int)v2.y;
-                    type_ways[3] = (int)v2_now.y;
-                }
-                nat[x_now, y_now] = false;
 
-                for (int i = (int)v2.y-2; i <= (int)v2.y + 2; i++)
-                {
-                    if(i>0 && i < size_global - 1)
-                    {
-                        for (int j = (int)v2.x - 2; j <= (int)v2.x + 2; j++)
-                        {
-                            if (j> 0 && j < size_global - 1)
-                            {
-                                Debug.Log(j + " " + i + "  " + way(j, i, r)[x_now, y_now]);
-                                if (way(j, i, r)[x_now, y_now] != -1)
-                                {
-
-                                    Destroy(nature[j, i]);
-                                    nat[j, i] = false;
-                                }
-
-                            }
-                        }
-                    }
-                }
-
-                while (!(x_now==(int)v2_now.x && y_now == (int)v2_now.y))
-                {
-                    //left to right   down to up
-                    List<int> lt_ways = new List<int>() { 1, 2, 3, 4 };
-                    if (x_now == type_ways[0])
-                        lt_ways.Remove(1);
-                    if (x_now == type_ways[1])
-                        lt_ways.Remove(2);
-                    if (y_now == type_ways[2])
-                        lt_ways.Remove(3);
-                    if (y_now == type_ways[3])
-                        lt_ways.Remove(4);
-
-                    int a = lt_ways[Random.Range(0, lt_ways.Count)];
-                    if (a == 1)
-                    {
-                        x_now--;
-                    }
-                    else if (a == 2)
-                    {
-                        x_now++;
-                    }
-                    else if (a == 3)
-                    {
-                        y_now--;
-                    }
-                    else if (a == 4)
-                    {
-                        y_now++;
-                    }
-                    Debug.Log(x_now + "  " + y_now);
-
-
-                    for (int i = y_now - r; i <= y_now + r; i++)
-                    {
-                        if (i > 0 && i < size_global - 1)
-                        {
-                            for (int j = x_now - r; j <= x_now + r; j++)
-                            {
-                                if (j > 0 && j < size_global - 1)
-                                {
-                                    if (way(j, i, r)[x_now, y_now] != -1)
-                                    {
-
-                                        Destroy(nature[j, i]);
-                                        nat[j, i] = true;
-                                        //yield return new WaitForSeconds(0.1f);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                lt_points.Remove(v2);
-
-            }
-            */
             if (true)
             {
                 //Debug.Log("rd one   " + v2 + "    " + v2_now);
@@ -2566,7 +2310,7 @@ public class func : MonoBehaviour
             int y_sp = (int)v2.y;
             if (x_sp != st_x && x_sp != x_end && y_sp != st_y && y_sp != y_end)
             {
-                if (((num_lev + 1) % 5 == 0 && num_lev != 0))
+                if (boss_lev )
                 {
                     r = 5;
                     int[,] way_ = way(x_sp, y_sp, r);
@@ -2590,21 +2334,35 @@ public class func : MonoBehaviour
                             }
                         }
                     }
-                    create(wall_now, x_sp - 1, y_sp - 1);
-                    create(wall_now, x_sp + 1, y_sp - 1);
-                    create(wall_now, x_sp - 1, y_sp + 1);
-                    create(wall_now, x_sp + 1, y_sp + 1);
-
-                    int a_boss = (num_lev + 1 + 5) / 10;
-                    if (type_lvl_now == type_lvl.derlorg)
+                    if(  !(type_lvl_now==type_lvl.derlorg || (type_lvl_now != type_lvl.derlorg && (num_lev+1==25))))
                     {
-                        a_boss = (num_lev + 1) / 10;
+                        create(rock_location[type_lvl_now], x_sp - 1, y_sp - 1);
+                        create(rock_location[type_lvl_now], x_sp + 1, y_sp - 1);
+                        create(rock_location[type_lvl_now], x_sp - 1, y_sp + 1);
+                        create(rock_location[type_lvl_now], x_sp + 1, y_sp + 1);
                     }
-                    //a_boss = 1;
+                    else
+                    {
+                        if(type_lvl_now == type_lvl.derlorg)
+                        {
+                            create("nps derlorg final", x_sp, y_sp+2);
+                            create("heart derlorg", x_sp, y_sp);
+                        }
+                        else if (type_lvl_now != type_lvl.derlorg && (num_lev + 1 == 25))
+                        {
+                            create("nps defender final", x_sp, y_sp+2);
+                            create("temple", x_sp, y_sp);
+                        }
+                    }
+
+                    int a_boss = 1;
+                    if((num_lev + 1 )>= 15)
+                        a_boss=(num_lev + 1 - 5) / 5;
+                    //a_boss = 4;
                     // Debug.Log(a_boss+" boss");
                     //a = 0;
-                    if (a_boss > 4)
-                        a_boss = 4;
+                    if (a_boss > 6)
+                        a_boss = 6;
                     //a = 4;
 
                     //if (type_lvl_now != type_lvl.derlorg)
@@ -2620,19 +2378,151 @@ public class func : MonoBehaviour
 
                                 if (a_boss > 0)
                                 {
-                                    if (type_lvl_now != type_lvl.derlorg)
+                                    if(num_lev + 1 == 5 )
                                     {
+                                        List<string> lt_el_mob = new List<string>();
+                                        
+                                        lt_el_mob.Add("org");
+                                        lt_el_mob.Add("shaman");
 
-                                        //if (Random.Range(0, 2) == 0)
-                                            //create("goblin boss", x_rd, y_rd);
-                                        //else
-                                            create("goblin shaman", x_rd, y_rd);
+                                        lt_el_mob.Add("half-fire spirit");
+                                        lt_el_mob.Add("half-poition spirit");
+                                        lt_el_mob.Add("half-energy spirit");
+                                        lt_el_mob.Add("half-ice spirit");
+                                        lt_el_mob.Add("half-blood spirit");
+                                        lt_el_mob.Add("half-rock spirit");
+                                        
+                                        lt_el_mob.Add("fire defender 1");
+                                        lt_el_mob.Add("poition defender 1");
+                                        lt_el_mob.Add("energy defender 1");
+                                        lt_el_mob.Add("ice defender 1");
+                                        lt_el_mob.Add("blood defender 1");
+                                        lt_el_mob.Add("rock defender 1");
+
+                                        create(rand_list(lt_el_mob), x_rd, y_rd);
+                                    }
+                                    else if (type_lvl_now ==type_lvl.bases || type_lvl_now==type_lvl.bases_1)
+                                    {
+                                        List<string> lt_el_mob = new List<string>();
+                                        lt_el_mob.Add("org berserk");
+                                        lt_el_mob.Add("goblin shaman");
+
+                                        lt_el_mob.Add("fire elemental");
+                                        lt_el_mob.Add("poition elemental");
+                                        lt_el_mob.Add("energy elemental");
+                                        lt_el_mob.Add("ice elemental");
+                                        lt_el_mob.Add("blood elemental");
+                                        lt_el_mob.Add("rock elemental");
+
+                                        //lt_el_mob.Add("damage master");
+                                        
+                                        lt_el_mob.Add("fire master");
+                                        lt_el_mob.Add("poition master");
+                                        lt_el_mob.Add("energy master");
+                                        lt_el_mob.Add("ice master");
+                                        lt_el_mob.Add("blood master");
+                                        lt_el_mob.Add("rock master");
+                                        
+                                        create(rand_list(lt_el_mob), x_rd, y_rd);
 
                                     }
-                                    else
+                                    else if (type_lvl_now == type_lvl.fire)
                                     {
-                                        create("dungalorg", x_rd, y_rd);
+                                        List<string> lt_el_mob = new List<string>();
+                                        lt_el_mob.Add("org berserk");
+                                        lt_el_mob.Add("goblin shaman");
+
+                                        lt_el_mob.Add("fire elemental");
+                                        lt_el_mob.Add("fire elemental");
+
+                                        lt_el_mob.Add("fire master");
+                                        lt_el_mob.Add("fire master");
+
+
+                                        create(rand_list(lt_el_mob), x_rd, y_rd);
+
                                     }
+                                    else if (type_lvl_now == type_lvl.poition)
+                                    {
+                                        List<string> lt_el_mob = new List<string>();
+                                        lt_el_mob.Add("org berserk");
+                                        lt_el_mob.Add("goblin shaman");
+
+                                        lt_el_mob.Add("poition elemental");
+                                        lt_el_mob.Add("poition elemental");
+
+                                        lt_el_mob.Add("poition master");
+                                        lt_el_mob.Add("poition master");
+
+
+                                        create(rand_list(lt_el_mob), x_rd, y_rd);
+
+                                    }
+                                    else if (type_lvl_now == type_lvl.blood)
+                                    {
+                                        List<string> lt_el_mob = new List<string>();
+                                        lt_el_mob.Add("org berserk");
+                                        lt_el_mob.Add("goblin shaman");
+
+                                        lt_el_mob.Add("blood elemental");
+                                        lt_el_mob.Add("blood elemental");
+
+                                        lt_el_mob.Add("blood master");
+                                        lt_el_mob.Add("blood master");
+
+
+                                        create(rand_list(lt_el_mob), x_rd, y_rd);
+
+                                    }
+                                    else if (type_lvl_now == type_lvl.rock)
+                                    {
+                                        List<string> lt_el_mob = new List<string>();
+                                        lt_el_mob.Add("org berserk");
+                                        lt_el_mob.Add("goblin shaman");
+
+                                        lt_el_mob.Add("rock elemental");
+                                        lt_el_mob.Add("rock elemental");
+
+                                        lt_el_mob.Add("rock master");
+                                        lt_el_mob.Add("rock master");
+
+
+                                        create(rand_list(lt_el_mob), x_rd, y_rd);
+
+                                    }
+                                    else if (type_lvl_now == type_lvl.ice)
+                                    {
+                                        List<string> lt_el_mob = new List<string>();
+                                        lt_el_mob.Add("org berserk");
+                                        lt_el_mob.Add("goblin shaman");
+
+                                        lt_el_mob.Add("ice elemental");
+                                        lt_el_mob.Add("ice elemental");
+
+                                        lt_el_mob.Add("ice master");
+                                        lt_el_mob.Add("ice master");
+
+
+                                        create(rand_list(lt_el_mob), x_rd, y_rd);
+
+                                    }
+                                    else if (type_lvl_now == type_lvl.energy)
+                                    {
+                                        List<string> lt_el_mob = new List<string>();
+                                        lt_el_mob.Add("org berserk");
+                                        lt_el_mob.Add("goblin shaman");
+
+                                        lt_el_mob.Add("energy elemental");
+                                        lt_el_mob.Add("energy elemental");
+
+                                        lt_el_mob.Add("energy master");
+                                        lt_el_mob.Add("energy master");
+
+
+                                        create(rand_list(lt_el_mob), x_rd, y_rd);
+
+                                    }
+
                                     a_boss--;
                                 }
                             }
@@ -2646,7 +2536,7 @@ public class func : MonoBehaviour
                     int a_rd = Random.Range(0, 5);
                     //a_rd = 3;
                     //a_rd = 0;
-                    if (a_rd == 0)
+                    if (a_rd == 0 )
                     {
                         r = 2;
                         int[,] way_ = way(x_sp, y_sp, r);
@@ -2671,11 +2561,12 @@ public class func : MonoBehaviour
                             }
                         }
 
-                        if (Random.Range(0, 20) == 0)
+                        if (Random.Range(0, 20) == 0 )
                         {
-                            create(facel_now, x_sp, y_sp);
+                            create(facel_location[type_lvl_now], x_sp, y_sp);
 
-                            List<string> lt_rd = new List<string>();
+                            //List<string> lt_rd = ;
+                            /*
                             if (GameObject.Find("cart speed").GetComponent<par_cart_art>().open)
                                 lt_rd.Add("cart speed");
                             if (GameObject.Find("cart pow").GetComponent<par_cart_art>().open)
@@ -2696,17 +2587,22 @@ public class func : MonoBehaviour
                                 lt_rd.Add("cart potoc energy");
                                 lt_rd.Add("cart potoc ice");
                             }
-
-                            int a = 1 + Random.Range(0, 5) / 4;
+                            */
+                            //int a = 2 + Random.Range(0, 6) / 3;
+                            int a_type = Random.Range(0, 3) ;
+                            int a_ = a_type + (a_type / 2) + 1;
+                            a_type =a_ ;
+                            Debug.Log(a_type);
+                            int a = 4 / a_type;
                             for (int i = 0; i < 100; i++)
                             {
                                 int x_rd = Random.Range(x_sp - r, x_sp + r + 1);
                                 int y_rd = Random.Range(y_sp - r, y_sp + r + 1);
                                 if (x_rd > 0 && x_rd < size_global - 1 && y_rd > 0 && y_rd < size_global - 1 && way_[x_rd, y_rd] != -1 && nature[x_rd, y_rd] == null && carts[x_rd, y_rd] == null)
                                 {
-                                    string stt = lt_rd[Random.Range(0, lt_rd.Count)];
-                                    lt_rd.Remove(stt);
-                                    create(stt, x_rd, y_rd);
+                                    //string stt = lt_rd[Random.Range(0, lt_rd.Count)];
+                                    //lt_rd.Remove(stt);
+                                    create_cart_art(x_rd, y_rd,a_type);
 
                                     a--;
                                     if (a == 0)
@@ -2806,7 +2702,7 @@ public class func : MonoBehaviour
                                 }
                             }
                             */
-                            create(facel_now, x_sp, y_sp);
+                            create(facel_location[type_lvl_now], x_sp, y_sp);
                             int cart_rd = Random.Range(0, 8);
                             par_cart.type_cart tp_cart = par_cart.type_cart.bases;
                             /*
@@ -2848,31 +2744,33 @@ public class func : MonoBehaviour
 
                             if (Random.Range(0, 4) == 0)
                             {
-                                cart_rd = Random.Range(0, 2);
+                                cart_rd = Random.Range(0, 3);
                                 if (cart_rd == 0)
                                     tp_cart = par_cart.type_cart.sp_barier;
+                                if (cart_rd == 1)
+                                    tp_cart = par_cart.type_cart.sp_dych;
                                 else
-                                    tp_cart = par_cart.type_cart.sp_crystall;
+                                    tp_cart = par_cart.type_cart.sp_bomb;
                                 col_max = 4;
                             }
                             else
                             {
                                 if (Random.Range(0, 2) == 0)
-                                    tp_cart = par_cart.type_cart.bases;
+                                    tp_cart = par_cart.type_cart.damage;
                                 else
                                 {
                                     cart_rd = Random.Range(0, 6);
-                                    if (cart_rd == 0)
+                                    if (cart_rd == 0 || (Random.Range(0, 2) == 0 && type_lvl_now == type_lvl.fire))
                                         tp_cart = par_cart.type_cart.fire;
-                                    else if (cart_rd == 1)
+                                    else if (cart_rd == 1 ||(Random.Range(0, 2) == 0 && type_lvl_now == type_lvl.blood))
                                         tp_cart = par_cart.type_cart.blood;
-                                    else if (cart_rd == 2)
+                                    else if (cart_rd == 2 || (Random.Range(0, 2) == 0 && type_lvl_now == type_lvl.poition))
                                         tp_cart = par_cart.type_cart.poition;
-                                    else if (cart_rd == 3)
+                                    else if (cart_rd == 3 || (Random.Range(0, 2) == 0 && type_lvl_now == type_lvl.energy))
                                         tp_cart = par_cart.type_cart.energy;
-                                    else if (cart_rd == 4)
+                                    else if (cart_rd == 4 || (Random.Range(0, 2) == 0 && type_lvl_now == type_lvl.ice))
                                         tp_cart = par_cart.type_cart.ice;
-                                    else if (cart_rd == 5)
+                                    else if (cart_rd == 5 || (Random.Range(0, 2) == 0 && type_lvl_now == type_lvl.rock))
                                         tp_cart = par_cart.type_cart.rock;
                                 }
                                 col_max = 8;
@@ -2991,7 +2889,7 @@ public class func : MonoBehaviour
                     {
                         bool_nps = false;
 
-                        if ((Random.Range(0, 10) == 0 && num_lev > 4) && type_lvl_now != type_lvl.derlorg)
+                        if ((Random.Range(0, 5) == 0 && num_lev >= 15 && (num_lev%5==0)) && type_lvl_now != type_lvl.derlorg)
                         {
                             r = 3;
                             int[,] way_ = way(x_sp, y_sp, r);
@@ -3029,7 +2927,7 @@ public class func : MonoBehaviour
 
                                 if (x_rd > 0 && x_rd < size_global - 1 && y_rd > 0 && y_rd < size_global - 1 && c == 1)
                                 {
-                                    par_mob nps_mob = create("nps derlorg", x_rd, y_rd).GetComponent<par_mob>();
+                                    par_mob nps_mob = create("nps derlorg portal", x_rd, y_rd).GetComponent<par_mob>();
                                     nps_mob.lt_par.Add(new Vector2(x_sp, y_sp));
                                     break;
                                     //nat[x_rd, y_rd] = true;
@@ -3039,11 +2937,92 @@ public class func : MonoBehaviour
                             //create("nps derlorg", x_sp, y_sp);
 
                         }
+                        else if ((Random.Range(0, 10) == 0 && num_lev >= 5)  && type_lvl_now != type_lvl.derlorg)
+                        {
+                            bool_nps = false;
+                            par_mob nps_mob = create("nps derlorg", x_sp, y_sp).GetComponent<par_mob>();
+                            r = 3;
+                            int[,] way_ = way(x_sp, y_sp, r);
+                            for (int i = y_sp - r; i <= y_sp + r; i++)
+                            {
+                                if (i > 0 && i < size_global - 1)
+                                {
+                                    for (int j = x_sp - r; j <= x_sp + r; j++)
+                                    {
+                                        if (j > 0 && j < size_global - 1)
+                                        {
+                                            if (way_[j, i] != -1)
+                                            {
+                                                Destroy(eath[j, i]);
+                                                eath[j, i] = null;
+                                                create("eath derlorg", j, i);
+                                                if (nature[j, i] != null && !nature[j, i].GetComponent<par_nat>().undes)
+                                                {
+                                                    Destroy(nature[j, i]);
+                                                    nature[j, i] = null;
+                                                }
+
+
+                                                //yield return new WaitForSeconds(0.1f);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            int a_tovar = Random.Range(3, 5);
+                            while (a_tovar > 0)
+                            {
+                                int x_rd = Random.Range(x_sp - r, x_sp + r + 1);
+                                int y_rd = Random.Range(y_sp - r, y_sp + r + 1);
+                                int c = Mathf.Abs(x_rd - x_sp) + Mathf.Abs(y_rd - y_sp);
+
+                                if (x_rd > 0 && x_rd < size_global - 1 && y_rd > 0 && y_rd < size_global - 1 && c == 1 && carts[x_rd, y_rd] == null)
+                                {
+                                    int a_rock = 0;
+                                    int a_rock_h = 0;
+                                    int a_rock_v = 0;
+
+                                    int col_price = 0;
+                                    /*if (a_tovar == 2)
+                                    {
+                                        string cart_create = "cart sp derlorg";
+
+
+                                        par_cart cart = create(cart_create, x_rd, y_rd).GetComponent<par_cart>();
+                                        col_price = cart.lvl * 3;
+                                    }
+                                    else */
+                                    if (a_tovar == 1)
+                                    {
+                                        par_cart cart = create_cart(x_rd, y_rd, type_cart.derlorg).GetComponent<par_cart>();
+                                        cart.col = 6;
+                                        col_price = cart.lvl;
+                                    }
+                                    else
+                                    {
+                                        par_cart cart = create_cart_art(x_rd, y_rd, type_cart.derlorg).GetComponent<par_cart>();
+                                        col_price = cart.lvl * 3;
+                                    }
+                                    eath[x_rd, y_rd].AddComponent<par_prise>();
+                                    eath[x_rd, y_rd].GetComponent<par_prise>().add_price(null, col_price, carts[x_rd, y_rd].GetComponent<par_cart>().col, par_prise.type_price.hp);
+
+                                    a_tovar--;
+
+                                    //}
+                                    //Destroy(eath[x_rd, y_rd]);
+
+                                    //nat[x_rd, y_rd] = true;
+                                    //break;
+                                }
+                            }
+
+                        }
                         else
                         {
 
 
-                            if (Random.Range(0, 7) != 0)
+                            if (((Random.Range(0, 6) != 0 )|| (num_lev==0)))
                             {
                                 r = 3;
                                 int[,] way_ = way(x_sp, y_sp, r);
@@ -3069,7 +3048,7 @@ public class func : MonoBehaviour
                                 }
                                 par_cart.type_cart type_cart = par_cart.type_cart.bases;
 
-                                int cart_rd = Random.Range(0, 6);
+                                int cart_rd = Random.Range(0, 10);
                                 if (cart_rd == 0)
                                 {
                                     type_cart = par_cart.type_cart.fire;
@@ -3106,9 +3085,29 @@ public class func : MonoBehaviour
                                     create("nps rock", x_sp, y_sp);
                                 }
 
+                                else if (cart_rd ==6)
+                                {
+                                    type_cart = par_cart.type_cart.damage;
+                                    create("nps damage", x_sp, y_sp);
+                                }
+                                else if (cart_rd == 7)
+                                {
+                                    type_cart = par_cart.type_cart.sp_barier;
+                                    create("nps barier", x_sp, y_sp);
+                                }
+                                else if (cart_rd == 8)
+                                {
+                                    type_cart = par_cart.type_cart.sp_bomb;
+                                    create("nps bomb", x_sp, y_sp);
+                                }
+                                else if (cart_rd == 9)
+                                {
+                                    type_cart = par_cart.type_cart.sp_dych;
+                                    create("nps dych", x_sp, y_sp);
+                                }
 
 
-                                int a_tovar = Random.Range(2, 5);
+                                int a_tovar = Random.Range(3, 5);
                                 while (a_tovar > 0)
                                 {
                                     int x_rd = Random.Range(x_sp - r, x_sp + r + 1);
@@ -3120,25 +3119,65 @@ public class func : MonoBehaviour
                                         int a_rock = 0;
                                         int a_rock_h = 0;
                                         int a_rock_v = 0;
-                                        //bool[,] bl_way = new bool[size_global, size_global];
 
-                                        //int[,] bl_way = ;
-                                        /*
-                                        if (nature[x_rd - 1, y_rd]!=null)
-                                            a_rock_h++;
-                                        if (nature[x_rd + 1, y_rd]!= null)
-                                            a_rock_h++;
-                                        if (nature[x_rd , y_rd-1]!= null)
-                                            a_rock_v++;
-                                        if (nature[x_rd , y_rd+1]!= null)
-                                            a_rock_v++;
-                                        */
-
-
-                                        //if (way_find_lt(carts, x_rd, y_rd, 2).Count==0 && (a_rock_v+a_rock_h>2 || (a_rock_h!=2 && a_rock_v!=2)))
-                                        //{
                                         int col_price = 0;
-                                        if (a_tovar == 1)
+                                        if (a_tovar == 2)
+                                        {
+                                            string cart_create = null;
+                                            if (type_cart == par_cart.type_cart.fire)
+                                            {
+                                                //type_cart = par_cart.type_cart.fire;
+                                                //create("nps fire", x_sp, y_sp);
+                                                cart_create = "cart sp fire";
+                                            }
+
+                                            else if (type_cart == par_cart.type_cart.blood)
+                                            {
+                                                cart_create = "cart sp blood";
+                                                //create("nps blood", x_sp, y_sp);
+                                            }
+
+                                            else if (type_cart == par_cart.type_cart.poition)
+                                            {
+                                                cart_create = "cart sp poition";
+                                            }
+
+                                            else if (type_cart == par_cart.type_cart.energy)
+                                            {
+                                                cart_create = "cart sp energy";
+                                            }
+
+                                            else if (type_cart == par_cart.type_cart.ice)
+                                            {
+                                                cart_create = "cart sp ice";
+                                            }
+
+                                            else if (type_cart == par_cart.type_cart.rock)
+                                            {
+                                                cart_create = "cart sp rock";
+                                            }
+
+                                            else if (type_cart == par_cart.type_cart.damage)
+                                            {
+                                                cart_create = "cart sp atack";
+                                            }
+                                            else if (type_cart == par_cart.type_cart.sp_barier)
+                                            {
+                                                cart_create = "cart sp barier";
+                                            }
+                                            else if (type_cart == par_cart.type_cart.sp_bomb)
+                                            {
+                                                cart_create = "cart sp bomb";
+                                            }
+                                            else if (type_cart == par_cart.type_cart.sp_dych)
+                                            {
+                                                cart_create = "cart sp dych";
+                                            }
+
+                                            par_cart cart = create(cart_create, x_rd, y_rd).GetComponent<par_cart>();
+                                            col_price = cart.lvl*3;
+                                        }
+                                        else if (a_tovar == 1)
                                         {
                                             par_cart cart = create_cart(x_rd, y_rd, type_cart).GetComponent<par_cart>();
                                             if (cart.spetial)
@@ -3150,10 +3189,10 @@ public class func : MonoBehaviour
                                         else
                                         {
                                             par_cart cart = create_cart_art(x_rd, y_rd, type_cart).GetComponent<par_cart>();
-                                            col_price = cart.lvl * 2;
+                                            col_price = cart.lvl * 3;
                                         }
                                         eath[x_rd, y_rd].AddComponent<par_prise>();
-                                        eath[x_rd, y_rd].GetComponent<par_prise>().add_price("cart gold", col_price, carts[x_rd, y_rd].GetComponent<par_cart>().col);
+                                        eath[x_rd, y_rd].GetComponent<par_prise>().add_price("cart gold", col_price, carts[x_rd, y_rd].GetComponent<par_cart>().col, par_prise.type_price.gold);
 
                                         a_tovar--;
 
@@ -3164,6 +3203,76 @@ public class func : MonoBehaviour
                                         //break;
                                     }
                                 }
+                            }
+                            else if (Random.Range(0, 2) == 0)
+                            {
+                                r = 3;
+                                int[,] way_ = way(x_sp, y_sp, r);
+                                for (int i = y_sp - r; i <= y_sp + r; i++)
+                                {
+                                    if (i > 0 && i < size_global - 1)
+                                    {
+                                        for (int j = x_sp - r; j <= x_sp + r; j++)
+                                        {
+                                            if (j > 0 && j < size_global - 1)
+                                            {
+                                                if (way_[j, i] != -1 && nature[j, i] != null && !nature[j, i].GetComponent<par_nat>().undes)
+                                                {
+
+                                                    Destroy(nature[j, i]);
+                                                    nature[j, i] = null;
+
+                                                    //yield return new WaitForSeconds(0.1f);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+
+                                create("nps baron", x_sp, y_sp);
+
+                                int a_tovar = Random.Range(2, 5);
+                                a_tovar = 4;
+                                while (a_tovar > 0)
+                                {
+                                    int x_rd = Random.Range(x_sp - r, x_sp + r + 1);
+                                    int y_rd = Random.Range(y_sp - r, y_sp + r + 1);
+                                    int c = Mathf.Abs(x_rd - x_sp) + Mathf.Abs(y_rd - y_sp);
+
+                                    if (x_rd > 0 && x_rd < size_global - 1 && y_rd > 0 && y_rd < size_global - 1 && c == 1 && carts[x_rd, y_rd] == null)
+                                    {
+                                        int a_rock = 0;
+                                        int a_rock_h = 0;
+                                        int a_rock_v = 0;
+
+                                        //if (way_find_lt(carts, x_rd, y_rd, 2).Count==0 && (a_rock_v+a_rock_h>2 || (a_rock_h!=2 && a_rock_v!=2)))
+                                        //{
+                                        int col_price = 0;
+                                        int col_lvl = 2;
+                                        if (a_tovar == 1)
+                                            col_lvl = 4;
+                                        else
+                                        {
+                                            col_lvl =( Random.Range(0, 4)/4) * 2 + 2;
+                                        }
+                                        Debug.Log("to create " + col_lvl);
+                                        par_cart cart = create_cart_art(x_rd, y_rd, type_cart.bases,col_lvl).GetComponent<par_cart>();
+                                        col_price = cart.lvl * 3;
+                                        
+                                        eath[x_rd, y_rd].AddComponent<par_prise>();
+                                        eath[x_rd, y_rd].GetComponent<par_prise>().add_price("cart gold", col_price, carts[x_rd, y_rd].GetComponent<par_cart>().col,par_prise.type_price.gold);
+
+                                        a_tovar--;
+
+
+                                    }
+                                }
+
+
+
+
+
                             }
                             else
                             {
@@ -3191,6 +3300,9 @@ public class func : MonoBehaviour
                                 }
 
                                 create("nps berserk", x_sp, y_sp);
+                                eath[x_sp, y_sp].AddComponent<par_prise>();
+                                eath[x_sp, y_sp].GetComponent<par_prise>().add_price("cart gold", 1, 1, par_prise.type_price.obmen);
+                                /*
                                 while (true)
                                 {
                                     int x_rd = Random.Range(x_sp - 1, x_sp + 1 + 1);
@@ -3200,12 +3312,13 @@ public class func : MonoBehaviour
                                     if (x_rd > 0 && x_rd < size_global - 1 && y_rd > 0 && y_rd < size_global - 1 && c == 1)
                                     {
                                         Destroy(eath[x_rd, y_rd]);
-                                        create("eath crimzon", x_rd, y_rd);
+                                        //create("eath crimzon", x_rd, y_rd);
                                         break;
                                         //nat[x_rd, y_rd] = true;
                                         //break;
                                     }
                                 }
+                                */
                             }
 
                         }
@@ -3236,12 +3349,15 @@ public class func : MonoBehaviour
                             }
                         }
                         int aa = 0;
-                        if (num_lev < 7)
-                            aa = num_lev / 2;
+                        if (num_lev < 18)
+                            aa = num_lev / 3;
                         else
-                            aa = 4;
-                        int a = Random.Range(1 + aa / 2, 4 + aa);
-                        //a = 8;
+                            aa = 6;
+                        int a = Random.Range(2 + aa / 2, 3 + aa);
+                        //a = 6;
+                        bool rd_sp_mob = (Random.Range(0, 100) < num_lev && num_lev >15 && num_lev<25)|| (Random.Range(0, 100) < 25 && num_lev >= 25);
+                        bool rd_bl_sp = (Random.Range(0, 2) == 0);
+                        //a = 6;
                         //a = 0;
                         while (a > 0)
                         {
@@ -3254,115 +3370,441 @@ public class func : MonoBehaviour
 
                                     if (type_lvl_now == type_lvl.bases)
                                     {
-                                        if ((Random.Range(0, 100) < num_lev))
+                                        
+                                        if (rd_sp_mob)
                                         {
-                                            create("org", x_rd, y_rd);
-                                        }
-
-                                        if ((Random.Range(0, 100) < num_lev * 5))
-                                        {
-                                            int rdd = Random.Range(0, 6);
-                                            if (rdd == 0)
-                                                create("goblin rock elit", x_rd, y_rd);
-                                            else if (rdd == 1)
-                                                create("goblin fire elit", x_rd, y_rd);
-                                            else if (rdd == 2)
-                                                create("goblin blood elit", x_rd, y_rd);
-                                            else if (rdd == 3)
-                                                create("goblin ice elit", x_rd, y_rd);
-                                            else if (rdd == 4)
-                                                create("goblin poition elit", x_rd, y_rd);
+                                            if(rd_bl_sp)
+                                                create("org", x_rd, y_rd);
                                             else
-                                                create("goblin energy elit", x_rd, y_rd);
+                                                create("shaman", x_rd, y_rd);
                                         }
 
+                                    else if ((Random.Range(0, 100) < (num_lev+1) * 5) && num_lev>1 )
+                                    {
+                                        int rdd = Random.Range(0, 6);
+
+                                            
+                                        if (rdd == 0)
+                                            create("goblin rock elit", x_rd, y_rd);
+                                        else if (rdd == 1)
+                                            create("goblin fire elit", x_rd, y_rd);
+                                        else if (rdd == 2)
+                                            create("goblin blood elit", x_rd, y_rd);
+                                        else if (rdd == 3)
+                                            create("goblin ice elit", x_rd, y_rd);
+                                        else if (rdd == 4)
+                                            create("goblin poition elit", x_rd, y_rd);
+                                        else
+                                            create("goblin energy elit", x_rd, y_rd);
+                                            
+                                    }
+
+                                    else
+                                    {
+                                        if (Random.Range(0, 5) == 0 && num_lev!=0)
+                                            create("goblin hiller", x_rd, y_rd);
+                                        //create("derlorg shaman", x_rd, y_rd);
+                                        else if (num_lev - Random.Range(1, 15) < 0)
+                                        {
+
+                                            create("goblin", x_rd, y_rd);
+                                            //create("dungalorg", x_rd, y_rd);
+                                        }
                                         else
                                         {
-                                            if (Random.Range(0, 6) == 0)
-                                                create("goblin hiller", x_rd, y_rd);
-                                            //create("derlorg shaman", x_rd, y_rd);
-                                            else if (num_lev - Random.Range(1, 15) < 0)
-                                            {
-
-                                                create("goblin", x_rd, y_rd);
-                                                //create("dungalorg", x_rd, y_rd);
-                                            }
-                                            else
-                                            {
-                                                create("goblin elit", x_rd, y_rd);
-                                            }
+                                            create("goblin elit", x_rd, y_rd);
                                         }
-
+                                    }
+                                        
                                         //create("derlorg fire", x_rd, y_rd);
                                         //create("spider", x_rd, y_rd);
                                     }
-                                    else if (type_lvl_now == type_lvl.bases_1)
+                                    else if (type_lvl_now != type_lvl.derlorg)
                                     {
-                                        create("org berserk", x_rd, y_rd);
-                                        /*
-                                        if ((Random.Range(0, 100) < (num_lev - 2) * 5 && num_lev < 25) || (Random.Range(0, 100) < 75 && num_lev >= 25))
+                                        bool rd = ((Random.Range(0, 100) - num_lev < 25 && num_lev < 25) || (Random.Range(0, 100) < 25 && num_lev >= 25)) && (num_lev >= 10);
+                                        //rd = true;
+                                        if (Random.Range(0, 2) == 0 && type_lvl_now == type_lvl.rock)
                                         {
-                                            int rdd = Random.Range(0, 6);
-                                            if (rdd == 0)
-                                                create("goblin rock elit", x_rd, y_rd);
-                                            else if (rdd == 1)
-                                                create("goblin fire elit", x_rd, y_rd);
-                                            else if (rdd == 2)
-                                                create("goblin blood elit", x_rd, y_rd);
-                                            else if (rdd == 3)
-                                                create("goblin ice elit", x_rd, y_rd);
-                                            else if (rdd == 4)
-                                                create("goblin poition elit", x_rd, y_rd);
+
+                                            if (rd)
+                                            {
+                                                if (Random.Range(0, 2) == 0)
+                                                    create("rock defender 1", x_rd, y_rd);
+                                                else
+                                                    create("half-rock spirit", x_rd, y_rd);
+                                            }
                                             else
-                                                create("goblin energy elit", x_rd, y_rd);
+                                                create("defender rock", x_rd, y_rd);
                                         }
+
+                                        else if (Random.Range(0, 2) == 0 && type_lvl_now == type_lvl.fire)
+                                        {
+
+                                            if (rd)
+                                            {
+                                                if (Random.Range(0, 2) == 0)
+                                                    create("fire defender 1", x_rd, y_rd);
+                                                else
+                                                    create("half-fire spirit", x_rd, y_rd);
+                                            }
+                                            else
+                                                create("defender fire", x_rd, y_rd);
+                                        }
+                                        else if (Random.Range(0, 2) == 0 && type_lvl_now == type_lvl.blood)
+                                        {
+
+                                            if (rd)
+                                            {
+                                                if (Random.Range(0, 2) == 0)
+                                                    create("blood defender 1", x_rd, y_rd);
+                                                else
+                                                    create("half-blood spirit", x_rd, y_rd);
+                                            }
+                                            else
+                                                create("defender blood", x_rd, y_rd);
+                                        }
+                                        else if (Random.Range(0, 2) == 0 && type_lvl_now == type_lvl.ice)
+                                        {
+
+                                            if (rd)
+                                            {
+                                                if (Random.Range(0, 2) == 0)
+                                                    create("ice defender 1", x_rd, y_rd);
+                                                else
+                                                    create("half-ice spirit", x_rd, y_rd);
+                                            }
+                                            else
+                                                create("defender ice", x_rd, y_rd);
+                                        }
+                                        else if (Random.Range(0, 2) == 0 && type_lvl_now == type_lvl.poition)
+                                        {
+
+                                            if (rd)
+                                            {
+                                                if (Random.Range(0, 2) == 0)
+                                                    create("poition defender 1", x_rd, y_rd);
+                                                else
+                                                    create("half-poition spirit", x_rd, y_rd);
+                                            }
+                                            else
+                                                create("defender poition", x_rd, y_rd);
+                                        }
+                                        else if (Random.Range(0, 2) == 0 && type_lvl_now == type_lvl.energy)
+                                        {
+
+                                            if (rd)
+                                            {
+                                                if (Random.Range(0, 2) == 0)
+                                                    create("energy defender 1", x_rd, y_rd);
+                                                else
+                                                    create("half-energy spirit", x_rd, y_rd);
+                                            }
+                                            else
+                                                create("defender energy", x_rd, y_rd);
+                                        }
+                                        else if ((Random.Range(0, 100) < (25 + num_lev) && num_lev < 25) || ((Random.Range(0, 100) < 50 && num_lev >= 25)))
+                                        {
+                                            if (Random.Range(0, 2) == 0)
+                                            {
+                                                create("defender 1", x_rd, y_rd);
+                                            }
+                                            else
+                                            {
+                                                create("defender elemental", x_rd, y_rd);
+                                            }
+                                        }
+                                        else if((Random.Range(0, 100) < num_lev * 2 && num_lev < 25) || (Random.Range(0, 100) < 50 && num_lev >= 25))
+                                        {
+                                            if (rd)
+                                            {
+                                                int rdd = Random.Range(0, 14);
+                                                if (rdd == 0)
+                                                {
+                                                    if (Random.Range(0, 2) == 0)
+                                                        create("rock defender 1", x_rd, y_rd);
+                                                    else
+                                                        create("half-rock spirit", x_rd, y_rd);
+                                                }
+                                                //create("defender rock", x_rd, y_rd);
+                                                else if (rdd == 1)
+                                                {
+                                                    if (Random.Range(0, 2) == 0)
+                                                        create("fire defender 1", x_rd, y_rd);
+                                                    else
+                                                        create("half-fire spirit", x_rd, y_rd);
+                                                }
+                                                //create("defender fire", x_rd, y_rd);
+                                                else if (rdd == 2)
+                                                {
+                                                    if (Random.Range(0, 2) == 0)
+                                                        create("blood defender 1", x_rd, y_rd);
+                                                    else
+                                                        create("half-blood spirit", x_rd, y_rd);
+                                                }
+                                                //create("defender blood", x_rd, y_rd);
+                                                else if (rdd == 3)
+                                                {
+                                                    if (Random.Range(0, 2) == 0)
+                                                        create("ice defender 1", x_rd, y_rd);
+                                                    else
+                                                        create("half-ice spirit", x_rd, y_rd);
+                                                }
+                                                //create("defender ice", x_rd, y_rd);
+                                                else if (rdd == 4)
+                                                {
+                                                    if (Random.Range(0, 2) == 0)
+                                                        create("poition defender 1", x_rd, y_rd);
+                                                    else
+                                                        create("half-poition spirit", x_rd, y_rd);
+                                                }
+                                                //create("defender poition", x_rd, y_rd);
+                                                else if (rdd == 5)
+                                                {
+                                                    if (Random.Range(0, 2) == 0)
+                                                        create("energy defender 1", x_rd, y_rd);
+                                                    else
+                                                        create("half-energy spirit", x_rd, y_rd);
+                                                }
+                                                else if (rdd == 6)
+                                                {
+                                                    create("org", x_rd, y_rd);
+                                                }
+                                                else if (rdd == 7)
+                                                {
+                                                    create("shaman", x_rd, y_rd);
+                                                }
+                                                else
+                                                {
+                                                    rdd = (rdd - 8) / 2;
+                                                    if (rdd == 0)
+                                                        create("defender necro", x_rd, y_rd);
+                                                    else if (rdd == 1)
+                                                        create("defender bomb", x_rd, y_rd);
+                                                    else if (rdd == 2)
+                                                        create("defender barier", x_rd, y_rd);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                int rdd = Random.Range(0, 12);
+                                                if (rdd == 0)
+                                                {
+                                                    create("rock defender", x_rd, y_rd);
+                                                }
+                                                //create("defender rock", x_rd, y_rd);
+                                                else if (rdd == 1)
+                                                {
+                                                    create("fire defender", x_rd, y_rd);
+                                                }
+                                                //create("defender fire", x_rd, y_rd);
+                                                else if (rdd == 2)
+                                                {
+                                                    create("blood defender", x_rd, y_rd);
+                                                }
+                                                //create("defender blood", x_rd, y_rd);
+                                                else if (rdd == 3)
+                                                {
+                                                    create("ice defender", x_rd, y_rd);
+                                                }
+                                                //create("defender ice", x_rd, y_rd);
+                                                else if (rdd == 4)
+                                                {
+                                                    create("poition defender", x_rd, y_rd);
+                                                }
+                                                //create("defender poition", x_rd, y_rd);
+                                                else if (rdd == 5)
+                                                {
+                                                    create("energy defender", x_rd, y_rd);
+                                                }
+                                                else
+                                                {
+                                                    rdd = (rdd - 6) / 2;
+                                                    if (rdd == 0)
+                                                        create("defender necro", x_rd, y_rd);
+                                                    else if (rdd == 1)
+                                                        create("defender bomb", x_rd, y_rd);
+                                                    else if (rdd == 2)
+                                                        create("defender barier", x_rd, y_rd);
+                                                }
+                                            }
+                                        }
+
 
                                         else
                                         {
-                                            if (Random.Range(0, 6) == 0)
-                                                create("goblin hiller", x_rd, y_rd);
-                                            //create("derlorg shaman", x_rd, y_rd);
-                                            else if (num_lev - Random.Range(1, 15) < 0)
+                                            create("defender", x_rd, y_rd);
+                                        }
+                                        /*
+                                        if (rd_sp_mob && num_lev >= 10)
+                                        {
+                                            if (rd_bl_sp)
+                                                create("org", x_rd, y_rd);
+                                            else
+                                                create("shaman", x_rd, y_rd);
+                                        }
+                                        else
+                                        {
+                                            
+                                            /*
+                                            if ()
+                                            {
+                                                //int rdd = ;
+                                                if ((Random.Range(0, 100)<(25 + num_lev) && num_lev<25 )||((Random.Range(0, 100) <50 && num_lev >=25)))
+                                                {
+                                                    if (Random.Range(0, 2) == 0)
+                                                    {
+                                                        create("defender 1", x_rd, y_rd);
+                                                    }
+                                                    else
+                                                    {
+                                                        create("defender elemental", x_rd, y_rd);
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    
+                                                    int rdd = Random.Range(0, 12);
+                                                    if (rdd == 0)
+                                                    {
+                                                        if (rd)
+                                                        {
+                                                            if (Random.Range(0, 2) == 0)
+                                                                create("rock defender 1", x_rd, y_rd);
+                                                            else
+                                                                create("half-rock spirit", x_rd, y_rd);
+                                                        }
+                                                        else
+                                                            create("defender rock", x_rd, y_rd);
+                                                    }
+                                                        //create("defender rock", x_rd, y_rd);
+                                                    else if (rdd == 1)
+                                                    {
+                                                        if (rd)
+                                                        {
+                                                            if (Random.Range(0, 2) == 0)
+                                                                create("fire defender 1", x_rd, y_rd);
+                                                            else
+                                                                create("half-fire spirit", x_rd, y_rd);
+                                                        }
+                                                        else
+                                                            create("defender fire", x_rd, y_rd);
+                                                    }
+                                                        //create("defender fire", x_rd, y_rd);
+                                                    else if (rdd == 2)
+                                                    {
+                                                        if (rd)
+                                                        {
+                                                            if (Random.Range(0, 2) == 0)
+                                                                create("blood defender 1", x_rd, y_rd);
+                                                            else
+                                                                create("half-blood spirit", x_rd, y_rd);
+                                                        }
+                                                        else
+                                                            create("defender blood", x_rd, y_rd);
+                                                    }
+                                                        //create("defender blood", x_rd, y_rd);
+                                                    else if (rdd == 3)
+                                                    {
+                                                        if (rd)
+                                                        {
+                                                            if (Random.Range(0, 2) == 0)
+                                                                create("ice defender 1", x_rd, y_rd);
+                                                            else
+                                                                create("half-ice spirit", x_rd, y_rd);
+                                                        }
+                                                        else
+                                                            create("defender ice", x_rd, y_rd);
+                                                    }
+                                                        //create("defender ice", x_rd, y_rd);
+                                                    else if (rdd == 4)
+                                                    {
+                                                        if (rd)
+                                                        {
+                                                            if (Random.Range(0, 2) == 0)
+                                                                create("poition defender 1", x_rd, y_rd);
+                                                            else
+                                                                create("half-poition spirit", x_rd, y_rd);
+                                                        }
+                                                        else
+                                                            create("defender poition", x_rd, y_rd);
+                                                    }
+                                                        //create("defender poition", x_rd, y_rd);
+                                                    else if (rdd == 5)
+                                                    {
+                                                        if (rd)
+                                                        {
+                                                            if (Random.Range(0, 2) == 0)
+                                                                create("energy defender 1", x_rd, y_rd);
+                                                            else
+                                                                create("half-energy spirit", x_rd, y_rd);
+                                                        }
+                                                        else
+                                                            create("defender energy", x_rd, y_rd);
+                                                    }
+                                                    else
+                                                    {
+                                                        rdd = (rdd - 6) / 2;
+                                                        if (rdd == 0)
+                                                            create("defender necro", x_rd, y_rd);
+                                                        else if (rdd == 1)
+                                                            create("defender bomb", x_rd, y_rd);
+                                                        else if (rdd == 2)
+                                                            create("defender barier", x_rd, y_rd);
+                                                    }
+                                                        //create("defender energy", x_rd, y_rd);
+                                                    
+                                                }
+
+                                            }
+                                            */
+                                        /*
+                                            else
                                             {
 
                                                 create("defender", x_rd, y_rd);
                                                 //create("dungalorg", x_rd, y_rd);
                                             }
-                                            else
-                                            {
-                                                //create("defender 1", x_rd, y_rd);
-                                            }
                                         }
                                         */
-                                        //create("derlorg fire", x_rd, y_rd);
-                                        //create("spider", x_rd, y_rd);
+
                                     }
                                     else if (type_lvl_now == type_lvl.derlorg)
                                     {
-                                        if ((Random.Range(0, 100) < (num_lev - 12) * 5 && num_lev < 35) || (Random.Range(0, 100) < 75 && num_lev >= 35))
+                                        if (Random.Range(0, 100) < 50)
                                         {
-                                            int rdd = Random.Range(0, 6);
-                                            if (rdd == 0)
-                                                create("derlorg rock", x_rd, y_rd);
-                                            else if (rdd == 1)
-                                                create("derlorg fire", x_rd, y_rd);
-                                            else if (rdd == 2)
-                                                create("derlorg blood", x_rd, y_rd);
-                                            else if (rdd == 3)
-                                                create("derlorg ice", x_rd, y_rd);
-                                            else if (rdd == 4)
-                                                create("derlorg poition", x_rd, y_rd);
+                                            if(Random.Range(0, 100) < 50)
+                                            {
+                                                int rdd = Random.Range(0, 3);
+                                                if (rdd == 0)
+                                                    create("derlorg shaman", x_rd, y_rd);
+                                                if (rdd == 1)
+                                                    create("derlorg necro", x_rd, y_rd);
+                                                else if (rdd == 2)
+                                                    create("derlorg bomb", x_rd, y_rd);
+                                            }
                                             else
-                                                create("derlorg energy", x_rd, y_rd);
+                                            {
+                                                int rdd = Random.Range(0, 6);
+                                                if (rdd == 0)
+                                                    create("derlorg rock", x_rd, y_rd);
+                                                else if (rdd == 1)
+                                                    create("derlorg fire", x_rd, y_rd);
+                                                else if (rdd == 2)
+                                                    create("derlorg blood", x_rd, y_rd);
+                                                else if (rdd == 3)
+                                                    create("derlorg ice", x_rd, y_rd);
+                                                else if (rdd == 4)
+                                                    create("derlorg poition", x_rd, y_rd);
+                                                else
+                                                    create("derlorg energy", x_rd, y_rd);
+                                            }
+
                                         }
                                         else
                                         {
-                                            if (Random.Range(0, 6) == 0)
-                                                create("derlorg shaman", x_rd, y_rd);
-                                            else
-                                            {
+                                            
                                                 create("derlorg", x_rd, y_rd);
-                                            }
+                                            
                                         }
 
                                     }
@@ -3383,7 +3825,7 @@ public class func : MonoBehaviour
                             if (x_rd > 0 && x_rd < size_global - 1 && y_rd > 0 && y_rd < size_global - 1 && (c != r - 1) && object_bool(x_rd, y_rd))
                             {
 
-                                create(camp_now, x_rd, y_rd);
+                                create(camp_location[type_lvl_now], x_rd, y_rd);
                                 break;
                             }
                         }
@@ -3396,9 +3838,20 @@ public class func : MonoBehaviour
 
                             bool[] bl_n = new bool[4];
 
-                            if (x_rd > 0 && x_rd < size_global - 1 && y_rd > 0 && y_rd < size_global - 1 && (way_find_lt(nature, GameObject.Find(wall_now), x_rd, y_rd, 1).Count != 0) && object_bool(x_rd, y_rd) && carts[x_rd, y_rd] == null)
+                            if (x_rd > 0 && x_rd < size_global - 1 && y_rd > 0 && y_rd < size_global - 1 && (way_find_lt(nature, GameObject.Find(rock_location[type_lvl_now]), x_rd, y_rd, 1).Count != 0) && object_bool(x_rd, y_rd) && carts[x_rd, y_rd] == null)
                             {
-                                create(decor_now, x_rd, y_rd);
+                                if (rd_sp_mob)
+                                {
+                                    if (rd_bl_sp)
+                                    {
+                                        if (aa == 3)
+                                            create("decor berserk", x_rd, y_rd);
+                                        else
+                                            create("decor berserk 1", x_rd, y_rd);
+                                    }
+                                }
+                                else
+                                    create(stalact_location[type_lvl_now], x_rd, y_rd);
                                 aa--;
                                 if (aa == 0)
                                     break;
@@ -3544,110 +3997,35 @@ public class func : MonoBehaviour
                 if (x_sp == x_end && y_sp == y_end)
                 {
                     //Debug.Log("num level " + num_lev);
+                    //Debug.Log("end  " + x_end + " " + y_end+" "+ camp_location[type_lvl.bases]);
                     if ((num_lev + 1) % 5 == 0 && num_lev != 0)
                     {
-                        create("cave 1", x_end, y_end);
-                    }
-                    else
-                    {
-                        create(cave_now, x_end, y_end);
-                    }
-
-
-
-                    /*
-                    if (((num_lev+1) % 4 == 0 ))
-                    {
-                        int aa = 0;
-                        if (num_lev < 8)
-                            aa = (num_lev+1) / 2;
+                        if((num_lev + 1)==5)
+                            create("cave 1", x_end, y_end);
                         else
-                            aa = 4;
-                        int a = Random.Range(2 + aa / 2, 4 + aa);
-                        int a_boss = aa / 2;
-                        //a_boss = 1;
-                        // Debug.Log(a_boss+" boss");
-                        //a = 0;
-                        //a = 4;
-                        while (a > 0)
                         {
-                            int x_rd = Random.Range(x_sp - r, x_sp + r + 1);
-                            int y_rd = Random.Range(y_sp - r, y_sp + r + 1);
-                            if (x_rd > 0 && x_rd < size_global - 1 && y_rd > 0 && y_rd < size_global - 1)
-                            {
-                                if (object_bool(x_rd, y_rd))
-                                {
-                                    if (a_boss > 0)
-                                    {
-                                        create("goblin boss", x_rd, y_rd);
-                                        //Debug.Log(a_boss + " boss");
-                                        a_boss--;
-                                    }
-                                    else
-                                    {
-                                        if ((Random.Range(0, 100) < 6 + num_lev * 2 && num_lev > 2 ))
-                                        {
-                                            int rdd = Random.Range(0, 6);
-                                            if (rdd == 0)
-                                                create("goblin rock elit", x_rd, y_rd);
-                                            else if (rdd == 1)
-                                                create("goblin fire elit", x_rd, y_rd);
-                                            else if (rdd == 2)
-                                                create("goblin blood elit", x_rd, y_rd);
-                                            else if (rdd == 2)
-                                                create("goblin ice elit", x_rd, y_rd);
-                                            else if (rdd == 2)
-                                                create("goblin poition elit", x_rd, y_rd);
-                                            else
-                                                create("goblin energy elit", x_rd, y_rd);
-                                        }
-                                        else
-                                        {
-                                            if (Random.Range(0, 4) == 0)
-                                                create("goblin hiller", x_rd, y_rd);
-                                            else if (num_lev + num_lev_type * 4 - Random.Range(1, 15) < 0)
-                                            {
-                                                create("goblin", x_rd, y_rd);
-                                            }
-                                            else
-                                            {
-                                                create("goblin elit", x_rd, y_rd);
-                                            }
-                                        }
-                                    }
-
-
-
-                                    a--;
-                                }
-                            }
+                            List<string> lt_rd = new List<string>();
+                            if (type_lvl_now != type_lvl.fire)
+                                lt_rd.Add(cave_location[type_lvl.fire]);
+                            if (type_lvl_now != type_lvl.ice)
+                                lt_rd.Add(cave_location[type_lvl.ice]);
+                            if (type_lvl_now != type_lvl.energy)
+                                lt_rd.Add(cave_location[type_lvl.energy]);
+                            if (type_lvl_now != type_lvl.poition)
+                                lt_rd.Add(cave_location[type_lvl.poition]);
+                            if (type_lvl_now != type_lvl.blood)
+                                lt_rd.Add(cave_location[type_lvl.blood]);
+                            if (type_lvl_now != type_lvl.rock)
+                                lt_rd.Add(cave_location[type_lvl.rock]);
+                            create(rand_list(lt_rd), x_end, y_end);
                         }
                     }
                     else
                     {
-                        int aa = 4;
-                        aa = 1;
-                        for (int i = 0; i < 100; i++)
-                        {
-                            int x_rd = Random.Range(x_sp - r, x_sp + r + 1);
-                            int y_rd = Random.Range(y_sp - r, y_sp + r + 1);
-                            int c = Mathf.Abs(x_rd - x_sp) + Mathf.Abs(y_rd - y_sp);
-
-                            bool[] bl_n = new bool[4];
-
-                            if (x_rd > 0 && x_rd < size_global - 1 && y_rd > 0 && y_rd < size_global - 1 && (way_find_lt(nature, GameObject.Find("rock"), x_rd, y_rd, 1).Count != 0) && object_bool(x_rd, y_rd) && carts[x_rd, y_rd] == null)
-                            {
-                                //create("stalact", x_rd, y_rd);
-                                create("goblin shaman", x_rd, y_rd);
-                                aa--;
-                                if (aa == 0)
-                                    break;
-                                //nat[x_rd, y_rd] = true;
-                                //break;
-                            }
-                        }
+                        create(cave_location[type_lvl_now], x_end, y_end);
                     }
-                    */
+                    
+                    
 
                     int aa = 4;
                     //aa = 1;
@@ -3659,9 +4037,10 @@ public class func : MonoBehaviour
 
                         bool[] bl_n = new bool[4];
 
-                        if (x_rd > 0 && x_rd < size_global - 1 && y_rd > 0 && y_rd < size_global - 1 && (way_find_lt(nature, GameObject.Find(wall_now), x_rd, y_rd, 1).Count != 0) && object_bool(x_rd, y_rd) && carts[x_rd, y_rd] == null)
+                        if (x_rd > 0 && x_rd < size_global - 1 && y_rd > 0 && y_rd < size_global - 1 && (way_find_lt(nature, GameObject.Find(rock_location[type_lvl_now]), x_rd, y_rd, 1).Count != 0) && object_bool(x_rd, y_rd) && carts[x_rd, y_rd] == null)
                         {
-                            create(decor_now, x_rd, y_rd);
+                            Debug.Log("decor create " + stalact_location[type_lvl_now]);
+                            create(stalact_location[type_lvl_now], x_rd, y_rd);
                             //create("dungalorg", x_rd, y_rd);
                             aa--;
                             if (aa == 0)
@@ -3866,16 +4245,34 @@ public class func : MonoBehaviour
 
         }
 
-        foreach (int id in nums_mob_wolk)
+        foreach (int id in nums_mob)
         {
             mob_list[id].GetComponent<par_mob>().update_viz();
         }
+
+
+
         num_lev++;
+        //num_lev = 20;
+        //type_lvl_now=
 
         GameObject.Find("Main Camera").GetComponent<Animator>().enabled = true;
         GameObject.Find("Main Camera").GetComponent<Animator>().Play("down", -1, 0);
         GameObject.Find("tx lvl").GetComponent<Animator>().Play("invize", -1, 0);
         GameObject.Find("tx lvl").GetComponent<Text>().text = num_lev + " этаж";
+
+        int count_mast = GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>().lt_carts_art.ConvertAll(x => x.name).Where(x => (x == "cart mast")).Count();
+        foreach (par_cart_art art in GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>().lt_carts_art)
+        {
+            if (art.tp_perez == par_cart_art.type_perez.perehod_lvl)
+            {
+                art.perez_now -= (1 + count_mast);
+                if(art.perez_now < 0)
+                    art.perez = 0;
+                if(art.perez_now==0 && art.name=="cart brilliant")
+                    GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>().activate_art(art);
+            }
+        }
 
         add.load_add();
 
@@ -3912,203 +4309,37 @@ public class func : MonoBehaviour
 
     public static string get_name_effect(List<string> lt_carts, Stack<string> st_par)
     {
-        string name = null;
-        List<par_cart.type_cart> type_cart = new List<par_cart.type_cart>();
+        string name = "";
+        //List<par_cart.type_cart> type_cart = new List<par_cart.type_cart>();
 
-        /*
-        foreach (string st in lt_carts)
-        {
-            type_cart.Add(GameObject.Find(st).GetComponent<par_cart>().type);
-        }
-        */
-        foreach (string st_cart in lt_carts)
-        {
+        //List<List<string>> lt_lt_st = par_cart.cart_combinations.get_comb_now(st_comb);
 
-            int pw = GameObject.Find(st_cart).GetComponent<par_cart>().lvl;
-            //if()
-
-            par_cart.type_cart cart_type = GameObject.Find(st_cart).GetComponent<par_cart>().type;
-            //par_cart.type_cart cart_type1 = par_cart.type_cart.bases;
-
-            if (type_cart.Count == 0)
-                type_cart.Add(cart_type);
-            else
+            for (int i = 0; i < lt_carts.Count; i++)
             {
-                //par_cart.type_cart pr_cart1 = type_cart[type_cart.Count - 1];
-                //cart_type1 = pr_cart1;
-                if (cart_type != type_cart[type_cart.Count - 1])
-                {
-                    type_cart.Add(cart_type);
-                }
-                else
-                {
-                    //pw += pr_cart1.lvl;
-                }
+            if ((i == 0)&&( lt_carts[i] == "cart bomb" || lt_carts[i] == "cart bomb 1" || lt_carts[i] == "cart bomb 2" || lt_carts[i] == "cart derlorg" || lt_carts[i] == "cart derlorg 1" || lt_carts[i] == "cart derlorg 2"))
+            {
+                    return lt_carts[i];
             }
-        }
+            else if (lt_carts.Contains("cart spirit(boss)")
+                || lt_carts.Contains("cart spirit fire")
+                || lt_carts.Contains("cart spirit blood")
+                || lt_carts.Contains("cart spirit ice")
+                || lt_carts.Contains("cart spirit rock")
+                || lt_carts.Contains("cart spirit energy")
+                || lt_carts.Contains("cart spirit poition"))
+            {
+                return "spirit base";
+            }
+            else if(lt_carts[i] == "cart dych" || lt_carts[i] == "cart dych 1" || lt_carts[i] == "cart dych 2")
+            {
+                return "spawn dych";
+            }
+            name += lt_carts[i];
+                if (i < lt_carts.Count - 1)
+                    name += "-";
+            }
 
 
-
-        if (lt_carts.Count == 1)
-        {
-            name = lt_carts[0];
-        }
-        else if (type_cart[0] == par_cart.type_cart.damage)
-        {
-            if (type_cart[1] == par_cart.type_cart.rock)
-            {
-                name = "atack rock";
-                //type_bf = par_baf.type_baf.bar_rock;
-            }
-
-            else if (type_cart[1] == par_cart.type_cart.fire)
-            {
-                name = "atack fire";
-                //type_bf = par_baf.type_baf.bar_fire;
-            }
-
-            else if (type_cart[1] == par_cart.type_cart.energy)
-            {
-                //type_bf = par_baf.type_baf.bar_energy;
-                name = "atack energy";
-            }
-
-            else if (type_cart[1] == par_cart.type_cart.blood)
-            {
-                //type_bf = par_baf.type_baf.bar_blood;
-                name = "atack blood";
-            }
-            else if (type_cart[1] == par_cart.type_cart.ice)
-            {
-                //type_bf = par_baf.type_baf.bar_ice;
-                name = "atack ice";
-            }
-            else if (type_cart[1] == par_cart.type_cart.poition)
-            {
-                //type_bf = par_baf.type_baf.bar_poition;
-                name = "atack poition";
-            }
-        }
-        else if (type_cart[0] == par_cart.type_cart.sp_barier)
-        {
-            if (type_cart[1] == par_cart.type_cart.rock)
-            {
-                name = "barier bases rock";
-                //type_bf = par_baf.type_baf.bar_rock;
-            }
-
-            else if (type_cart[1] == par_cart.type_cart.fire)
-            {
-                name = "barier bases fire";
-                //type_bf = par_baf.type_baf.bar_fire;
-            }
-
-            else if (type_cart[1] == par_cart.type_cart.energy)
-            {
-                //type_bf = par_baf.type_baf.bar_energy;
-                name = "barier bases energy";
-            }
-
-            else if (type_cart[1] == par_cart.type_cart.blood)
-            {
-                //type_bf = par_baf.type_baf.bar_blood;
-                name = "barier bases blood";
-            }
-            else if (type_cart[1] == par_cart.type_cart.ice)
-            {
-                //type_bf = par_baf.type_baf.bar_ice;
-                name = "barier bases ice";
-            }
-            else if (type_cart[1] == par_cart.type_cart.poition)
-            {
-                //type_bf = par_baf.type_baf.bar_poition;
-                name = "barier bases poition";
-            }
-        }
-        /*
-        else if (type_cart[0] == par_cart.type_cart.sp_barier)
-        {
-            if (type_cart[1] == par_cart.type_cart.rock)
-            {
-                name = "barier rock";
-                //type_bf = par_baf.type_baf.bar_rock;
-            }
-
-            else if (type_cart[1] == par_cart.type_cart.fire)
-            {
-                name = "barier fire";
-                //type_bf = par_baf.type_baf.bar_fire;
-            }
-
-            else if (type_cart[1] == par_cart.type_cart.energy)
-            {
-                //type_bf = par_baf.type_baf.bar_energy;
-                name = "barier energy";
-            }
-
-            else if (type_cart[1] == par_cart.type_cart.blood)
-            {
-                //type_bf = par_baf.type_baf.bar_blood;
-                name = "barier blood";
-            }
-            else if (type_cart[1] == par_cart.type_cart.ice)
-            {
-                //type_bf = par_baf.type_baf.bar_ice;
-                name = "barier ice";
-            }
-            else if (type_cart[1] == par_cart.type_cart.poition)
-            {
-                //type_bf = par_baf.type_baf.bar_poition;
-                name = "barier poition";
-            }
-        }
-        */
-        else if (type_cart[0] == par_cart.type_cart.derlorg)
-        {
-            if (type_cart[1] == par_cart.type_cart.damage)
-            {
-                name = "seal damage";
-                //type_bf = par_baf.type_baf.bar_rock;
-            }
-            else if (type_cart[1] == par_cart.type_cart.sp_barier)
-            {
-                name = "seal barier";
-                //type_bf = par_baf.type_baf.bar_rock;
-            }
-            else if (type_cart[1] == par_cart.type_cart.rock)
-            {
-                name = "seal rock";
-                //type_bf = par_baf.type_baf.bar_rock;
-            }
-
-            else if (type_cart[1] == par_cart.type_cart.fire)
-            {
-                name = "seal fire";
-                //type_bf = par_baf.type_baf.bar_fire;
-            }
-
-            else if (type_cart[1] == par_cart.type_cart.energy)
-            {
-                //type_bf = par_baf.type_baf.bar_energy;
-                name = "seal energy";
-            }
-
-            else if (type_cart[1] == par_cart.type_cart.blood)
-            {
-                //type_bf = par_baf.type_baf.bar_blood;
-                name = "seal blood";
-            }
-            else if (type_cart[1] == par_cart.type_cart.ice)
-            {
-                //type_bf = par_baf.type_baf.bar_ice;
-                name = "seal ice";
-            }
-            else if (type_cart[1] == par_cart.type_cart.poition)
-            {
-                //type_bf = par_baf.type_baf.bar_poition;
-                name = "seal poition";
-            }
-        }
 
         return name;
     }
@@ -4117,155 +4348,156 @@ public class func : MonoBehaviour
     {
         Debug.Log("create effect " + name);
 
-        string name_ = cart_effects[name].name;
-        if (name == "cart damage" || name == "cart damage 1" || name == "cart damage 2")
+        string name_ = cart_effects[name];
+
+        if (name_ == "atack base")
         {
             if (power <= 1)
             {
-                name = "cart damage";
+                name_ = "atack base";
             }
             else if (power < 4)
             {
-                name = "cart damage 1";
+                name_ = "atack base 1";
             }
             else
             {
-                name = "cart damage 2";
+                name_ = "atack base 2";
             }
         }
-        else if (name == "atack blood" || name == "atack blood 1" || name == "atack blood 2")
+        else if (name_ == "atack blood")
         {
-            if (power <= 2)
+            if (power <= 1)
             {
-                name = "atack blood";
+                name_ = "atack blood";
             }
-            else if (power < 8)
+            else if (power < 4)
             {
-                name = "atack blood 1";
+                name_ = "atack blood 1";
             }
             else
             {
-                name = "atack blood 2";
+                name_ = "atack blood 2";
             }
         }
-        else if (name == "atack fire" || name == "atack fire 1" || name == "atack fire 2")
+        else if (name_ == "atack fire")
         {
-            if (power <= 2)
+            if (power <= 1)
             {
-                name = "atack fire";
+                name_ = "atack fire";
             }
-            else if (power < 8)
+            else if (power < 4)
             {
-                name = "atack fire 1";
+                name_ = "atack fire 1";
             }
             else
             {
-                name = "atack fire 2";
+                name_ = "atack fire 2";
             }
         }
-        else if (name == "atack poition" || name == "atack poition 1" || name == "atack poition 2")
+        else if (name_ == "atack poition")
         {
-            if (power <= 2)
+            if (power <= 1)
             {
-                name = "atack poition";
+                name_ = "atack poition";
             }
-            else if (power < 8)
+            else if (power < 4)
             {
-                name = "atack poition 1";
+                name_ = "atack poition 1";
             }
             else
             {
-                name = "atack poition 2";
+                name_ = "atack poition 2";
             }
         }
-        else if (name == "atack ice" || name == "atack ice 1" || name == "atack ice 2")
+        else if (name_ == "atack ice")
         {
-            if (power <= 2)
+            if (power <= 1)
             {
-                name = "atack ice";
+                name_ = "atack ice";
             }
-            else if (power < 8)
+            else if (power < 4)
             {
-                name = "atack ice 1";
+                name_ = "atack ice 1";
             }
             else
             {
-                name = "atack ice 2";
+                name_ = "atack ice 2";
             }
         }
-        else if (name == "atack rock" || name == "atack rock 1" || name == "atack rock 2")
+        else if (name_ == "atack rock")
         {
-            if (power <= 2)
+            if (power <= 1)
             {
-                name = "atack rock";
+                name_ = "atack rock";
             }
-            else if (power < 8)
+            else if (power < 4)
             {
-                name = "atack rock 1";
+                name_ = "atack rock 1";
             }
             else
             {
-                name = "atack rock 2";
+                name_ = "atack rock 2";
             }
         }
-        else if (name == "atack energy" || name == "atack energy 1" || name == "atack energy 2")
+        else if (name_ == "atack energy" )
         {
-            if (power <= 2)
+            if (power <= 1)
             {
-                name = "atack energy";
+                name_ = "atack energy";
             }
-            else if (power < 8)
+            else if (power < 4)
             {
-                name = "atack energy 1";
+                name_ = "atack energy 1";
             }
             else
             {
-                name = "atack energy 2";
+                name_ = "atack energy 2";
             }
         }
 
 
-        else if (name == "cart blood" || name == "cart blood 1" || name == "cart blood 2")
+        else if (name_ == "blood ef")
         {
             if (power <= 1)
             {
-                name = "cart blood";
+                name_ = "blood ef";
             }
-            else if (power > 1 && power < 4)
+            else if (power< 4)
             {
-                name = "cart blood 1";
+                name_ = "blood 1 ef";
             }
-            else if (power >= 4)
+            else
             {
-                name = "cart blood 2";
+                name_ = "blood 2 ef";
             }
         }
-        else if (name == "cart rock" || name == "cart rock 1")
+        else if (name_ == "rock ef")
         {
             if (power <= 1)
             {
-                name = "cart rock";
+                name_ = "rock ef";
             }
             if (power > 1)
             {
-                name = "cart rock 1";
+                name_ = "rock 1 ef";
             }
         }
-        else if (name == "cart fire" || name == "cart fire 1")
+        else if (name_ == "fire ef")
         {
             if (power <= 1)
             {
-                name = "cart fire";
+                name_ = "fire ef";
             }
             else if (power > 1)
             {
-                name = "cart fire 1";
+                name_ = "fire 1 ef";
             }
         }
         //Debug.Log("create effect rez" + name);
-        if (power >= 16 && gm_p.name == data.data_now.pl_name_now && name != "berserk ef")
+        if (power >= 16 && gm_p.name == data.data_now.pl_name_now && name_ != "berserk ef")
             data.give_achive("большой потенциал");
-        GameObject effect = Instantiate(cart_effects[name]);
+        GameObject effect = Instantiate(GameObject.Find("effects").transform.Find(name_).gameObject);
 
 
         if (que_effects[x, y].Count == 0)
@@ -4331,16 +4563,21 @@ public class func : MonoBehaviour
     }
     public static GameObject create_lovyshka(int x, int y, string name, GameObject parent, int time, int power,bool skip)
     {
-        Debug.Log("create lovyshka");
+        Debug.Log("create lovyshka ["+name+"]");
         string name_ = name;
 
         GameObject lovyshka = null;
-        foreach (GameObject gm in lt_lovyshka[x, y])
+
+
+        if(name!="spirit base" && name != "lov bomb")
         {
-            if (gm.name == name_)
+            foreach (GameObject gm in lt_lovyshka[x, y])
             {
-                lovyshka = gm;
-                break;
+                if (gm.name == name_)
+                {
+                    lovyshka = gm;
+                    break;
+                }
             }
         }
         if (lovyshka != null)
@@ -4352,6 +4589,7 @@ public class func : MonoBehaviour
         {
             lovyshka = Instantiate(GameObject.Find("effects").transform.Find("lovyshka").Find(name).gameObject);
             lovyshka.name = name_;
+
             par_lovyshka lov = lovyshka.GetComponent<par_lovyshka>();
             lov.x = x;
             lov.y = y;
@@ -4375,6 +4613,20 @@ public class func : MonoBehaviour
 
         return lovyshka;
     }
+    public static void set_anim_color(GameObject gm,List<string> lt_st)
+    {
+        anim_color cl = gm.GetComponent<anim_color>();
+        Queue<par_cart.type_cart> lt_que = new Queue<par_cart.type_cart>();
+        par_cart.type_cart typ0 = GameObject.Find(lt_st[0]).GetComponent<par_cart>().type;
+        lt_que.Enqueue(typ0);
+        lt_que.Enqueue(typ0);
+        for (int i = 0; i < lt_st.Count; i++)
+        {
+            lt_que.Enqueue(GameObject.Find(lt_st[i]).GetComponent<par_cart>().type);
+        }
+        cl.lt_colors = lt_que;
+        cl.init(typ0);
+    }
     #endregion
     public static bool stay_friend_atack_now()
     {
@@ -4393,7 +4645,7 @@ public class func : MonoBehaviour
         ////test_message = "error wolk mob";
         int num = 0;
         //Debug.Log("next hod art " + nums_mob_wolk.Count);
-        ////test_message = "error wolk mob "+num;
+        test_message = "wolk mob "+num;
         num = nums_mob_wolk[nums_mob_wolk.Count - 1];
         if (mob_list[num] != null)
         {
@@ -4403,12 +4655,27 @@ public class func : MonoBehaviour
             if (pr_mb.lt_carts_art.Count > 0 && !pr_mb.speed_hod)
             {
                 int a = 0;
-
+                List<string> lt_st_art = pr_mb.lt_carts_art.ConvertAll(x=>x.name);
                 foreach (par_cart_art art in pr_mb.lt_carts_art)
                 {
-                    if (art.perez_now > 0 && art.name != "cart berserk" && art.name != "cart berserk boss")
+                    if (art.perez_now > 0 && art.tp_perez== par_cart_art.type_perez.standart)
+                    {
                         art.perez_now--;
-                    if (art.perez_now == 0 && art.name != "cart berserk" && art.name != "cart berserk boss")
+                        if(lt_st_art.Contains("cart mast"))
+                        {
+                            art.perez_now -= lt_st_art.Where(x =>( x == "cart mast")).Count();
+                        }
+                    }
+                        
+                    /*
+                    if(art.name == "cart base st" && !pr_mb.lt_carts.Contains("cart damage"))
+                    {
+                        art.perez_now -=3;
+                    }
+                    */
+                    if (art.perez_now < 0)
+                        art.perez_now = 0;
+                    if (art.perez_now == 0 && art.tp_perez == par_cart_art.type_perez.standart)
                     {
                         //Debug.Log("activate art =" + art.name+"  "+num);
                         //pr_mb.activate_cart_art(art.name));
@@ -4484,7 +4751,7 @@ public class func : MonoBehaviour
             pr_mob.hod_now = true;
             pr_mob.atacked = false;
 
-            if (pr_mob.friend)
+            if (pr_mob.friend && pr_mob.friend_type==par_mob.type_friend.active)
             {
                 GameObject gg = GameObject.Find("im baf");
                 //gg.GetComponent<SprireRenderer>
@@ -4495,10 +4762,10 @@ public class func : MonoBehaviour
             if (pr_mob.speed_now > 0)
             {
 
-
-                pr_mob.speed_now--;
-                if (pr_mob.speed > 0)
-                    sp = true;
+                sp = true;
+                //pr_mob.speed_now--;
+                //if (pr_mob.speed > 0)
+                    
                 /*
                 foreach (int id_mob in nums_mob_wolk)
                 {
@@ -4519,32 +4786,13 @@ public class func : MonoBehaviour
                 }
                 */
 
-
+                /*
                 if (pr_mob.speed_now < pr_mob.speed - 1)
                 {
-                    //Debug.Log("  ind add " + num);
-                    //nums_mob_wolk.Add(num); tyt
 
-                    //nums_mob_wolk.Insert(nums_mob_wolk.Count, num);
-                    //bl_add_hod = true;
-                    /*
-                    if (nums_mob_wolk.Count > 0)
-                        nums_mob_wolk.Insert(nums_mob_wolk.Count, num);
-                    else
-                    {
-                        nums_mob_wolk = new List<int>(nums_mob);
-                        nums_mob_wolk.Insert(nums_mob_wolk.Count, num);
-                    }
-                    */
-
-                    /*
-                    foreach (int id_mob in nums_mob_wolk)
-                    {
-                        Debug.Log(id_mob + " id 1");
-                    }
-                    */
                     pr_mob.atacked = bl_at_now;
                 }
+                */
                 ////test_message = "error wolk mob " + num.ToString() + " 1898 " + (gg.GetComponent<Animator>()==null).ToString()+"]";
                 ////test_message = "error wolk mob " + num.ToString() + " 1899 " + (gg.GetComponent<Animator>().GetBool("energy_anim")).ToString() + "]";
 
@@ -4557,7 +4805,7 @@ public class func : MonoBehaviour
             {
                 Debug.Log("ice skip");
                 //sp = true;
-                pr_mob.speed_now--;
+                //pr_mob.speed_now--;
                 if (pr_mob.speed_now < pr_mob.speed)
                     sp = true;
                 //pr_mob.speed_now++;
@@ -4572,16 +4820,12 @@ public class func : MonoBehaviour
                 }
                 */
                 skip_hop = true;
-                if (pr_mob.friend)
+                if (pr_mob.friend && pr_mob.friend_type==par_mob.type_friend.active)
                 {
                     //gg.GetComponent<SprireRenderer>
                     gg.GetComponent<Animator>().SetBool("ice_anim", true);
                 }
                 //if(num==0)
-
-            }
-            else
-            {
 
             }
 
@@ -4624,109 +4868,19 @@ public class func : MonoBehaviour
                     par_baf bf = st_bafs.Pop();
                     if (bf.before)
                     {
-
-                        /*
-if (bf.type == par_baf.type_baf.fire)
-{
-    pr_mob.damage(1,"none");
-}
-
-*/
-                        /*
-                        if (bf.type == par_baf.type_baf.energy  && bl_add_hod && bf.long_baf>1)
-                    {
-
-
-                            if (nums_mob_wolk.Count > 0)
-                                nums_mob_wolk.Insert(nums_mob_wolk.Count, num);
-                            else
-                            {
-                                nums_mob_wolk = new List<int>(nums_mob);
-                                nums_mob_wolk.Insert(nums_mob_wolk.Count, num);
-                            }
-                        */
-
-
-
-
-                        //gg.GetComponent<Animator>().SetBool("energy_anim", false);
-                        //nums_mob_wolk.RemoveAt(nums_mob_wolk.Count - 1);
-
-                        /*
-                            else if (bf.type == par_baf.type_baf.ice  && skip_hop)
-                            {
-                                if (num == 0)
-                                {
-
-                                    if (nums_mob_wolk.Count == 0)
-                                        nums_mob_wolk = new List<int>(nums_mob);
-                                    //if (sp)
-                                    end_hod_all();
-                                }
-
-                                /*
-                                if (bf.long_baf == 1)
-                                {
-                                    skip_hop = false;
-
-                                }
-                                else
-                                */
-                        /*
-                        bf.skip_first = true;
-                        //next_hod();
-                        //next_hod_baf();
-                        //return;
-                        //gg.GetComponent<Animator>().SetBool("energy_anim", false);
-                        //nums_mob_wolk.RemoveAt(nums_mob_wolk.Count - 1);
-                    }
-            */
                         if (bf.type == par_baf.type_baf.seal)
                         {
                             bl_at = false;
                             //del = true;
                         }
-                        else if (bf.type == par_baf.type_baf.seal_damage)
+                        else if (bf.type == par_baf.type_baf.seal_spetial)
                         {
-                            create_effect("cart damage", pr_mob.x, pr_mob.y, mob_list[num], bf.power, new List<string> { "cart damage" });
+                            List<string> lt_c = new List<string>(bf.lt_cart);
+                            string cart0 = lt_c[0];
+                            lt_c.RemoveAt(0);
+                            create_effect(get_name_effect(lt_c,null), pr_mob.x, pr_mob.y, mob_list[num], bf.power, lt_c);
                             //del = true;
                         }
-                        else if (bf.type == par_baf.type_baf.seal_barier)
-                        {
-                            create_effect("cart barier", pr_mob.x, pr_mob.y, mob_list[num], bf.power, new List<string> { "cart barier" });
-                            //del = true;
-                        }
-                        else if (bf.type == par_baf.type_baf.seal_fire)
-                        {
-                            create_effect("cart fire", pr_mob.x, pr_mob.y, mob_list[num], bf.power, new List<string> { "cart fire" });
-                            //del = true;
-                        }
-                        else if (bf.type == par_baf.type_baf.seal_poition)
-                        {
-                            create_effect("cart poition", pr_mob.x, pr_mob.y, mob_list[num], bf.power, new List<string> { "cart poition" });
-                            //del = true;
-                        }
-                        else if (bf.type == par_baf.type_baf.seal_ice)
-                        {
-                            create_effect("cart ice", pr_mob.x, pr_mob.y, mob_list[num], bf.power, new List<string> { "cart ice" });
-                            //del = true;
-                        }
-                        else if (bf.type == par_baf.type_baf.seal_energy)
-                        {
-                            create_effect("cart energy", pr_mob.x, pr_mob.y, mob_list[num], bf.power, new List<string> { "cart energy" });
-                            //del = true;
-                        }
-                        else if (bf.type == par_baf.type_baf.seal_rock)
-                        {
-                            create_effect("cart rock", pr_mob.x, pr_mob.y, mob_list[num], bf.power, new List<string> { "cart rock" });
-                            //del = true;
-                        }
-                        else if (bf.type == par_baf.type_baf.seal_blood)
-                        {
-                            create_effect("cart blood", pr_mob.x, pr_mob.y, mob_list[num], bf.power, new List<string> { "cart blood" });
-                            //del = true;
-                        }
-
                         else if (bf.type == par_baf.type_baf.rage && bf.long_baf != 1)
                         {
                             foreach (par_cart.type_cart tp in par_cart.get_types_tip())
@@ -4750,48 +4904,10 @@ if (bf.type == par_baf.type_baf.fire)
 
                             lt_tp_bf.Remove(bf.type);
                             bool del = false;
-                            /*
-                            if (bf.type == par_baf.type_baf.fire)
-                            {
-                                del = true;
-                            }
-                            */
 
-
-                            /*
-                                if (bf.type == par_baf.type_baf.energy && sp)
-                                {
-                                        pr_mob.speed--;
-                                    //if (pr_mob.speed_now>1 || pr_mob.speed ==0)
-                                        //pr_mob.speed_now--;
-                                        //pr_mob.speed_now--;
-                                        mob_list[num].GetComponent<Animator>().speed = 1;
-                                        del = true;
-                                        GameObject gg = GameObject.Find("im baf");
-
-
-                                    //gg.GetComponent<Animator>().SetBool("energy_anim", false);
-                                    //nums_mob_wolk.RemoveAt(nums_mob_wolk.Count - 1);
-                                }
-                                else if (bf.type == par_baf.type_baf.ice && sp )
-                                {
-                                    pr_mob.speed++;
-                                    //pr_mob.speed_now++;
-                                    mob_list[num].GetComponent<Animator>().speed = 1;
-
-                                    mob_list[num].GetComponent<SpriteRenderer>().color = new Vector4(1, 1, 1, 1);
-                                    del = true;
-                                    GameObject gg = GameObject.Find("im baf");
-                                    //gg.GetComponent<Animator>().SetBool("energy_anim", false);
-                                    //nums_mob_wolk.RemoveAt(nums_mob_wolk.Count - 1);
-                                }
-                            */
 
                             if (bf.type == par_baf.type_baf.seal ||
-                                bf.type == par_baf.type_baf.seal_damage || bf.type == par_baf.type_baf.seal_barier ||
-                                bf.type == par_baf.type_baf.seal_rock || bf.type == par_baf.type_baf.seal_blood ||
-                                bf.type == par_baf.type_baf.seal_fire || bf.type == par_baf.type_baf.seal_poition ||
-                                bf.type == par_baf.type_baf.seal_energy || bf.type == par_baf.type_baf.seal_ice
+                                bf.type == par_baf.type_baf.seal_spetial
 
                                  || bf.type == par_baf.type_baf.rage
                                 )
@@ -4810,52 +4926,23 @@ if (bf.type == par_baf.type_baf.fire)
                                     {
                                         Destroy(mob_list[num].transform.Find("ice").gameObject);
                                     }
-                                */
+
                                 if (bf.type == par_baf.type_baf.seal)
                                 {
                                     Destroy(mob_list[num].transform.Find("seal").gameObject);
                                 }
+                                else if (bf.type == par_baf.type_baf.seal_spetial)
+                                {
 
-                                else if (bf.type == par_baf.type_baf.seal)
-                                {
-                                    Destroy(mob_list[num].transform.Find("seal").gameObject);
-                                }
-                                else if (bf.type == par_baf.type_baf.seal_damage)
-                                {
-                                    Destroy(mob_list[num].transform.Find("seal damage baf").gameObject);
-                                }
-                                else if (bf.type == par_baf.type_baf.seal_barier)
-                                {
-                                    Destroy(mob_list[num].transform.Find("seal barier baf").gameObject);
-                                }
-                                else if (bf.type == par_baf.type_baf.seal_blood)
-                                {
-                                    Destroy(mob_list[num].transform.Find("seal blood baf").gameObject);
-                                }
-                                else if (bf.type == par_baf.type_baf.seal_rock)
-                                {
-                                    Destroy(mob_list[num].transform.Find("seal rock baf").gameObject);
-                                }
-                                else if (bf.type == par_baf.type_baf.seal_ice)
-                                {
-                                    Destroy(mob_list[num].transform.Find("seal ice baf").gameObject);
-                                }
-                                else if (bf.type == par_baf.type_baf.seal_energy)
-                                {
-                                    Destroy(mob_list[num].transform.Find("seal energy baf").gameObject);
-                                }
-                                else if (bf.type == par_baf.type_baf.seal_poition)
-                                {
-                                    Destroy(mob_list[num].transform.Find("seal poition baf").gameObject);
-                                }
-                                else if (bf.type == par_baf.type_baf.seal_fire)
-                                {
-                                    Destroy(mob_list[num].transform.Find("seal fire baf").gameObject);
+
+                                    Destroy(mob_list[num].transform.Find(bf.name).gameObject);
                                 }
                                 else if (bf.type == par_baf.type_baf.rage)
                                 {
                                     Destroy(mob_list[num].transform.Find("rage").gameObject);
                                 }
+                                */
+                                Destroy(bf.gm_anim);
 
                             }
                             if (del)
@@ -4889,241 +4976,24 @@ if (bf.type == par_baf.type_baf.fire)
                 //next_hod_baf();
                 return;
             }
-            /*
-            if (skip_hop)
-            {
-                if (num == 0 )
-                {
 
-                    if(nums_mob_wolk.Count == 0)
-                        nums_mob_wolk = new List<int>(nums_mob);
-                    if(sp)
-                        lovyshka_after_hod();
-                }
-
-                next_hod();
-                //next_hod_baf();
-                return;
-            }
-            */
+            
             if (mob_list[num].GetComponent<par_mob>().speed_hod)
             {
+                mob_list[num].GetComponent<par_mob>().speed_hod = false;
                 //test_message = "error wolk mob " + num.ToString() + " 1989";
-                nums_mob_wolk.RemoveAt(nums_mob_wolk.Count - 1);
+                //nums_mob_wolk.RemoveAt(nums_mob_wolk.Count - 1);
                 //if (num == 0 && nums_mob_wolk.Count == 0)
                 //nums_mob_wolk = new List<int>(nums_mob);
             }
-            mob_list[num].GetComponent<par_mob>().speed_hod = false;
+            //mob_list[num].GetComponent<par_mob>().par_lt_sila_save = new List<string>(mob_list[num].GetComponent<par_mob>().par_lt_sila);
+            //mob_list[num].GetComponent<par_mob>().speed_hod = false;//поменять при необходимости
             hod_mob_now_baf = num;
             hod_mob_now_baf_attack = bl_at;
             hod_mob_now_baf_sp = sp;
 
             next_hod_baf();
-            /*
 
-
-            if (mob_list[num].GetComponent<par_mob>().friend )
-            {
-                //test_message = "error wolk mob " + num.ToString() + " 1998";
-                par_mob pr_pl = mob_list[0].GetComponent<par_mob>();
-                GameObject.Find("bt up").GetComponent<Animator>().SetBool("opened", carts[pr_pl.x, pr_pl.y] != null && num == 0);
-
-
-                bool[,] bl = new bool[size_global, size_global];
-                //bl = func.recurs(bl, 0, 0);
-                for (int i = pr_mob.y - pr_mob.distanse_max; i <= pr_mob.y + pr_mob.distanse_max; i++)
-                {
-                    if (i >= 0 && i < func.size_global)
-                    {
-                        for (int j = pr_mob.x - pr_mob.distanse_max; j <= pr_mob.x + pr_mob.distanse_max; j++)
-                        {
-                            if (j >= 0 && j < func.size_global)
-                            {
-                                bl[j, i] = (func.nature[j, i] == null || func.nature[j, i].GetComponent<par_nat>().vizible);
-                            }
-                        }
-                    }
-                }
-
-                int[,] way_bl = way_bool_and(bl, pr_mob.x, pr_mob.y, pr_mob.distanse_max);
-                for (int i = pr_mob.y - pr_mob.distanse_max; i <= pr_mob.y + pr_mob.distanse_max; i++)
-                {
-                    if (i >= 0 && i < func.size_global)
-                    {
-                        for (int j = pr_mob.x - pr_mob.distanse_max; j <= pr_mob.x + pr_mob.distanse_max; j++)
-                        {
-                            if (j >= 0 && j < func.size_global)
-                            {
-                                if (way_bl[j, i] != -1)
-                                {
-                                    if (func.nature[j, i] != null && !func.nature[j, i].active)
-                                        func.nature[j, i].active = true;
-                                    if (func.mob[j, i] != null && !func.mob[j, i].GetComponent<par_mob>().friend && func.mob[j, i].GetComponent<par_mob>().vizited)
-                                        func.mob[j, i].GetComponent<par_mob>().viz(true);
-                                    if (func.carts[j, i] != null && !func.carts[j, i].active)
-                                        func.carts[j, i].active = true;
-                                    if(!func.eath[j, i].active)
-                                        func.eath[j, i].active = true;
-                                }
-                            }
-                        }
-                    }
-                }
-                //Debug.Log(mob_list[num].name + " baaaf -2");
-
-                    
-
-                if (mob_list[num].GetComponent<par_mob>().wolked)
-                {
-                    gm_wolk_friend = mob_list[num];
-                    hod_mob_now_int = num;
-                    hod_mob_now_friend = num;
-
-                    if (mob_list[num].name == "dych fire" || mob_list[num].name == "dych blood" || mob_list[num].name == "dych energy" || mob_list[num].name == "dych ice" || mob_list[num].name == "dych rock" || mob_list[num].name == "dych poition")
-                    {
-                        //Debug.Log(mob_list[num].name + " baaaf -1");
-                        timer_now = 0.1f;
-                        next_hod();
-                        return;
-                    }
-
-                    ui.print_carts_tip(num);
-                    ui.print_carts_art(num);
-                    ui.update_pn_mob(num);
-                    //par_mob pl = GameObject.Find("player").GetComponent<par_mob>();
-                    Debug.Log("start hod player " + num.ToString() + "  " + nums_mob_wolk.Count);
-                    //GameObject.Find("Main Camera").transform.parent = mob_list[num].transform;
-                    GameObject.Find("Main Camera").transform.localPosition = new Vector3(0, 0, -10);
-
-                    if (num == 0 && nums_mob_wolk.Count == 0)
-                    {
-                        nums_mob_wolk = new List<int>(nums_mob);
-                        data.data_now.cl_carts_speed = 0;
-                        lovyshka_after_hod();
-   
-                    }
-                    if (pr_mob.lt_wolk.Count != 0)
-                    {
-                        if (col_friend > 1)
-                            timer_now = -0.1f;
-                        pr_mob.wolk_v2();
-                        next_hod();
-                    }
-                }
-                else
-                {
-                    timer_now = 0.1f;
-                    next_hod();
-                }
-                //next_hod();
-                //test_message = "good";
-                return;
-            }
-            else if(!mob_list[num].GetComponent<par_mob>().friend &&!pr_mob.nps)
-            {
-                int dop_r = 0;
-                bool bl_wolk_st = false;
-                if (!pr_mob.bl_wolk)
-                {
-                    dop_r = 2;
-                }
-                bool[,] bl = new bool[size_global, size_global];
-                //bl = func.recurs(bl, 0, 0);
-                for (int i = pr_mob.y - pr_mob.distanse_max+dop_r; i <= pr_mob.y + pr_mob.distanse_max-dop_r; i++)
-                {
-                    if (i >= 0 && i < func.size_global)
-                    {
-                        for (int j = pr_mob.x - pr_mob.distanse_max+dop_r; j <= pr_mob.x + pr_mob.distanse_max-dop_r; j++)
-                        {
-                            if (j >= 0 && j < func.size_global)
-                            {
-                                bl[j, i] = (func.nature[j, i] == null || func.nature[j, i].GetComponent<par_nat>().vizible);
-                            }
-                        }
-                    }
-                }
-
-                int[,] way_bl = way_bool_and(bl, pr_mob.x, pr_mob.y, pr_mob.distanse_max-dop_r);
-                for (int i = pr_mob.y - pr_mob.distanse_max+dop_r; i <= pr_mob.y + pr_mob.distanse_max-dop_r; i++)
-                {
-                    if (i >= 0 && i < func.size_global)
-                    {
-                        for (int j = pr_mob.x - pr_mob.distanse_max+dop_r; j <= pr_mob.x + pr_mob.distanse_max-dop_r; j++)
-                        {
-                            if (j >= 0 && j < func.size_global)
-                            {
-                                if (way_bl[j, i] != -1)
-                                {
-                                    if (func.mob[j, i] != null &&( func.mob[j, i].GetComponent<par_mob>().friend|| func.mob[j, i].GetComponent<par_mob>().bl_wolk))
-                                        bl_wolk_st = true;
-                                }
-                            }
-                        }
-                    }
-                }
-
-
-
-                data.data_now.cl_carts_speed = 0;
-                //test_message = "error wolk mob " + num.ToString() + " 2086";
-                //Debug.Log()
-                if (!pr_mob.vizited)
-                {
-                    //Debug.Log("timer is 0.15 mob");
-                    timer_now = 0.1f;
-                }
-
-                //Debug.Log(mob_list.Count+"  "+num);
-                par_mob player = GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>();
-                //par_mob pr_mob = mob_list[num].GetComponent<par_mob>();
-                hod_mob_now_int = num;
-
-                if (player.x > pr_mob.x)
-                    pr_mob.simm(1);
-                else if (player.x < pr_mob.x)
-                    pr_mob.simm(-1);
-                bool atack = false;
-
-
-                //test_message = "error wolk mob " + num.ToString() + " 2106";
-                if (!pr_mob.bl_wolk)
-                {
-                    if (bl_wolk_st)
-                    {
-                        mob_list[num].GetComponent<par_mob>().bl_wolk = true;
-                        try
-                        {
-                            mob_list[num].GetComponent<Animator>().SetBool("wait", false);
-                        }
-                        catch
-                        {
-
-                        }
-                    }
-
-                    next_hod();
-                    return;
-                }
-                
-
-                if (pr_mob.vizited && bl_at)
-                {
-                    atack = atack_mob_auto(num);
-                }
-                if (!atack)
-                {
-                    pr_mob.wolk_mob();
-                }
-
-                //next_hod();
-            }
-            else
-            {
-                timer_now = 0.1f;
-                next_hod();
-                return;
-            }
-            */
         }
 
         else
@@ -5152,53 +5022,8 @@ if (bf.type == par_baf.type_baf.fire)
             {
                 //test_message = "error wolk mob " + num.ToString() + " 1998";
                 par_mob pr_pl = mob_list[0].GetComponent<par_mob>();
-                GameObject.Find("bt up").GetComponent<Animator>().SetBool("opened", carts[pr_pl.x, pr_pl.y] != null && num == 0);
-
-                /*
-                bool[,] bl = new bool[size_global, size_global];
-                //bl = func.recurs(bl, 0, 0);
-                for (int i = pr_mob.y - pr_mob.distanse_max; i <= pr_mob.y + pr_mob.distanse_max; i++)
-                {
-                    if (i >= 0 && i < func.size_global)
-                    {
-                        for (int j = pr_mob.x - pr_mob.distanse_max; j <= pr_mob.x + pr_mob.distanse_max; j++)
-                        {
-                            if (j >= 0 && j < func.size_global)
-                            {
-                                bl[j, i] = (func.nature[j, i] == null || func.nature[j, i].GetComponent<par_nat>().vizible);
-                            }
-                        }
-                    }
-                }
-
-                int[,] way_bl = way_bool_and(bl, pr_mob.x, pr_mob.y, pr_mob.distanse_max);
-                for (int i = pr_mob.y - pr_mob.distanse_max; i <= pr_mob.y + pr_mob.distanse_max; i++)
-                {
-                    if (i >= 0 && i < func.size_global)
-                    {
-                        for (int j = pr_mob.x - pr_mob.distanse_max; j <= pr_mob.x + pr_mob.distanse_max; j++)
-                        {
-                            if (j >= 0 && j < func.size_global)
-                            {
-                                if (way_bl[j, i] != -1)
-                                {
-                                    if (func.nature[j, i] != null && !func.nature[j, i].active)
-                                        func.nature[j, i].active = true;
-                                    if (func.mob[j, i] != null && !func.mob[j, i].GetComponent<par_mob>().friend && !func.mob[j, i].GetComponent<par_mob>().vizited)
-                                        func.mob[j, i].GetComponent<par_mob>().viz(true);
-                                    if (func.carts[j, i] != null && !func.carts[j, i].active)
-                                        func.carts[j, i].active = true;
-                                    if (!func.eath[j, i].active)
-                                        func.eath[j, i].active = true;
-                                }
-                            }
-                        }
-                    }
-                }
-                */
-                //Debug.Log(mob_list[num].name + " baaaf -2");
-
-
+                if(num==0)
+                    GameObject.Find("bt up").GetComponent<Animator>().SetBool("opened", carts[pr_pl.x, pr_pl.y] != null);
 
                 if (mob_list[num].GetComponent<par_mob>().wolked)
                 {
@@ -5206,6 +5031,7 @@ if (bf.type == par_baf.type_baf.fire)
                     //hod_mob_now_int = num;
                     hod_mob_now_friend = num;
 
+                    /*
                     if (mob_list[num].name == "dych fire" || mob_list[num].name == "dych blood" || mob_list[num].name == "dych energy" || mob_list[num].name == "dych ice" || mob_list[num].name == "dych rock" || mob_list[num].name == "dych poition" || pr_mob.friend_type == par_mob.type_friend.disactive)
                     {
                         //Debug.Log(mob_list[num].name + " baaaf -1");
@@ -5213,7 +5039,7 @@ if (bf.type == par_baf.type_baf.fire)
                         next_hod();
                         return;
                     }
-
+                    */
                     bool atack = false;
                     if (pr_mob.friend_type == par_mob.type_friend.auto)
                     {
@@ -5248,16 +5074,24 @@ if (bf.type == par_baf.type_baf.fire)
 
                     //par_mob pl = GameObject.Find("player").GetComponent<par_mob>();
                     Debug.Log("start hod friend " + num.ToString() + "  " + nums_mob_wolk.Count);
-                    if (pr_mob.friend_type == par_mob.type_friend.active)
+                    Debug.Log(pr_mob.carts_count_max["cart damage"] + " count damage " + pr_mob.lt_carts_art[0].type);
+                    if (pr_mob.friend_type == par_mob.type_friend.active )
                     {
+                        GameObject.Find("bt up").GetComponent<Animator>().SetBool("opened", carts[pr_pl.x, pr_pl.y] != null&& num == 0);
                         ui.print_carts_tip(num);
                         ui.print_carts_art(num);
                         ui.update_pn_mob(num);
                         GameObject.Find("Main Camera").transform.parent = mob_list[num].transform;
                         GameObject.Find("Main Camera").transform.localPosition = new Vector3(0, 0, -10);
+
+                        //if(num != 0)
                     }
 
-
+                    if (pr_mob.friend_type == par_mob.type_friend.disactive)
+                    {
+                        timer_now = 0.1f;
+                        next_hod();
+                    }
                     if (num == 0)
                     {
                         if (nums_mob_wolk.Count == 0)
@@ -5306,39 +5140,13 @@ if (bf.type == par_baf.type_baf.fire)
                 bool[,] bl = new bool[size_global, size_global];
                 //float c = Mathf.Abs()
                 //bl = func.recurs(bl, 0, 0);
+
                 if (pr_mob.vizited)
                 {
-                    for (int i = pr_mob.y - pr_mob.distanse_max + dop_r; i <= pr_mob.y + pr_mob.distanse_max - dop_r; i++)
+                    foreach (GameObject gm in pr_mob.lt_mob_vizited)
                     {
-                        if (i >= 0 && i < func.size_global)
-                        {
-                            for (int j = pr_mob.x - pr_mob.distanse_max + dop_r; j <= pr_mob.x + pr_mob.distanse_max - dop_r; j++)
-                            {
-                                if (j >= 0 && j < func.size_global)
-                                {
-                                    bl[j, i] = (func.nature[j, i] == null || func.nature[j, i].GetComponent<par_nat>().vizible);
-                                }
-                            }
-                        }
-                    }
-
-                    int[,] way_bl = way_bool_and(bl, pr_mob.x, pr_mob.y, pr_mob.distanse_max - dop_r);
-                    for (int i = pr_mob.y - pr_mob.distanse_max + dop_r; i <= pr_mob.y + pr_mob.distanse_max - dop_r; i++)
-                    {
-                        if (i >= 0 && i < func.size_global)
-                        {
-                            for (int j = pr_mob.x - pr_mob.distanse_max + dop_r; j <= pr_mob.x + pr_mob.distanse_max - dop_r; j++)
-                            {
-                                if (j >= 0 && j < func.size_global)
-                                {
-                                    if (way_bl[j, i] != -1)
-                                    {
-                                        if (func.mob[j, i] != null && (func.mob[j, i].GetComponent<par_mob>().friend || func.mob[j, i].GetComponent<par_mob>().bl_wolk))
-                                            bl_wolk_st = true;
-                                    }
-                                }
-                            }
-                        }
+                        if ((gm.GetComponent<par_mob>().friend && (distance(pr_mob.x, pr_mob.y, gm.GetComponent<par_mob>().x, gm.GetComponent<par_mob>().y) <= pr_mob.distanse_max - 2)) || gm.GetComponent<par_mob>().bl_wolk)
+                            bl_wolk_st = true;
                     }
                 }
 
@@ -5395,7 +5203,7 @@ if (bf.type == par_baf.type_baf.fire)
                 {
                     pr_mob.wolk_mob();
                 }
-                else
+                else if(!pr_mob.vizited ||!bl_at)
                 {
                     timer_now = 0.1f;
                     next_hod();
@@ -5408,6 +5216,7 @@ if (bf.type == par_baf.type_baf.fire)
                 next_hod();
                 return;
             }
+            Debug.Log("error with sh");
         }
         else
         {
@@ -5417,211 +5226,1188 @@ if (bf.type == par_baf.type_baf.fire)
         }
 
     }
+
+    #region atack_mob
     public class atack_cart
     {
         public Queue<string> que_cart = new Queue<string>();
         public GameObject cel;
-        public atack_cart(Queue<string> que,GameObject cel)
+        public int priority=0;
+
+        public atack_cart(Queue<string> que,GameObject cel,int pr)
         {
             que_cart = que;
+            priority = pr;
             this.cel = cel;
         }
-        public atack_cart(string cart1, GameObject cel)
+        public atack_cart(string cart1, GameObject cel,int pr)
         {
             Queue<string> q = new Queue<string>();
             q.Enqueue(cart1);
             que_cart = q;
+            priority = pr;
             this.cel = cel;
         }
-        public atack_cart(string cart1,string cart2, GameObject cel)
+        public atack_cart(string cart1,string cart2, GameObject cel, int pr)
         {
             Queue<string> q = new Queue<string>();
             q.Enqueue(cart1);
             q.Enqueue(cart2);
             que_cart = q;
+            priority = pr;
             this.cel = cel;
         }
-        public atack_cart(string cart1, string cart2,string cart3, GameObject cel)
+        public atack_cart(string cart1, string cart2,string cart3, GameObject cel, int pr)
         {
             Queue<string> q = new Queue<string>();
             q.Enqueue(cart1);
             q.Enqueue(cart2);
             q.Enqueue(cart3);
             que_cart = q;
+            priority = pr;
             this.cel = cel;
         }
     }
-
-    public static List<atack_cart> base_proverka_atack(par_mob mb_now)
+    public static List<atack_cart> add_list_attack(List<string> lt_st,par_mob mb_now,GameObject cel,int pr)
     {
         List<atack_cart> lt_at = new List<atack_cart>();
+        //Debug.Log("proverka atack");
+        foreach (string st in lt_st)
+        {
+
+            //List<List<string>> lt_lt = par_cart.cart_combinations.lt_comb_map[st];
+            List<List<string>> lt_lt = par_cart.cart_combinations.get_comb_now(st);
+
+            foreach (List<string> lt1 in lt_lt)
+            {
+                //Debug.Log("comb");
+                bool bl_eq = true;
+                foreach (string lt2 in lt1)
+                {
+                    //Debug.Log(lt2);
+                    if (!mb_now.lt_carts.Contains(lt2))
+                    {
+                        bl_eq = false;
+                        break;
+                    }
+                }
+                if (bl_eq)
+                {
+                    lt_at.Add(new atack_cart(new Queue<string>(lt1), cel, pr));
+                }
+            }
+        }
+        return lt_at;
+
+    }
+
+    public static List<List<atack_cart>> base_proverka_atack(par_mob mb_now)
+    {
+        Debug.Log("base proverka atack");
+        //Debug.Log("cont " + mb_now.contains_pr_at(priority_atack.type_atack.damage));
+        Dictionary<string,List<atack_cart>> lt_at_d = new Dictionary<string,List<atack_cart>>();
+        List<List<atack_cart>> lt_at = new List<List<atack_cart>>();
         List<GameObject> lt_gm = new List<GameObject>();
 
-        foreach (Vector2 v2 in mb_now.lt_v2_vizited)
+        HashSet<priority_atack.type_atack> lt_con_att = new HashSet<priority_atack.type_atack>();
+        foreach (priority_atack.type_atack att in System.Enum.GetValues(typeof(priority_atack.type_atack)))
         {
-           
-            List<atack_cart> lt_at_now = new List<atack_cart>();
-            par_mob mb = null;
-            int v_x = (int)v2.x;
-            int v_y = (int)v2.y;
-            if (func.mob[v_x, v_y] != null)
-                mb = func.mob[v_x, v_y].GetComponent<par_mob>();
-            if (distance(v_x,v_y,mb_now.x,mb_now.y) <= mb_now.distanse_min)
+            if (mb_now.contains_pr_at(att))
             {
-                if (mb!=null && mb.friend!=mb_now.friend)
+                lt_con_att.Add(att);
+            }
+        }
+
+
+        List<GameObject> lt_g = new List<GameObject>(mb_now.lt_mob_vizited);
+        lt_g.Add(mb_now.gameObject);
+
+        Dictionary<priority_atack.type_atack, List<string>> lt_map_att = new Dictionary<priority_atack.type_atack, List<string>>();
+
+        foreach (GameObject gm in lt_g)
+        {
+
+            //List<List<atack_cart>> lt_at_now = new List<List<atack_cart>>();
+            par_mob mb = gm.GetComponent<par_mob>();
+            int v_x = mb.x;
+            int v_y = mb.y;
+            int pr = -1;
+
+
+
+
+            if (distance(v_x, v_y, mb_now.x, mb_now.y) <= mb_now.distanse_attack)
+            {
+                if (mb.friend != mb_now.friend)
                 {
-                    if (mb_now.type_lt_attack.Contains(type_atack_mob.damage))
+                    if (lt_con_att.Contains(priority_atack.type_atack.damage) && mb_now.contains_cart_type(par_cart.type_cart.damage))
                     {
-                        if (mb_now.lt_carts.Contains("cart damage"))
-                            lt_at_now.Add(new atack_cart("cart damage", mob[v_x,v_y]));
-                        if (mb_now.lt_carts.Contains("cart damage 1"))
-                            lt_at_now.Add(new atack_cart("cart damage 1", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart damage 2"))
-                            lt_at_now.Add(new atack_cart("cart damage 2", mob[v_x, v_y]));
+                        
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.damage);
+                        List<string> lt_st = new List<string>();
+                        //lt_st.Add("cart damage");
+                        
+                        lt_st.Add("cart damage[n]");
+                        lt_st.Add("cart bomb[n]-cart damage[n]");
+                        lt_st.Add("cart damage[n]-cart [e][n]");
+                        lt_st.Add("cart damage[n]-cart [e_d]");
+                        lt_st.Add("cart bomb[n]-cart damage[n]-cart [e][n]");
+                        lt_st.Add("cart derlorg[n]-cart damage[n]");
+                        lt_st.Add("cart derlorg[n]-cart bomb[n]-cart damage[n]");
+                        lt_st.Add("cart bomb[n]-cart derlorg[n]-cart damage[n]");
+                        
+                        lt_at.Add(add_list_attack(lt_st, mb_now, mob[v_x, v_y],pr));
+                        //lt_at.Add(new atack_cart(new Queue<string>(new List<string>() { "cart damage"}), mob[v_x, v_y], pr));
                     }
-                    if (mb_now.type_lt_attack.Contains(type_atack_mob.rock) || mb_now.type_lt_attack.Contains(type_atack_mob.elemental))
+                    if (lt_con_att.Contains(priority_atack.type_atack.rock) && mb_now.contains_cart_type(par_cart.type_cart.rock))
                     {
-                        if (mb_now.lt_carts.Contains("cart rock"))
-                            lt_at_now.Add(new atack_cart("cart rock", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart rock 1"))
-                            lt_at_now.Add(new atack_cart("cart rock 1", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart rock 2"))
-                            lt_at_now.Add(new atack_cart("cart rock 2", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart spirit rock"))
-                            lt_at_now.Add(new atack_cart("cart spirit rock", mob[v_x, v_y]));
-                    }
-                    if (mb_now.type_lt_attack.Contains(type_atack_mob.ice) || mb_now.type_lt_attack.Contains(type_atack_mob.elemental))
-                    {
-                        if (mb_now.lt_carts.Contains("cart ice"))
-                            lt_at_now.Add(new atack_cart("cart ice", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart ice 1"))
-                            lt_at_now.Add(new atack_cart("cart ice 1", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart ice 2"))
-                            lt_at_now.Add(new atack_cart("cart ice 2", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart spirit ice"))
-                            lt_at_now.Add(new atack_cart("cart spirit ice", mob[v_x, v_y]));
-                    }
-                    if (mb_now.type_lt_attack.Contains(type_atack_mob.poition) || mb_now.type_lt_attack.Contains(type_atack_mob.elemental))
-                    {
-                        if (mb_now.lt_carts.Contains("cart poition"))
-                            lt_at_now.Add(new atack_cart("cart poition", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart poition 1"))
-                            lt_at_now.Add(new atack_cart("cart poition 1", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart poition 2"))
-                            lt_at_now.Add(new atack_cart("cart poition 2", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart spirit poition"))
-                            lt_at_now.Add(new atack_cart("cart spirit poition", mob[v_x, v_y]));
-                    }
-                    if (mb_now.type_lt_attack.Contains(type_atack_mob.fire) || mb_now.type_lt_attack.Contains(type_atack_mob.elemental))
-                    {
-                        if (mb_now.lt_carts.Contains("cart fire"))
-                            lt_at_now.Add(new atack_cart("cart fire", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart fire 1"))
-                            lt_at_now.Add(new atack_cart("cart fire 1", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart fire 2"))
-                            lt_at_now.Add(new atack_cart("cart fire 2", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart spirit fire"))
-                            lt_at_now.Add(new atack_cart("cart spirit fire", mob[v_x, v_y]));
-                    }
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.rock);
+                        List<string> lt_st = new List<string>();
+                        lt_st.Add("cart rock[n]");
+                        //lt_st.Add("cart rock[n]");
+                        lt_st.Add("cart damage[n]-cart rock[n]");
+                        lt_st.Add("cart bomb[n]-cart rock[n]");
+                        lt_st.Add("cart bomb[n]-cart damage[n]-cart rock[n]");
+                        lt_st.Add("cart derlorg[n]-cart rock[n]");
 
+                        lt_st.Add("cart spirit rock");
+                        lt_st.Add("cart damage[n]-cart spirit rock");
+                        lt_st.Add("cart bomb[n]-cart spirit rock");
+                        lt_st.Add("cart bomb[n]-cart damage[n]-cart spirit rock");
+                        lt_st.Add("cart derlorg[n]-cart spirit rock");
 
-
-                    if (mb_now.type_lt_attack.Contains(type_atack_mob.crystall))
+                        lt_at.Add(add_list_attack(lt_st, mb_now, mob[v_x, v_y], pr));
+                    }
+                    if (lt_con_att.Contains(priority_atack.type_atack.fire) && mb_now.contains_cart_type(par_cart.type_cart.fire))
                     {
-                        List<atack_cart> lt_at_now_cr = new List<atack_cart>();
-                        List<string> lt_c_cr = new List<string>();
-                        lt_c_cr.Add("cart crystall");
-                        lt_c_cr.Add("cart crystall 1");
-                        lt_c_cr.Add("cart crystall 2");
-                        foreach (string st_cr in lt_c_cr)
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.fire);
+                        List<string> lt_st = new List<string>();
+                        lt_st.Add("cart fire[n]");
+                        lt_st.Add("cart damage[n]-cart fire[n]");
+                        lt_st.Add("cart bomb[n]-cart fire[n]");
+                        lt_st.Add("cart bomb[n]-cart damage[n]-cart fire[n]");
+                        lt_st.Add("cart derlorg[n]-cart fire[n]");
+
+                        lt_st.Add("cart spirit fire");
+                        lt_st.Add("cart damage[n]-cart spirit fire");
+                        lt_st.Add("cart bomb[n]-cart spirit fire");
+                        lt_st.Add("cart bomb[n]-cart damage[n]-cart spirit fire");
+                        lt_st.Add("cart derlorg[n]-cart spirit fire");
+
+                        lt_at.Add(add_list_attack(lt_st, mb_now, mob[v_x, v_y], pr));
+                    }
+                    if (lt_con_att.Contains(priority_atack.type_atack.ice) && mb_now.contains_cart_type(par_cart.type_cart.ice))
+                    {
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.ice);
+                        List<string> lt_st = new List<string>();
+                        lt_st.Add("cart ice[n]");
+                        lt_st.Add("cart damage[n]-cart ice[n]");
+                        lt_st.Add("cart bomb[n]-cart ice[n]");
+                        lt_st.Add("cart bomb[n]-cart damage[n]-cart ice[n]");
+                        lt_st.Add("cart derlorg[n]-cart ice[n]");
+
+                        lt_st.Add("cart spirit ice");
+                        lt_st.Add("cart damage[n]-cart spirit ice");
+                        lt_st.Add("cart bomb[n]-cart spirit ice");
+                        lt_st.Add("cart bomb[n]-cart damage[n]-cart spirit ice");
+                        lt_st.Add("cart derlorg[n]-cart spirit ice");
+
+                        lt_at.Add(add_list_attack(lt_st, mb_now, mob[v_x, v_y], pr));
+                    }
+                    if (lt_con_att.Contains(priority_atack.type_atack.poition) && mb_now.contains_cart_type(par_cart.type_cart.poition))
+                    {
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.poition);
+                        List<string> lt_st = new List<string>();
+                        lt_st.Add("cart poition[n]");
+                        lt_st.Add("cart damage[n]-cart poition[n]");
+                        lt_st.Add("cart bomb[n]-cart poition[n]");
+                        lt_st.Add("cart bomb[n]-cart damage[n]-cart poition[n]");
+                        lt_st.Add("cart derlorg[n]-cart poition[n]");
+
+                        lt_st.Add("cart spirit poition");
+                        lt_st.Add("cart damage[n]-cart spirit poition");
+                        lt_st.Add("cart bomb[n]-cart spirit poition");
+                        lt_st.Add("cart bomb[n]-cart damage[n]-cart spirit poition");
+                        lt_st.Add("cart derlorg[n]-cart spirit poition");
+
+                        lt_at.Add(add_list_attack(lt_st, mb_now, mob[v_x, v_y], pr));
+                    }
+                    if (lt_con_att.Contains(priority_atack.type_atack.blood) && mb_now.contains_cart_type(par_cart.type_cart.blood))
+                    {
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.blood);
+                        List<string> lt_st = new List<string>();
+                        lt_st.Add("cart damage[n]-cart blood[n]");
+                        lt_st.Add("cart bomb[n]-cart damage[n]-cart blood[n]");
+
+                        lt_st.Add("cart damage[n]-cart spirit blood");
+                        lt_st.Add("cart bomb[n]-cart damage[n]-cart spirit blood");
+
+                        lt_at.Add(add_list_attack(lt_st, mb_now, mob[v_x, v_y], pr));
+                    }
+                    if (lt_con_att.Contains(priority_atack.type_atack.energy) && mb_now.contains_cart_type(par_cart.type_cart.energy))
+                    {
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.energy);
+                        List<string> lt_st = new List<string>();
+                        lt_st.Add("cart damage[n]-cart energy[n]");
+                        lt_st.Add("cart bomb[n]-cart damage[n]-cart energy[n]");
+
+                        lt_st.Add("cart damage[n]-cart spirit energy");
+                        lt_st.Add("cart bomb[n]-cart damage[n]-cart spirit energy");
+
+                        lt_at.Add(add_list_attack(lt_st, mb_now, mob[v_x, v_y], pr));
+                    }
+                    /*
+                    if (lt_con_att.Contains(priority_atack.type_atack.bomb) && mb_now.contains_cart_type(par_cart.type_cart.damage))
+                    {
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.bomb);
+                        List<string> lt_st = new List<string>();
+                        lt_st.Add("cart bomb[n]-cart damage[n]");
+                        lt_st.Add("cart bomb[n]-cart damage[n]-cart [e][n]");
+
+                        lt_st.Add("cart bomb[n]-cart fire[n]");
+                        lt_st.Add("cart bomb[n]-cart poition[n]");
+                        lt_st.Add("cart bomb[n]-cart ice[n]");
+                        lt_st.Add("cart bomb[n]-cart rock[n]");
+
+                        lt_st.Add("cart bomb[n]-cart derlorg[n]");
+
+                        //List<atack_cart> lt_=
+                        if (v_x > 0 && nature[v_x - 1, v_y] != null && distance(v_x - 1, v_y, mb_now.x, mb_now.y) <= mb_now.distanse_attack)
                         {
-                            if (mb_now.lt_carts.Contains(st_cr))
+                            lt_at.AddRange(add_list_attack(lt_st, mb_now, eath[v_x-1, v_y], pr));
+                        }
+                        if (v_x <size_global-1 && nature[v_x + 1, v_y] != null && distance(v_x + 1, v_y, mb_now.x, mb_now.y) <= mb_now.distanse_attack)
+                        {
+                            lt_at.AddRange(add_list_attack(lt_st, mb_now, eath[v_x + 1, v_y], pr));
+                        }
+                        if (v_y > 0 && nature[v_x, v_y-1] != null && distance(v_x, v_y-1, mb_now.x, mb_now.y) <= mb_now.distanse_attack)
+                        {
+                            lt_at.AddRange(add_list_attack(lt_st, mb_now, eath[v_x, v_y-1], pr));
+                        }
+                        if (v_y <size_global-1 && nature[v_x, v_y +1] != null && distance(v_x, v_y + 1, mb_now.x, mb_now.y) <= mb_now.distanse_attack)
+                        {
+                            lt_at.AddRange(add_list_attack(lt_st, mb_now, eath[v_x, v_y + 1], pr));
+                        }
+                        lt_at.AddRange(add_list_attack(lt_st, mb_now, eath[v_x, v_y], pr));
+                    }
+                    */
+                    /*
+                    if (mb_now.contains_pr_at(priority_atack.type_atack.damage))
+                    {
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.damage);
+
+                        List<atack_cart> lt_at_now_dm = new List<atack_cart>();
+                        List<string> lt_c_dm = new List<string>();
+                        lt_c_dm.Add("cart damage");
+                        lt_c_dm.Add("cart damage 1");
+                        lt_c_dm.Add("cart damage 2");
+                        foreach (string st_dm in lt_c_dm)
+                        {
+                            if (mb_now.lt_carts.Contains(st_dm))
                             {
+                                lt_at_now_dm.Add(new atack_cart(st_dm, mob[v_x, v_y], pr));
                                 foreach (atack_cart at in lt_at_now)
                                 {
                                     Queue<string> q = new Queue<string>();
-                                    q.Enqueue(st_cr);
+                                    q.Enqueue(st_dm);
                                     foreach (string st in at.que_cart)
                                     {
                                         q.Enqueue(st);
                                     }
+                                    lt_at_now_dm.Add(new atack_cart(q, mob[v_x, v_y], pr));
+                                    //lt_gm.Add(eath[v_x, v_y]);
 
-                                    if (!lt_gm.Contains(eath[v_x, v_y]))
-                                    {
-                                        lt_at_now_cr.Add(new atack_cart(q, eath[v_x, v_y]));
-                                        lt_gm.Add(eath[v_x, v_y]);
-                                    }
-                                    if (v_x > 0 && nature[v_x - 1, v_y] != null && !lt_gm.Contains(eath[v_x - 1, v_y]) && distance(v_x - 1, v_y, mb_now.x, mb_now.y) <= mb_now.distanse_min)
-                                    {
-                                        lt_at_now_cr.Add(new atack_cart(q, eath[v_x - 1, v_y]));
-                                        lt_gm.Add(eath[v_x - 1, v_y]);
-                                    }
-                                    if (v_x < size_global - 1 && nature[v_x + 1, v_y] != null && !lt_gm.Contains(eath[v_x + 1, v_y]) && distance(v_x + 1, v_y, mb_now.x, mb_now.y) <= mb_now.distanse_min)
-                                    {
-                                        lt_at_now_cr.Add(new atack_cart(q, eath[v_x + 1, v_y]));
-                                        lt_gm.Add(eath[v_x + 1, v_y]);
-                                    }
-                                    if (v_y > 0 && nature[v_x, v_y - 1] != null && !lt_gm.Contains(eath[v_x, v_y - 1]) && distance(v_x, v_y - 1, mb_now.x, mb_now.y) <= mb_now.distanse_min)
-                                    {
-                                        lt_at_now_cr.Add(new atack_cart(q, eath[v_x, v_y - 1]));
-                                        lt_gm.Add(eath[v_x, v_y - 1]);
-                                    }
-                                    if (v_y < size_global - 1 && nature[v_x, v_y + 1] != null && !lt_gm.Contains(eath[v_x, v_y + 1]) && distance(v_x, v_y + 1, mb_now.x, mb_now.y) <= mb_now.distanse_min)
-                                    {
-                                        lt_at_now_cr.Add(new atack_cart(q, eath[v_x, v_y + 1]));
-                                        lt_gm.Add(eath[v_x, v_y + 1]);
-                                    }
                                 }
                             }
+                            lt_at_now.AddRange(lt_at_now_dm);
                         }
-                        lt_at_now.AddRange(lt_at_now_cr);
+
+
+
                     }
+                    */
                 }
                 else if (mb != null && mb.friend == mb_now.friend)
                 {
-                    if (mb_now.type_lt_attack.Contains(type_atack_mob.barier))
+                                        
+                    bool bl_bar = false;
+                    bool bl_energy = false;
+                    bool bl_at_mob = false;
+                    foreach (par_baf baf in mb.lt_bafs)
                     {
-                        if (mb_now.lt_carts.Contains("cart barier"))
-                            lt_at_now.Add(new atack_cart("cart barier", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart barier 1"))
-                            lt_at_now.Add(new atack_cart("cart barier 1", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart barier 2"))
-                            lt_at_now.Add(new atack_cart("cart barier 2", mob[v_x, v_y]));
+
+                        if (baf.type == par_baf.type_baf.bar)
+                        {
+                            bl_bar = true;
+                        }
+                        else if (baf.type == par_baf.type_baf.bar_rock)
+                        {
+                            bl_bar = true;
+                        }
+                        else if (baf.type == par_baf.type_baf.bar_blood)
+                        {
+                            bl_bar = true;
+                        }
+                        else if (baf.type == par_baf.type_baf.bar_fire)
+                        {
+                            bl_bar = true;
+                        }
+                        else if (baf.type == par_baf.type_baf.bar_energy)
+                        {
+                            bl_bar = true;
+                        }
+                        else if (baf.type == par_baf.type_baf.bar_poition)
+                        {
+                            bl_bar = true;
+                        }
+                        else if (baf.type == par_baf.type_baf.bar_ice)
+                        {
+                            bl_bar = true;
+                        }
+
+                        else if (baf.type == par_baf.type_baf.energy)
+                        {
+                            bl_energy = true;
+                        }
                     }
-                    if ((mb_now.type_lt_attack.Contains(type_atack_mob.blood) || mb_now.type_lt_attack.Contains(type_atack_mob.elemental)) && mb.hp<mb.hp_max)
+                    if (lt_con_att.Contains(priority_atack.type_atack.energy) && mb_now.contains_cart_type(par_cart.type_cart.energy))
                     {
+                       
+                        bl_at_mob = mb.lt_mob_vizited.ConvertAll(x =>
+                        {
+                            return x.GetComponent<par_mob>();
+                        }).Where(m =>
+                        {
+                            return func.distance(m.x, m.y, mb.x, mb.y) <= mb.distanse_attack;
+                        }).ToList().ConvertAll(x =>
+                        {
+                            return x.friend;
+                        }).ToList().Contains(!mb_now.friend);
+                        Debug.Log("contains energy "+bl_at_mob);
+                    }
+
+
+
+
+                    if (lt_con_att.Contains(priority_atack.type_atack.blood) && mb_now.contains_cart_type(par_cart.type_cart.blood) && mb.hp<mb.hp_max)
+                    {
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.blood);
+                        List<string> lt_st = new List<string>();
+                        lt_st.Add("cart blood[n]");
+                        lt_st.Add("cart bomb[n]-cart blood[n]");
+                        lt_st.Add("cart derlorg[n]-cart blood[n]");
+
+                        lt_st.Add("cart spirit blood");
+                        lt_st.Add("cart bomb[n]-cart spirit blood");
+                        lt_st.Add("cart derlorg[n]-cart spirit blood");
+
+                        lt_at.Add(add_list_attack(lt_st, mb_now, mob[v_x, v_y], pr));
+                    }
+                    if (lt_con_att.Contains(priority_atack.type_atack.energy) && mb_now.contains_cart_type(par_cart.type_cart.energy) && !bl_energy && bl_at_mob )
+                    {
+
+                       
+                            pr = mb_now.get_pr_at(priority_atack.type_atack.energy);
+                            List<string> lt_st = new List<string>();
+                            lt_st.Add("cart energy[n]");
+                            lt_st.Add("cart bomb[n]-cart energy[n]");
+                            lt_st.Add("cart derlorg[n]-cart energy[n]");
+
+                            lt_st.Add("cart spirit energy");
+                            lt_st.Add("cart bomb[n]-cart spirit energy");
+                            lt_st.Add("cart derlorg[n]-cart spirit energy");
+
+                            lt_at.Add(add_list_attack(lt_st, mb_now, mob[v_x, v_y], pr));
+                        
+
+                    }
+                    if (lt_con_att.Contains(priority_atack.type_atack.barier) && mb_now.contains_cart_type(par_cart.type_cart.sp_barier) && !bl_bar)
+                    {
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.barier);
+                        List<string> lt_st = new List<string>();
+                        lt_st.Add("cart barier[n]");
+                        lt_st.Add("cart barier[n]-cart [e][n]");
+                        lt_st.Add("cart bomb[n]-cart barier[n]-cart [e][n]");
+                        lt_st.Add("cart derlorg[n]-cart barier[n]");
+                        lt_st.Add("cart derlorg[n]-cart barier[n]-cart [e][n]");
+
+                        lt_st.Add("cart barier[n]-cart [e_d]");
+                        lt_st.Add("cart bomb[n]-cart barier[n]-cart [e_d]");
+                        lt_st.Add("cart derlorg[n]-cart barier[n]-cart [e_d]");
+                        lt_at.Add(add_list_attack(lt_st, mb_now, mob[v_x, v_y], pr));
+                    }
+                    /*
+                    if (lt_con_att.Contains(priority_atack.type_atack.bomb))
+                    {
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.bomb);
+                        List<string> lt_st = new List<string>();
+                        lt_st.Add("cart bomb[n]-cart barier[n]");
+                        lt_st.Add("cart bomb[n]-cart barier[n]-cart [e][n]");
+
+                        if(bl_energy && bl_at_mob)
+                            lt_st.Add("cart bomb[n]-cart energy[n]");
+                        if (mb.hp>mb.hp_max)
+                            lt_st.Add("cart bomb[n]-cart blood[n]");
+
+                        //lt_st.Add("cart bomb[n]-cart derlorg[n]");
+                        if (bl_bar)
+                        {
+                            lt_st.Add("cart derlorg[n]-cart bomb[n]-cart barier[n]");
+                            lt_st.Add("cart bomb[n]-cart derlorg[n]-cart barier[n]");
+                        }
+                        
+                        //List<atack_cart> lt_=
+                        if (v_x > 0 && nature[v_x - 1, v_y] != null && distance(v_x - 1, v_y, mb_now.x, mb_now.y) <= mb_now.distanse_attack)
+                        {
+                            lt_at.AddRange(add_list_attack(lt_st, mb_now, eath[v_x - 1, v_y], pr));
+                        }
+                        if (v_x < size_global - 1 && nature[v_x + 1, v_y] != null && distance(v_x + 1, v_y, mb_now.x, mb_now.y) <= mb_now.distanse_attack)
+                        {
+                            lt_at.AddRange(add_list_attack(lt_st, mb_now, eath[v_x + 1, v_y], pr));
+                        }
+                        if (v_y > 0 && nature[v_x, v_y - 1] != null && distance(v_x, v_y - 1, mb_now.x, mb_now.y) <= mb_now.distanse_attack)
+                        {
+                            lt_at.AddRange(add_list_attack(lt_st, mb_now, eath[v_x, v_y - 1], pr));
+                        }
+                        if (v_y < size_global - 1 && nature[v_x, v_y + 1] != null && distance(v_x, v_y + 1, mb_now.x, mb_now.y) <= mb_now.distanse_attack)
+                        {
+                            lt_at.AddRange(add_list_attack(lt_st, mb_now, eath[v_x, v_y + 1], pr));
+                        }
+                        lt_at.AddRange(add_list_attack(lt_st, mb_now, eath[v_x, v_y], pr));
+                    }
+                    */
+                    /*
+                    bool bl_bar = false;
+                    bool bl_energy = false;
+                    foreach (par_baf baf in mb.lt_bafs)
+                    {
+
+                        if (baf.type == par_baf.type_baf.bar)
+                        {
+                            bl_bar = true;
+                        }
+                        else if (baf.type == par_baf.type_baf.bar_rock)
+                        {
+                            bl_bar = true;
+                        }
+                        else if (baf.type == par_baf.type_baf.bar_blood)
+                        {
+                            bl_bar = true;
+                        }
+                        else if (baf.type == par_baf.type_baf.bar_fire)
+                        {
+                            bl_bar = true;
+                        }
+                        else if (baf.type == par_baf.type_baf.bar_energy)
+                        {
+                            bl_bar = true;
+                        }
+                        else if (baf.type == par_baf.type_baf.bar_poition)
+                        {
+                            bl_bar = true;
+                        }
+                        else if (baf.type == par_baf.type_baf.bar_ice)
+                        {
+                            bl_bar = true;
+                        }
+
+                        else if (baf.type == par_baf.type_baf.energy)
+                        {
+                            bl_energy = true;
+                        }
+                    }
+
+                    if (mb_now.contains_pr_at(priority_atack.type_atack.blood) && mb.hp < mb.hp_max)
+                    {
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.blood);
                         if (mb_now.lt_carts.Contains("cart blood"))
-                            lt_at_now.Add(new atack_cart("cart blood", mob[v_x, v_y]));
+                            lt_at_now.Add(new atack_cart("cart blood", mob[v_x, v_y], pr));
                         if (mb_now.lt_carts.Contains("cart blood 1"))
-                            lt_at_now.Add(new atack_cart("cart blood 1", mob[v_x, v_y]));
+                            lt_at_now.Add(new atack_cart("cart blood 1", mob[v_x, v_y], pr));
                         if (mb_now.lt_carts.Contains("cart blood 2"))
-                            lt_at_now.Add(new atack_cart("cart blood 2", mob[v_x, v_y]));
+                            lt_at_now.Add(new atack_cart("cart blood 2", mob[v_x, v_y], pr));
                         if (mb_now.lt_carts.Contains("cart spirit blood"))
-                            lt_at_now.Add(new atack_cart("cart spirit blood", mob[v_x, v_y]));
+                            lt_at_now.Add(new atack_cart("cart spirit blood", mob[v_x, v_y], pr));
                     }
-                    if ((mb_now.type_lt_attack.Contains(type_atack_mob.blood) || mb_now.type_lt_attack.Contains(type_atack_mob.elemental)) && mb.hp < mb.hp_max)
+                    if (mb_now.contains_pr_at(priority_atack.type_atack.energy) && !bl_energy)
                     {
-                        if (mb_now.lt_carts.Contains("cart blood"))
-                            lt_at_now.Add(new atack_cart("cart blood", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart blood 1"))
-                            lt_at_now.Add(new atack_cart("cart blood 1", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart blood 2"))
-                            lt_at_now.Add(new atack_cart("cart blood 2", mob[v_x, v_y]));
-                        if (mb_now.lt_carts.Contains("cart spirit blood"))
-                            lt_at_now.Add(new atack_cart("cart spirit blood", mob[v_x, v_y]));
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.energy);
+                        if (mb_now.lt_carts.Contains("cart energy"))
+                            lt_at_now.Add(new atack_cart("cart energy", mob[v_x, v_y], pr));
+                        if (mb_now.lt_carts.Contains("cart energy 1"))
+                            lt_at_now.Add(new atack_cart("cart energy 1", mob[v_x, v_y], pr));
+                        if (mb_now.lt_carts.Contains("cart energy 2"))
+                            lt_at_now.Add(new atack_cart("cart energy 2", mob[v_x, v_y], pr));
+                        if (mb_now.lt_carts.Contains("cart spirit energy"))
+                            lt_at_now.Add(new atack_cart("cart spirit energy", mob[v_x, v_y], pr));
                     }
+
+                    if (mb_now.contains_pr_at(priority_atack.type_atack.barier))
+                    {
+                        pr = mb_now.get_pr_at(priority_atack.type_atack.barier);
+
+                        List<atack_cart> lt_at_now_dm = new List<atack_cart>();
+                        List<string> lt_c_dm = new List<string>();
+                        lt_c_dm.Add("cart barier");
+                        lt_c_dm.Add("cart barier 1");
+                        lt_c_dm.Add("cart barier 2");
+                        foreach (string st_dm in lt_c_dm)
+                        {
+                            if (mb_now.lt_carts.Contains(st_dm))
+                            {
+                                lt_at_now_dm.Add(new atack_cart(st_dm, mob[v_x, v_y], pr));
+                                foreach (atack_cart at in lt_at_now)
+                                {
+                                    Queue<string> q = new Queue<string>();
+                                    q.Enqueue(st_dm);
+                                    foreach (string st in at.que_cart)
+                                    {
+                                        q.Enqueue(st);
+                                    }
+                                    lt_at_now_dm.Add(new atack_cart(q, mob[v_x, v_y], pr));
+                                    //lt_gm.Add(eath[v_x, v_y]);
+
+                                }
+                            }
+                            lt_at_now.AddRange(lt_at_now_dm);
+                        }
+
+
+
+
+                    }
+                    */
                 }
+                /*
+                if (mb_now.contains_pr_at(priority_atack.type_atack.crystall))
+                {
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.crystall);
+                    List<atack_cart> lt_at_now_cr = new List<atack_cart>();
+                    List<string> lt_c_cr = new List<string>();
+                    lt_c_cr.Add("cart crystall");
+                    lt_c_cr.Add("cart crystall 1");
+                    lt_c_cr.Add("cart crystall 2");
+                    foreach (string st_cr in lt_c_cr)
+                    {
+                        if (mb_now.lt_carts.Contains(st_cr))
+                        {
+                            foreach (atack_cart at in lt_at_now)
+                            {
+                                Queue<string> q = new Queue<string>();
+                                q.Enqueue(st_cr);
+                                foreach (string st in at.que_cart)
+                                {
+                                    q.Enqueue(st);
+                                }
+
+                                if (!lt_gm.Contains(eath[v_x, v_y]))
+                                {
+                                    lt_at_now_cr.Add(new atack_cart(q, eath[v_x, v_y], pr));
+                                    lt_gm.Add(eath[v_x, v_y]);
+                                }
+                                if (v_x > 0 && nature[v_x - 1, v_y] != null && !lt_gm.Contains(eath[v_x - 1, v_y]) && distance(v_x - 1, v_y, mb_now.x, mb_now.y) <= mb_now.distanse_min)
+                                {
+                                    lt_at_now_cr.Add(new atack_cart(q, eath[v_x - 1, v_y], pr));
+                                    lt_gm.Add(eath[v_x - 1, v_y]);
+                                }
+                                if (v_x < size_global - 1 && nature[v_x + 1, v_y] != null && !lt_gm.Contains(eath[v_x + 1, v_y]) && distance(v_x + 1, v_y, mb_now.x, mb_now.y) <= mb_now.distanse_min)
+                                {
+                                    lt_at_now_cr.Add(new atack_cart(q, eath[v_x + 1, v_y], pr));
+                                    lt_gm.Add(eath[v_x + 1, v_y]);
+                                }
+                                if (v_y > 0 && nature[v_x, v_y - 1] != null && !lt_gm.Contains(eath[v_x, v_y - 1]) && distance(v_x, v_y - 1, mb_now.x, mb_now.y) <= mb_now.distanse_min)
+                                {
+                                    lt_at_now_cr.Add(new atack_cart(q, eath[v_x, v_y - 1], pr));
+                                    lt_gm.Add(eath[v_x, v_y - 1]);
+                                }
+                                if (v_y < size_global - 1 && nature[v_x, v_y + 1] != null && !lt_gm.Contains(eath[v_x, v_y + 1]) && distance(v_x, v_y + 1, mb_now.x, mb_now.y) <= mb_now.distanse_min)
+                                {
+                                    lt_at_now_cr.Add(new atack_cart(q, eath[v_x, v_y + 1], pr));
+                                    lt_gm.Add(eath[v_x, v_y + 1]);
+                                }
+                            }
+                        }
+                    }
+                    lt_at_now.AddRange(lt_at_now_cr);
+                }
+
+
+
+*/
 
             }
 
+            if (mb.friend != mb_now.friend &&  mb_now.contains_cart_type(par_cart.type_cart.sp_dych))
+            {
 
-            lt_at.AddRange(lt_at_now);
+
+                Dictionary<List<string>, int> lt_st = new Dictionary<List<string>, int>();
+                //lt_st.Add("cart damage");
+
+                //lt_st.Add("cart damage[n]");
+                if (lt_con_att.Contains(priority_atack.type_atack.dych))
+                {
+
+
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.dych);
+
+                    List<string> l = new List<string>();
+                    l.Add("cart dych[n]-cart damage[n]");
+                    l.Add("cart dych[n]-cart damage[n]-cart [e][n]");
+                    l.Add("cart dych[n]-cart fire[n]");
+                    l.Add("cart dych[n]-cart poition[n]");
+                    l.Add("cart dych[n]-cart ice[n]");
+                    l.Add("cart dych[n]-cart rock[n]");
+
+                    l.Add("cart dych[n]-cart derlorg[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart damage[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart damage[n]-cart [e][n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart fire[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart poition[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart ice[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart rock[n]");
+
+
+
+                    l.Add("cart dych[n]-cart damage[n]-cart [e_d]");
+                    l.Add("cart dych[n]-cart spirit fire");
+                    l.Add("cart dych[n]-cart spirit poition");
+                    l.Add("cart dych[n]-cart spirit ice");
+                    l.Add("cart dych[n]-cart spirit rock");
+
+                    l.Add("cart dych[n]-cart derlorg[n]-cart damage[n]-cart [e_d]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart spirit fire");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart spirit poition");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart spirit ice");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart spirit rock");
+                    /*
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart damage[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart damage[n]-cart [e][n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart fire[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart poition[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart ice[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart rock[n]");
+
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart fire[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart poition[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart ice[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart rock[n]");
+                    */
+                    lt_st.Add(l, pr);
+                    /*
+                    lt_st.Add("cart dych[n]-cart bomb[n]-cart damage[n]", pr);
+                    lt_st.Add("cart dych[n]-cart bomb[n]-cart damage[n]-cart [e][n]", pr);
+                    lt_st.Add("cart dych[n]-cart bomb[n]-cart fire[n]", pr);
+                    lt_st.Add("cart dych[n]-cart bomb[n]-cart poition[n]", pr);
+                    lt_st.Add("cart dych[n]-cart bomb[n]-cart ice[n]", pr);
+                    lt_st.Add("cart dych[n]-cart bomb[n]-cart rock[n]", pr);
+                    */
+                    //lt_st.Add("cart dych[n]-cart derlorg[n]", pr);
+                }
+                if (lt_con_att.Contains(priority_atack.type_atack.damage) && mb_now.contains_cart_type(par_cart.type_cart.damage))
+                {
+                    List<string> l = new List<string>();
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.damage);
+                    //lt_st.Add("cart dych[n]-cart damage[n]", pr);
+                    l.Add("cart dych[n]-cart damage[n]");
+                    l.Add("cart dych[n]-cart damage[n]-cart [e_d]");
+
+                    l.Add("cart dych[n]-cart derlorg[n]-cart damage[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart damage[n]-cart [e_d]");
+
+                    /*
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart damage[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart damage[n]-cart [e][n]");
+
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart damage[n]");
+                    */
+                    lt_st.Add(l, pr);
+                }
+                if (lt_con_att.Contains(priority_atack.type_atack.rock) && mb_now.contains_cart_type(par_cart.type_cart.rock))
+                {
+                    List<string> l = new List<string>();
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.rock);
+                    //lt_st.Add("cart dych[n]-cart damage[n]", pr);
+                    l.Add("cart dych[n]-cart rock[n]");
+                    l.Add("cart dych[n]-cart damage[n]-cart rock[n]");
+
+                    l.Add("cart dych[n]-cart derlorg[n]-cart rock[n]");
+
+
+                    l.Add("cart dych[n]-cart spirit rock");
+                    l.Add("cart dych[n]-cart damage[n]-cart spirit rock");
+
+                    l.Add("cart dych[n]-cart derlorg[n]-cart spirit rock");
+                    /*
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart rock[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart damage[n]-cart rock[n]");
+
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart rock[n]");
+                    */
+                    lt_st.Add(l, pr);
+                }
+                if (lt_con_att.Contains(priority_atack.type_atack.fire) && mb_now.contains_cart_type(par_cart.type_cart.fire))
+                {
+                    List<string> l = new List<string>();
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.fire);
+                    //lt_st.Add("cart dych[n]-cart damage[n]", pr);
+                    l.Add("cart dych[n]-cart fire[n]");
+                    l.Add("cart dych[n]-cart damage[n]-cart fire[n]");
+
+                    l.Add("cart dych[n]-cart derlorg[n]-cart fire[n]");
+
+
+                    l.Add("cart dych[n]-cart spirit fire");
+                    l.Add("cart dych[n]-cart damage[n]-cart spirit fire");
+
+                    l.Add("cart dych[n]-cart derlorg[n]-cart spirit fire");
+                    /*
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart fire[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart damage[n]-cart fire[n]");
+
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart fire[n]");
+                    */
+                    lt_st.Add(l, pr);
+                }
+                if (lt_con_att.Contains(priority_atack.type_atack.poition) && mb_now.contains_cart_type(par_cart.type_cart.poition))
+                {
+                    List<string> l = new List<string>();
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.poition);
+                    //lt_st.Add("cart dych[n]-cart damage[n]", pr);
+                    l.Add("cart dych[n]-cart poition[n]");
+                    l.Add("cart dych[n]-cart damage[n]-cart poition[n]");
+
+                    l.Add("cart dych[n]-cart derlorg[n]-cart poition[n]");
+
+
+                    l.Add("cart dych[n]-cart spirit poition");
+                    l.Add("cart dych[n]-cart damage[n]-cart spirit poition");
+
+                    l.Add("cart dych[n]-cart derlorg[n]-cart spirit poition");
+                    /*
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart poition[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart damage[n]-cart poition[n]");
+
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart poition[n]");
+                    */
+                    lt_st.Add(l, pr);
+                }
+                if (lt_con_att.Contains(priority_atack.type_atack.ice) && mb_now.contains_cart_type(par_cart.type_cart.ice))
+                {
+                    List<string> l = new List<string>();
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.ice);
+                    //lt_st.Add("cart dych[n]-cart damage[n]", pr);
+                    l.Add("cart dych[n]-cart ice[n]");
+                    l.Add("cart dych[n]-cart damage[n]-cart ice[n]");
+
+                    l.Add("cart dych[n]-cart derlorg[n]-cart ice[n]");
+
+
+                    l.Add("cart dych[n]-cart spirit ice");
+                    l.Add("cart dych[n]-cart damage[n]-cart spirit ice");
+
+                    l.Add("cart dych[n]-cart derlorg[n]-cart spirit ice");
+                    /*
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart ice[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart damage[n]-cart ice[n]");
+
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart ice[n]");
+                    */
+                    lt_st.Add(l, pr);
+                }
+                if (lt_con_att.Contains(priority_atack.type_atack.blood) && mb_now.contains_cart_type(par_cart.type_cart.blood))
+                {
+                    List<string> l = new List<string>();
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.blood);
+                    //lt_st.Add("cart dych[n]-cart damage[n]", pr);
+                    //l.Add("cart dych[n]-cart blood[n]");
+                    l.Add("cart dych[n]-cart damage[n]-cart blood[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart damage[n]-cart blood[n]");
+
+                    l.Add("cart dych[n]-cart damage[n]-cart spirit blood");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart damage[n]-cart spirit blood");
+                    //l.Add("cart dych[n]-cart derlorg[n]-cart blood[n]");
+
+                    //l.Add("cart bomb[n]-" + "cart dych[n]-cart blood[n]");
+                    //l.Add("cart bomb[n]-" + "cart dych[n]-cart damage[n]-cart blood[n]");
+
+                    //l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart blood[n]");
+                    lt_st.Add(l, pr);
+                }
+                if (lt_con_att.Contains(priority_atack.type_atack.energy) && mb_now.contains_cart_type(par_cart.type_cart.energy))
+                {
+                    List<string> l = new List<string>();
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.energy);
+                    //lt_st.Add("cart dych[n]-cart damage[n]", pr);
+                    //l.Add("cart dych[n]-cart blood[n]");
+                    l.Add("cart dych[n]-cart damage[n]-cart energy[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart damage[n]-cart energy[n]");
+
+                    l.Add("cart dych[n]-cart damage[n]-cart spirit energy");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart damage[n]-cart spirit energy");
+
+                    //l.Add("cart dych[n]-cart derlorg[n]-cart blood[n]");
+
+                    //l.Add("cart bomb[n]-" + "cart dych[n]-cart blood[n]");
+                    //l.Add("cart bomb[n]-" + "cart dych[n]-cart damage[n]-cart energy[n]");
+
+                    //l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart blood[n]");
+                    lt_st.Add(l, pr);
+                }
+
+                List<Vector2> lt_v2 = new List<Vector2>(mb_now.lt_v2_vizited);
+                lt_v2 = mb_now.lt_v2_vizited.Where(x =>
+                {
+                    return (func.distance((int)x.x, (int)x.y, v_x, v_y) <= 2) && (func.distance((int)x.x, (int)x.y, mb_now.x, mb_now.y) <= mb_now.distanse_attack) && func.object_bool((int)x.x, (int)x.y);
+                }).ToList();
+                //lt_v2.Remove(new Vector2(v_x, v_y));
+                foreach (Vector2 v in lt_v2)
+                {
+                    foreach (List<string> l_s in lt_st.Keys)
+                    {
+                        lt_at.Add(add_list_attack(l_s, mb_now, eath[(int)v.x, (int)v.y], lt_st[l_s]));
+                    }
+
+
+
+
+                    //lt_at.Add(new atack_cart(new Queue<string>(new List<string>() { "cart damage"}), mob[v_x, v_y], pr));
+                }
+            }
+
+            else if(mb.friend == mb_now.friend && mb_now.contains_cart_type(par_cart.type_cart.sp_dych))
+            {
+                Dictionary<List<string>, int> lt_st = new Dictionary<List<string>, int>();
+
+                if (lt_con_att.Contains(priority_atack.type_atack.dych))
+                {
+                    List<string> l = new List<string>();
+                    l.Add("cart dych[n]-cart barier[n]");
+                    l.Add("cart dych[n]-cart barier[n]-cart [e][n]");
+                    l.Add("cart dych[n]-cart blood[n]");
+                    l.Add("cart dych[n]-cart energy[n]");
+
+                    l.Add("cart dych[n]-cart derlorg[n]-cart blood[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart energy[n]");
+
+
+                    l.Add("cart dych[n]-cart barier[n]-cart [e_d]");
+                    l.Add("cart dych[n]-cart spirit blood");
+                    l.Add("cart dych[n]-cart spirit energy");
+
+                    l.Add("cart dych[n]-cart derlorg[n]-cart spirit blood");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart spirit energy");
+                    /*
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart barier[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart barier[n]-cart [e][n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart blood[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart energy[n]");
+
+
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart barier[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart barier[n]-cart [e][n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart blood[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart energy[n]");
+                    */
+                    lt_st.Add(l, pr);
+                }
+                if (lt_con_att.Contains(priority_atack.type_atack.barier) && mb_now.contains_cart_type(par_cart.type_cart.sp_barier))
+                {
+                    List<string> l = new List<string>();
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.barier);
+                    //lt_st.Add("cart dych[n]-cart damage[n]", pr);
+                    l.Add("cart dych[n]-cart barier[n]");
+                    l.Add("cart dych[n]-cart barier[n]-cart [e][n]");
+                    l.Add("cart dych[n]-cart barier[n]-cart [e_d]");
+
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]-cart [e][n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]-cart [e_d]");
+
+                    /*
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart barier[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart barier[n]-cart [e][n]");
+
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart barier[n]");
+                    */
+                    lt_st.Add(l, pr);
+                }
+                if (lt_con_att.Contains(priority_atack.type_atack.rock) && mb_now.contains_cart_type(par_cart.type_cart.rock))
+                {
+                    List<string> l = new List<string>();
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.rock);
+                    l.Add("cart dych[n]-cart barier[n]-cart rock[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]-cart rock[n]");
+
+                    l.Add("cart dych[n]-cart barier[n]-cart spirit rock");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]-cart spirit rock");
+                    //l.Add("cart bomb[n]-" + "cart dych[n]-cart barier[n]-cart rock[n]");
+                    lt_st.Add(l, pr);
+                }
+                if (lt_con_att.Contains(priority_atack.type_atack.fire) && mb_now.contains_cart_type(par_cart.type_cart.fire))
+                {
+                    List<string> l = new List<string>();
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.fire);
+                    l.Add("cart dych[n]-cart barier[n]-cart fire[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]-cart fire[n]");
+
+                    l.Add("cart dych[n]-cart barier[n]-cart spirit fire");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]-cart spirit fire");
+                    //l.Add("cart bomb[n]-" + "cart dych[n]-cart barier[n]-cart fire[n]");
+                    lt_st.Add(l, pr);
+                }
+                if (lt_con_att.Contains(priority_atack.type_atack.ice) && mb_now.contains_cart_type(par_cart.type_cart.ice))
+                {
+                    List<string> l = new List<string>();
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.ice);
+                    l.Add("cart dych[n]-cart barier[n]-cart ice[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]-cart ice[n]");
+
+                    l.Add("cart dych[n]-cart barier[n]-cart spirit ice");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]-cart spirit ice");
+                    //l.Add("cart bomb[n]-" + "cart dych[n]-cart barier[n]-cart ice[n]");
+                    lt_st.Add(l, pr);
+                }
+                if (lt_con_att.Contains(priority_atack.type_atack.poition) && mb_now.contains_cart_type(par_cart.type_cart.poition))
+                {
+                    List<string> l = new List<string>();
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.poition);
+                    l.Add("cart dych[n]-cart barier[n]-cart poition[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]-cart poition[n]");
+
+                    l.Add("cart dych[n]-cart barier[n]-cart spirit poition");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]-cart spirit poition");
+                    //l.Add("cart bomb[n]-" + "cart dych[n]-cart barier[n]-cart rock[n]");
+                    lt_st.Add(l, pr);
+                }
+                if (lt_con_att.Contains(priority_atack.type_atack.blood) && mb_now.contains_cart_type(par_cart.type_cart.blood))
+                {
+                    List<string> l = new List<string>();
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.blood);
+                    //lt_st.Add("cart dych[n]-cart damage[n]", pr);
+                    l.Add("cart dych[n]-cart blood[n]");
+                    l.Add("cart dych[n]-cart barier[n]-cart blood[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]-cart blood[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart blood[n]");
+
+                    l.Add("cart dych[n]-cart spirit blood");
+                    l.Add("cart dych[n]-cart barier[n]-cart spirit blood");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]-cart spirit blood");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart spirit blood");
+                    /*
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart blood[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart barier[n]-cart blood[n]");
+
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart blood[n]");
+                    */
+                    lt_st.Add(l, pr);
+                }
+                if (lt_con_att.Contains(priority_atack.type_atack.energy) && mb_now.contains_cart_type(par_cart.type_cart.energy))
+                {
+                    List<string> l = new List<string>();
+                    pr = mb_now.get_pr_at(priority_atack.type_atack.energy);
+                    //lt_st.Add("cart dych[n]-cart damage[n]", pr);
+                    l.Add("cart dych[n]-cart energy[n]");
+                    l.Add("cart dych[n]-cart barier[n]-cart energy[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]-cart energy[n]");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart energy[n]");
+
+                    l.Add("cart dych[n]-cart spirit energy");
+                    l.Add("cart dych[n]-cart barier[n]-cart spirit energy");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart barier[n]-cart spirit energy");
+                    l.Add("cart dych[n]-cart derlorg[n]-cart spirit energy");
+
+                    /*
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart energy[n]");
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart barier[n]-cart energy[n]");
+
+                    l.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart energy[n]");
+                    */
+                    lt_st.Add(l, pr);
+                }
+
+                List<Vector2> lt_v2 = new List<Vector2>(mb_now.lt_v2_vizited);
+                lt_v2 = mb_now.lt_v2_vizited.Where(x =>
+                {
+                    return (func.distance((int)x.x, (int)x.y, v_x, v_y) <= 2) && (func.distance((int)x.x, (int)x.y, mb_now.x, mb_now.y) <= mb_now.distanse_attack) && func.object_bool((int)x.x, (int)x.y);
+                }).ToList();
+                //lt_v2.Remove(new Vector2(v_x, v_y));
+                foreach (Vector2 v in lt_v2)
+                {
+                    foreach (List<string> l_s in lt_st.Keys)
+                    {
+                        lt_at.Add(add_list_attack(l_s, mb_now, eath[(int)v.x, (int)v.y], lt_st[l_s]));
+                    }
+
+
+
+
+                    //lt_at.Add(new atack_cart(new Queue<string>(new List<string>() { "cart damage"}), mob[v_x, v_y], pr));
+                }
+            }
+
+
+
+
+
+            if (lt_con_att.Contains(priority_atack.type_atack.bomb) && mb_now.contains_cart_type(par_cart.type_cart.sp_bomb) && mb.friend != mb_now.friend)
+            {
+
+                pr = mb_now.get_pr_at(priority_atack.type_atack.dych);
+                List<string> lt_st = new List<string>();
+                //lt_st.Add("cart damage");
+
+                //lt_st.Add("cart damage[n]");
+                lt_st.Add("cart bomb[n]-cart damage[n]");
+                lt_st.Add("cart bomb[n]-cart damage[n]-cart [e][n]");
+
+                lt_st.Add("cart bomb[n]-cart fire[n]");
+                lt_st.Add("cart bomb[n]-cart poition[n]");
+                lt_st.Add("cart bomb[n]-cart ice[n]");
+                lt_st.Add("cart bomb[n]-cart rock[n]");
+
+                lt_st.Add("cart bomb[n]-cart derlorg[n]");
+                lt_st.Add("cart bomb[n]-cart derlorg[n]-cart damage[n]");
+                lt_st.Add("cart bomb[n]-cart derlorg-cart damage[n]-cart [e][n]");
+                //lt_st.Add("cart bomb[n]-cart derlorg[n]");
+                lt_st.Add("cart bomb[n]-" + "cart derlorg[n]-cart fire[n]");
+                lt_st.Add("cart bomb[n]-" + "cart derlorg[n]-cart poition[n]");
+                lt_st.Add("cart bomb[n]-" + "cart derlorg[n]-cart ice[n]");
+                lt_st.Add("cart bomb[n]-" + "cart derlorg[n]-cart rock[n]");
+
+
+                lt_st.Add("cart bomb[n]-cart damage[n]-cart [e_d]");
+
+                lt_st.Add("cart bomb[n]-cart spirit fire");
+                lt_st.Add("cart bomb[n]-cart spirit poition");
+                lt_st.Add("cart bomb[n]-cart spirit ice");
+                lt_st.Add("cart bomb[n]-cart spirit rock");
+
+                lt_st.Add("cart bomb[n]-cart derlorg[n]");
+                lt_st.Add("cart bomb[n]-cart derlorg[n]-cart damage[n]");
+                lt_st.Add("cart bomb[n]-cart derlorg-cart damage[n]-cart [e_d]");
+
+                lt_st.Add("cart bomb[n]-cart derlorg[n]-cart spirit fire");
+                lt_st.Add("cart bomb[n]-cart derlorg[n]-cart spirit poition");
+                lt_st.Add("cart bomb[n]-cart derlorg[n]-cart spirit ice");
+                lt_st.Add("cart bomb[n]-cart derlorg[n]-cart spirit rock");
+                //lt_st.Add("cart bomb[n]-cart derlorg[n]");
+                lt_st.Add("cart bomb[n]-" + "cart derlorg[n]-cart fire[n]");
+                lt_st.Add("cart bomb[n]-" + "cart derlorg[n]-cart poition[n]");
+                lt_st.Add("cart bomb[n]-" + "cart derlorg[n]-cart ice[n]");
+                lt_st.Add("cart bomb[n]-" + "cart derlorg[n]-cart rock[n]");
+                if (false &&mb_now.contains_cart_type(par_cart.type_cart.sp_dych))
+                {
+                    lt_st.Add("cart bomb[n]-" + "cart dych[n]-cart damage[n]");
+                    lt_st.Add("cart bomb[n]-" + "cart dych[n]-cart damage[n]-cart [e][n]");
+                    lt_st.Add("cart bomb[n]-" + "cart dych[n]-cart fire[n]");
+                    lt_st.Add("cart bomb[n]-" + "cart dych[n]-cart poition[n]");
+                    lt_st.Add("cart bomb[n]-" + "cart dych[n]-cart ice[n]");
+                    lt_st.Add("cart bomb[n]-" + "cart dych[n]-cart rock[n]");
+
+                    lt_st.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]");
+                    lt_st.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart fire[n]");
+                    lt_st.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart poition[n]");
+                    lt_st.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart ice[n]");
+                    lt_st.Add("cart bomb[n]-" + "cart dych[n]-cart derlorg[n]-cart rock[n]");
+                }
+
+
+                List<Vector2> lt_v2 = new List<Vector2>(mb_now.lt_v2_vizited);
+                lt_v2 = mb_now.lt_v2_vizited.Where(x =>
+                {
+                    return (func.distance((int)x.x, (int)x.y, v_x, v_y) <= 1) && (func.distance((int)x.x, (int)x.y, mb_now.x, mb_now.y) <= mb_now.distanse_attack && nature[(int)x.x, (int)x.y]==null) ;
+                }).ToList();
+                //lt_v2.Remove(new Vector2(v_x, v_y));
+                foreach (Vector2 v in lt_v2)
+                {
+                    lt_at.Add(add_list_attack(lt_st, mb_now, eath[(int)v.x, (int)v.y], pr));
+                }
+
+                //lt_at.Add(new atack_cart(new Queue<string>(new List<string>() { "cart damage"}), mob[v_x, v_y], pr));
+            }
+            //lt_at.AddRange(lt_at_now);
         }
+        Debug.Log("final(0) " + lt_at.Count);
+        
+        if (lt_at.Count > 0)
+        {
+            lt_at.RemoveAll(x =>
+            {
+                return x.Count == 0;
+            });
+            List<atack_cart> l_at = new List<atack_cart>(lt_at.SelectMany(l => l).ToList());
+            if (l_at.Count > 0)
+            {
+                int mx = l_at.Max(x =>
+                {
+                    return x.priority;
+                });
+
+                foreach (List<atack_cart> l_a in lt_at)
+                {
+                    l_a.RemoveAll(x =>
+                    {
+                        return (x.priority != mx) || (x.que_cart.Count == 0);
+                    });
+                }
+
+                Debug.Log("final(1) " + lt_at.Count);
+
+                var a = l_at.GroupBy(x => x.que_cart.ToList()[0]);
+
+
+                List<List<atack_cart>> lt_at_ = new List<List<atack_cart>>();
+                foreach (var item in a)
+                {
+                    List<atack_cart> l = new List<atack_cart>();
+                    foreach (var item1 in item)
+                    {
+                        l.Add(new atack_cart(item1.que_cart, item1.cel, item1.priority));
+                    }
+                    lt_at_.Add(l);
+                }
+                lt_at = lt_at_;
+            }
+
+            
+
+            /*
+            List<atack_cart> lt_rem = new List<atack_cart>();
+            for (int j = 0; j < lt_at.Count; j++)
+            {
+                for (int i = j + 1; i < lt_at.Count; i++)
+                {
+                    for (int j1 = 0; j1 < lt_at[j].Count; j1++)
+                    {
+                        for (int i1 = j1 + 1; i1 < lt_at[i].Count; i1++)
+                        {
+
+                            if (lt_at[i][i1].que_cart.ToList().SequenceEqual(lt_at[j][j1].que_cart.ToList()) && lt_at[j][j1].cel == lt_at[i][i1].cel)
+                            {
+                                Debug.Log("final(2) " + i + " " + j + " " + lt_rem.Count);
+                                lt_rem.Add(lt_at[i]);
+                            }
+
+                        }
+                    }
+
+
+                }
+            }
+            foreach (atack_cart a_c in lt_rem)
+            {
+                lt_at.Remove(a_c);
+            }
+            */
+        }
+
+        Debug.Log("final " + lt_at.Count);
 
         return lt_at;
     }
 
-    #region atack_mob
     public static bool atack_mob_auto(int num)
     {
         Debug.Log("atack mob auto " + num);
@@ -5634,312 +6420,236 @@ if (bf.type == par_baf.type_baf.fire)
         GameObject cel = null;
 
 
-        List<atack_cart> lt_rd_atack = new List<atack_cart>();
+        List<List<atack_cart>> lt_rd_atack = new List<List<atack_cart>>();
+        if (mob_list[num].name == "dych")
+        {
 
+
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+
+        }
+        if (mob_list[num].name == "defender necro" || mob_list[num].name == "defender bomb" || mob_list[num].name == "defender barier")
+        {
+
+
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+
+        }
         if (mob_list[num].name == "goblin hiller")
         {
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            bool bl_cent = true;
-            if (lt.Count > 0 && pr_mob.lt_carts.Contains("cart barier"))
-            {
-                foreach (object obj in lt)
-                {
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    bool bl = true;
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.bar)
-                        {
-                            if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                                bl_cent = false;
-                            bl = false;
-                        }
-
-                    }
-                    if (!mb.friend && bl && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                        lt_now.Add(obj);
-                }
-                Debug.Log("hiller atack");
-
-            }
-            if (lt_now.Count > 0)
-            {
-                /*
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                //pr_mob.gameObject.GetComponent<Animator>().SetBool("perehod", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-                 */
-
-                //atact = true;
-
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                atact = true;
-                //next_hod();
-            }
-            /*
-            else if (pr_mob.lt_carts.Contains("cart damage") && way(pr_mob.x, pr_mob.y, pr_mob.distanse_min)[player.x, player.y] != -1)
-            {
-                string type = "cart damage";
-                pr_mob.cel = player.gameObject;
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
 
 
-                //next_hod();
-            }
-            */
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
 
         }
         if (mob_list[num].name == "goblin" || mob_list[num].name == "defender")
         {
-            List<GameObject> lt = new List<GameObject>();
-            foreach (GameObject gm in pr_mob.lt_mob_vizited)
-            {
-                par_mob mb  = gm.GetComponent<par_mob>();
-                int v_x = mb.x;
-                int v_y = mb.y;
-                Vector2 v2 = new Vector2(v_x, v_y);
-                if (distance(v2, new Vector2(pr_mob.x, pr_mob.y)) <= pr_mob.distanse_min && mb.friend!= pr_mob.friend)
-                {
-                    if (pr_mob.lt_carts.Contains("cart damage"))
-                    {
-                        lt.Add(gm);
-                    }
-
-
-                }
-
-
-
-            }
-
-            //List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            //List<object> lt_now = new List<object>();
-            GameObject c = rand_list<GameObject>(lt);
-            if (pr_mob.lt_carts.Contains("cart damage") && c!=null)
-            {
-                /*
-                string type = "cart damage";
-                pr_mob.cel = player.gameObject;
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-
-                st_carts.Enqueue("cart damage");
-                cel = player.gameObject;
-                atact = true;
-                //next_hod();
-            }
-
+            //lt_rd_atack.Add(new atack_cart("cart damage",player.gameObject,1));
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-        if (mob_list[num].name == "goblin elit")
+        if (mob_list[num].name == "goblin elit" || mob_list[num].name == "defender 1" || mob_list[num].name == "defender elemental")
         {
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            List<object> lt_now_att = new List<object>();
-            bool bl_cent = true;
-            if (lt.Count > 0)
-            {
-                foreach (object obj in lt)
-                {
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    bool bl = true;
-
-                    if (pr_mob.lt_carts.Contains("cart barier"))
-                    {
-                        foreach (par_baf baf in mb.lt_bafs)
-                        {
-                            if (baf.type == par_baf.type_baf.bar)
-                            {
-                                if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                                    bl_cent = false;
-                                bl = false;
-                            }
-
-                        }
-                        if (!mb.friend && bl)
-                            lt_now.Add(obj);
-                    }
-                    if (pr_mob.lt_carts.Contains("cart damage"))
-                    {
-                        if (mb.friend)
-                        {
-                            lt_now_att.Add(obj);
-                            lt_now_att.Add(obj);
-                        }
-                        //lt_now.Add(obj);
-                    }
-                }
-                //Debug.Log("hiller atack");
-
-            }
-            List<int> lt_rd = new List<int>() { 0, 1, 2 };
-            int rd = -1;
-            if (lt_now_att.Count == 0)
-            {
-                lt_rd.Remove(0);
-                lt_rd.Remove(1);
-            }
-
-            if (lt_now.Count == 0)
-                lt_rd.Remove(2);
-
-            if (lt_rd.Count > 0)
-                rd = lt_rd[Random.Range(0, lt_rd.Count)];
-
-
-            if (rd == 0 || rd == 1)
-            {
-                /*
-                string type = "cart damage";
-                pr_mob.cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (rd == 2)
-            {
-                /*
-                string type = "cart barier";
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                atact = true;
-                //next_hod();
-            }
-
-            /*
-            if (pr_mob.lt_carts.Contains("cart damage") && way(pr_mob.x, pr_mob.y, pr_mob.distanse_min)[player.x, player.y] != -1)
-            {
-                string type = "cart damage";
-                pr_mob.cel = player.gameObject;
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                //next_hod();
-            }
-            else if (pr_mob.lt_carts.Contains("cart barier") && bl_cent)
-            {
-                string type = "cart barier";
-                pr_mob.cel = mob_list[num];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                //next_hod();
-            }
-            else if (lt_now.Count > 0)
-            {
-                string type = "cart barier";
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                //next_hod();
-            }
-            */
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
+
+        List<string> lt_el_mob = new List<string>();
+        lt_el_mob.Add("org");
+        lt_el_mob.Add("shaman");
+
+        /*
+        lt_el_mob.Add("half-fire spirit");
+        lt_el_mob.Add("half-poition spirit");
+        lt_el_mob.Add("half-energy spirit");
+        lt_el_mob.Add("half-ice spirit");
+        lt_el_mob.Add("half-blood spirit");
+        lt_el_mob.Add("half-rock spirit");
+        */
+        lt_el_mob.Add("half-blood spirit");
+
+        lt_el_mob.Add("fire defender 1");
+        lt_el_mob.Add("poition defender 1");
+        lt_el_mob.Add("energy defender 1");
+        lt_el_mob.Add("ice defender 1");
+        lt_el_mob.Add("blood defender 1");
+        lt_el_mob.Add("rock defender 1");
+
+        lt_el_mob.Add("fire master");
+        lt_el_mob.Add("poition master");
+        lt_el_mob.Add("energy master");
+        lt_el_mob.Add("ice master");
+        lt_el_mob.Add("blood master");
+        lt_el_mob.Add("rock master");
+
+        lt_el_mob.AddRange(get_bosses());
+        lt_el_mob.Remove("org berserk");
+        lt_el_mob.Remove("goblin shaman");
+
+        if (lt_el_mob.Contains(mob_list[num].name))
+        {
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
+
+        if (mob_list[num].name == "fire elemental")
+        {
+            if (pr_mob.hp < pr_mob.hp_max)
+            {
+                lt_rd_atack.Add(new List<atack_cart> { new atack_cart("cart fire", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.fire)), new atack_cart("cart spirit fire", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.fire)) });
+                //lt_rd_atack.Add(new List<atack_cart> { new atack_cart("cart spirit fire", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.fire)) });
+            }
+
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
+        if (mob_list[num].name == "poition elemental")
+        {
+            if (pr_mob.hp < pr_mob.hp_max)
+            {
+                lt_rd_atack.Add(new List<atack_cart> { new atack_cart("cart poition", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.poition)), new atack_cart("cart spirit poition", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.poition)) });
+                //lt_rd_atack.Add(new atack_cart("cart spirit poition", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.poition)));
+            }
+
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
+        if (mob_list[num].name == "rock elemental")
+        {
+            if (pr_mob.hp < pr_mob.hp_max)
+            {
+                lt_rd_atack.Add(new List<atack_cart> { new atack_cart("cart rock", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.rock)) , new atack_cart("cart spirit rock", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.rock)) });
+                //lt_rd_atack.Add(new atack_cart("cart spirit rock", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.rock)));
+            }
+
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
+        if (mob_list[num].name == "ice elemental")
+        {
+            if (pr_mob.hp < pr_mob.hp_max)
+            {
+                lt_rd_atack.Add(new List<atack_cart> { new atack_cart("cart ice", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.ice))  , new atack_cart("cart spirit ice", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.ice)) });
+                //lt_rd_atack.Add(new atack_cart("cart spirit ice", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.ice)));
+            }
+
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
+        if (mob_list[num].name == "energy elemental")
+        {
+            bool bl = false;
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+            foreach (List<atack_cart> at_lt in lt_rd_atack)
+            {
+                foreach (atack_cart at in at_lt)
+                {
+                    if (at.cel == mob_list[num] && at.que_cart.Count == 1 && (at.que_cart.Peek() == "cart energy" || at.que_cart.Peek() == "cart spirit energy"))
+                    {
+                        bl = true;
+                        break;
+                    }
+
+                }
+                if (bl)
+                    break;
+            }
+
+            if (pr_mob.hp < pr_mob.hp_max && !bl)
+            {
+                lt_rd_atack.Add(new List<atack_cart> { new atack_cart("cart energy", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.energy)) , new atack_cart("cart spirit energy", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.energy)) });
+                //lt_rd_atack.Add(new atack_cart("cart spirit energy", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.energy)));
+            }
+
+            //lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
+
+
+        if (mob_list[num].name == "half-fire spirit")
+        {
+            if (pr_mob.hp < pr_mob.hp_max)
+            {
+                foreach (par_cart_art art in pr_mob.lt_carts_art)
+                {
+                    if (art.name == "cart fire heart" && art.q > 0)
+                        lt_rd_atack.Add(new List<atack_cart> { new atack_cart("cart fire", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.fire)) });
+                }
+            }
+
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
+        if (mob_list[num].name == "half-poition spirit")
+        {
+            if (pr_mob.hp < pr_mob.hp_max)
+            {
+                foreach (par_cart_art art in pr_mob.lt_carts_art)
+                {
+                    if (art.name == "cart poition heart" && art.q > 0)
+                        lt_rd_atack.Add(new List<atack_cart> { new atack_cart("cart poition", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.poition)) });
+                }
+            }
+
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
+        if (mob_list[num].name == "half-ice spirit")
+        {
+            if (pr_mob.hp < pr_mob.hp_max)
+            {
+                foreach (par_cart_art art in pr_mob.lt_carts_art)
+                {
+                    if (art.name == "cart ice heart" && art.q > 0)
+                        lt_rd_atack.Add(new List<atack_cart> { new atack_cart("cart ice", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.ice)) });
+                }
+            }
+
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
+        if (mob_list[num].name == "half-rock spirit")
+        {
+            if (pr_mob.hp < pr_mob.hp_max)
+            {
+                foreach (par_cart_art art in pr_mob.lt_carts_art)
+                {
+                    if (art.name == "cart rock heart" && art.q > 0)
+                        lt_rd_atack.Add(new List<atack_cart> { new atack_cart("cart rock", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.rock)) });
+                }
+            }
+
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
+        if (mob_list[num].name == "half-energy spirit")
+        {
+            bool bl = false;
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+            foreach (List<atack_cart> at_lt in lt_rd_atack)
+            {
+                foreach (atack_cart at in at_lt)
+                {
+                    if (at.cel == mob_list[num] && at.que_cart.Count == 1 && (at.que_cart.Peek() == "cart energy"))
+                    {
+                        bl = true;
+                        break;
+                    }
+
+                }
+                if (bl)
+                    break;
+            }
+
+
+            if (pr_mob.hp < pr_mob.hp_max && !bl)
+            {
+                foreach (par_cart_art art in pr_mob.lt_carts_art)
+                {
+                    if (art.name == "cart energy heart" && art.q > 0)
+                        lt_rd_atack.Add(new List<atack_cart> { new atack_cart("cart energy", mob_list[num], pr_mob.get_pr_at(priority_atack.type_atack.energy)) });
+                }
+            }
+
+            
+        }
+
         if (mob_list[num].name == "org berserk")
         {
 
 
             List<GameObject> lt = pr_mob.lt_mob_vizited;
-
+            lt.Add(mob_list[num]);
             //List<object> lt_now = new List<object>();
             List<GameObject> lt_now_rage = new List<GameObject>();
-            List<GameObject> lt_now_att = new List<GameObject>();
 
             bool bl_cent = true;
 
@@ -5952,51 +6662,49 @@ if (bf.type == par_baf.type_baf.fire)
             {
                 foreach (GameObject obj in lt)
                 {
+
+
                     par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    if (distance(mb.x, mb.y, pr_mob.x, pr_mob.y) <= pr_mob.distanse_min)
+
+                    bool bl_rage = false;
+                    foreach (par_baf baf in mb.lt_bafs)
                     {
-                        if (mb.friend && pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now_att.Add(obj);
-                        else if (!mb.friend && (pr_mob.lt_carts.Contains("cart rage(boss)")))
+                        
+
+                        if (baf.type == par_baf.type_baf.rage || baf.long_baf<=2)
+                        {
+                            bl_rage = true;
+                        }
+                    }
+
+                    if (distance(mb.x, mb.y, pr_mob.x, pr_mob.y) <= pr_mob.distanse_attack && !bl_rage)
+                    {
+                        if ((mb.friend== pr_mob.friend)&& (pr_mob.lt_carts.Contains("cart rage(boss)")))
                             lt_now_rage.Add(obj);
                     }
 
                 }
 
             }
-            lt_now_rage.Add(pr_mob.gameObject);
 
-            List<int> lt_rd = new List<int>() {0,1 };
-            if (lt_now_att.Count == 0)
-            {
-                lt_rd.Remove(0);
-                lt_rd.Remove(1);
-            }
-                
+            List<int> lt_rd = new List<int>() {0 };                
             if (lt_now_rage.Count == 0)
-                lt_rd.Remove(1);
+                lt_rd.Remove(0);
             int rd = -1;
             if (lt_rd.Count > 0)
                 rd = lt_rd[Random.Range(0, lt_rd.Count)];
 
-
             if (rd == 0)
             {
                 //type = "cart damage";
-                st_carts.Enqueue("cart crystall");
-                st_carts.Enqueue("cart damage");
-                cel = rand_list<GameObject>(lt_now_att);
-                atact = true;
-                //next_hod();
-            }
-            else if (rd == 1)
-            {
-                //type = "cart damage";
                 //st_carts.Enqueue(type_1);
-                st_carts.Enqueue("cart rage(boss)");
-                cel = rand_list<GameObject>(lt_now_rage);
-
-                lt_rd_atack.Add(new atack_cart("cart rage(boss)", cel));
+                //st_carts.Enqueue("cart rage(boss)");
+                //cel = rand_list<GameObject>(lt_now_rage);
+                foreach (GameObject g in lt_now_rage)
+                {
+                    lt_rd_atack.Add(new List<atack_cart> { new atack_cart("cart rage(boss)", g, pr_mob.get_pr_at(priority_atack.type_atack.sp_boss)) });
+                }
+                
                 atact = true;
                 //next_hod();
             }
@@ -6006,3787 +6714,128 @@ if (bf.type == par_baf.type_baf.fire)
 
         if (mob_list[num].name == "goblin shaman")
         {
-            List<GameObject> lt_now = new List<GameObject>();
-            List<GameObject> lt_now_att = new List<GameObject>();
-            List<GameObject> lt_now_att_dm = new List<GameObject>();
-            List<GameObject> lt_now_att_spirit = new List<GameObject>();
-            List<GameObject> lt_now_baf = new List<GameObject>();
-            List<GameObject> lt_now_baf_spirit = new List<GameObject>();
 
-            //List<object> lt_now_dych = new List<object>();
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
 
-
-
-
-
-            bool bl_cent = true;
-
-            //List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            //Debug.Log("true dist -2 " + pr_mob.lt_carts_art.Count);
-            List<GameObject> lt_cel = new List<GameObject>(pr_mob.lt_mob_vizited);
-            lt_cel.Add(pr_mob.gameObject);
-
-
-                foreach (GameObject obj in lt_cel)
-                {
-                    bool bl_energy = true;
-
-
-                par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                if(distance(mb.x,mb.y,pr_mob.x,pr_mob.y)<= pr_mob.distanse_min)
-                {
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.energy)
-                        {
-                            //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                            //bl_cent = false;
-                            bl_energy = false;
-                        }
-
-                    }
-
-                    if (mb.friend && pr_mob.lt_carts.Contains("cart damage"))
-                        lt_now_att_dm.Add(obj);
-                    if (mb.friend && (pr_mob.lt_carts.Contains("cart fire") || pr_mob.lt_carts.Contains("cart ice") || pr_mob.lt_carts.Contains("cart poition") || pr_mob.lt_carts.Contains("cart rock")))
-                    {
-                        lt_now_att.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart spirit(boss)"))
-                        {
-                            lt_now_att_spirit.Add(obj);
-                        }
-                    }
-                    else if (!mb.friend && ((pr_mob.lt_carts.Contains("cart energy") && bl_energy) || (pr_mob.lt_carts.Contains("cart blood") && mb.hp < mb.hp_max)))
-                    {
-                        lt_now_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart spirit(boss)"))
-                        {
-                            lt_now_baf_spirit.Add(obj);
-                        }
-                    }
-                }
-
-
-                }
-
-            
-
-
-
-
-            List<int> lt_rd = null;
-            lt_rd = new List<int>() { 0, 1, 2, 3, 4 };
-            if (lt_now_att.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now_att_spirit.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now_baf.Count == 0)
-                lt_rd.Remove(2);
-            if (lt_now_baf_spirit.Count == 0)
-                lt_rd.Remove(3);
-            if (lt_now_att_dm.Count == 0)
-                lt_rd.Remove(4);
-            int rd = -1;
-            if (lt_rd.Count > 0)
-                rd = lt_rd[Random.Range(0, lt_rd.Count)];
-            if (rd != -1)
+            if (pr_mob.lt_carts.Contains("cart spirit(boss)"))
             {
-                if (rd == 0)
+                List<atack_cart> lt_at_sp = new List<atack_cart>();
+
+                foreach (List<atack_cart> at_lt in lt_rd_atack)
                 {
-                    //pr_mob.cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                    cel = rand_list<GameObject>(lt_now_att);
-                }
-                else if (rd == 1)
-                {
-                    //pr_mob.cel = (GameObject)lt_now_att_tuman[Random.Range(0, lt_now_att_tuman.Count)];
-                    cel = rand_list<GameObject>(lt_now_att_spirit);
-                    //cel = (GameObject)lt_now_att_s[Random.Range(0, lt_now_att_tuman.Count)];
-                }
-                else if (rd == 2)
-                {
-                    //pr_mob.cel = (GameObject)lt_now_baf[Random.Range(0, lt_now_baf.Count)];
-                    //cel = (GameObject)lt_now_baf[Random.Range(0, lt_now_baf.Count)];
-                    cel = rand_list<GameObject>(lt_now_baf);
-                }
-                else if (rd == 3)
-                {
-                    //pr_mob.cel = (GameObject)lt_now_baf_tuman[Random.Range(0, lt_now_baf_tuman.Count)];
-                    //cel = (GameObject)lt_now_baf_tuman[Random.Range(0, lt_now_baf_tuman.Count)];
-                    cel = rand_list<GameObject>(lt_now_baf_spirit);
-                }
-                else if (rd == 4)
-                {
-                    //pr_mob.cel = (GameObject)lt_now_att_dm[Random.Range(0, lt_now_att_dm.Count)];
-                    //cel = (GameObject)lt_now_att_dm[Random.Range(0, lt_now_att_dm.Count)];
-                    cel = rand_list<GameObject>(lt_now_att_dm);
-                }
-
-
-
-                //bool bl_comb = false;
-
-                string type = null;
-                string type_1 = null;
-                if (rd == 4)
-                {
-
-                    List<string> lt_el = new List<string>();
-                    if (pr_mob.lt_carts.Contains("cart energy"))
-                        lt_el.Add("cart energy");
-                    if (pr_mob.lt_carts.Contains("cart ice"))
-                        lt_el.Add("cart ice");
-                    if (pr_mob.lt_carts.Contains("cart fire"))
-                        lt_el.Add("cart fire");
-                    if (pr_mob.lt_carts.Contains("cart poition"))
-                        lt_el.Add("cart poition");
-                    if (pr_mob.lt_carts.Contains("cart blood"))
-                        lt_el.Add("cart blood");
-                    if (pr_mob.lt_carts.Contains("cart rock"))
-                        lt_el.Add("cart rock");
-
-                    if (lt_el.Count > 0)
-                        type = rand_list<string>(lt_el);
-
-                    //type = cart_dych;
-                }
-                else if (rd == 0 || rd == 1)
-                {
-                    List<string> lt_el = new List<string>();
-                    if (pr_mob.lt_carts.Contains("cart ice"))
-                        lt_el.Add("cart ice");
-                    if (pr_mob.lt_carts.Contains("cart fire"))
-                        lt_el.Add("cart fire");
-                    if (pr_mob.lt_carts.Contains("cart poition"))
-                        lt_el.Add("cart poition");
-                    if (pr_mob.lt_carts.Contains("cart rock"))
-                        lt_el.Add("cart rock");
-                    if (lt_el.Count > 0)
-                        type = rand_list<string>(lt_el);
-                }
-                else if (rd == 2 || rd == 3)
-                {
-                    bool bl_energy = true;
-
-
-                    par_mob mb = cel.GetComponent<par_mob>();
-                    foreach (par_baf baf in mb.lt_bafs)
+                    foreach (atack_cart a in at_lt)
                     {
-                        if (baf.type == par_baf.type_baf.energy)
+                        Queue<string> q_now = new Queue<string>();
+                        bool b = true;
+                        foreach (string st in a.que_cart)
                         {
-                            //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                            //bl_cent = false;
-                            bl_energy = false;
-                        }
+                            par_cart c = GameObject.Find(st).GetComponent<par_cart>();
 
-                    }
-
-                    List<string> lt_el = new List<string>();
-                    if (!mb.friend)
-                    {
-                        if (pr_mob.lt_carts.Contains("cart blood") && mb.hp < mb.hp_max)
-                            lt_el.Add("cart blood");
-                        if (pr_mob.lt_carts.Contains("cart energy") && bl_energy)
-                            lt_el.Add("cart energy");
-                    }
-                    if (lt_el.Count > 0)
-                        type = rand_list<string>(lt_el);
-                }
-                if (rd == 1 || rd == 3)
-                {
-                    type_1 = "cart spirit(boss)";
-                }
-                else if (rd == 4)
-                {
-                    type_1 = "cart damage";
-                }
-
-
-
-                if (type_1 != null && type != null)
-                {
-                    st_carts.Enqueue(type_1);
-                    st_carts.Enqueue(type);
-                }
-                else if (type != null)
-                {
-                    //pr_mob.cart_active_now = type;
-                    //pr_mob.lt_carts_active_now.Add(type);
-                    //pr_mob.remove_cart(type);
-
-
-                    st_carts.Enqueue(type);
-                    //cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                    //atact = true;
-                }
-                if (type_1 != null || type != null)
-                {
-                    atact = true;
-                }
-
-
-
-                /*
-                foreach (par_cart_art art in pr_mob.lt_carts_art)
-                {
-                    if (art.q > 0 && ((par_cart)art).type == par_cart.type_cart.art_boss_shaman)
-                    {
-                        bl_art = true;
-                        break;
-                    }
-
-                }
-
-
-                List<object> lt_eath = way_find_lt(eath, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-
-                string cart_dych = null;
-                List<object> lt_now_eath = new List<object>();
-
-
-                if (bl_art && (pr_mob.lt_carts.Contains("cart fire") || pr_mob.lt_carts.Contains("cart ice") || pr_mob.lt_carts.Contains("cart poition") || pr_mob.lt_carts.Contains("cart rock") || pr_mob.lt_carts.Contains("cart blood") || pr_mob.lt_carts.Contains("cart energy")))
-                {
-                    foreach (object gm_eath in lt_eath)
-                    {
-                        par_eath p_e = ((GameObject)gm_eath).GetComponent<par_eath>();
-                        if (object_bool(p_e.x, p_e.y))
-                        {
-                            lt_now_eath.Add(gm_eath);
-                        }
-                    }
-                    List<string> lt_el = new List<string>();
-                    if (pr_mob.lt_carts.Contains("cart energy"))
-                        lt_el.Add("cart energy");
-                    if (pr_mob.lt_carts.Contains("cart ice"))
-                        lt_el.Add("cart ice");
-                    if (pr_mob.lt_carts.Contains("cart fire"))
-                        lt_el.Add("cart fire");
-                    if (pr_mob.lt_carts.Contains("cart poition"))
-                        lt_el.Add("cart poition");
-                    if (pr_mob.lt_carts.Contains("cart blood"))
-                        lt_el.Add("cart blood");
-                    if (pr_mob.lt_carts.Contains("cart rock"))
-                        lt_el.Add("cart rock");
-                    if (lt_el.Count > 0)
-                        cart_dych = lt_el[Random.Range(0, lt_el.Count)];
-
-                }
-
-
-                List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-                Dictionary<GameObject, List<object>> d_dych = new Dictionary<GameObject, List<object>>();
-                List<string> lt_name_dych = new List<string> { "dych fire", "dych blood", "dych energy", "dych ice", "dych rock", "dych poition" };
-
-                foreach (GameObject gm_dych in pr_mob.childs)
-                {
-                    if (gm_dych.name == "dych fire" || gm_dych.name == "dych blood" || gm_dych.name == "dych energy" || gm_dych.name == "dych ice" || gm_dych.name == "dych rock" || gm_dych.name == "dych poition")
-                    {
-                        par_mob pr_dych = gm_dych.GetComponent<par_mob>();
-                        List<object> lt_dych = way_find_lt(mob, pr_dych.x, pr_dych.y, pr_dych.distanse_min);
-                        //List<object> eath_dych_lt = way_find_lt(eath, pr_dych.x, pr_dych.y, pr_dych.distanse_min);
-
-                        if (bl_art)
-                        {
-                            //List<object> eath_dych_lt = way_find_lt(eath, pr_dych.x, pr_dych.y, pr_dych.distanse_min);
-                            if (cart_dych == "cart fire" && gm_dych.name == "dych fire")
-                                d_dych.Add(gm_dych, lt_dych);
-                            else if (cart_dych == "cart poition" && gm_dych.name == "dych poition")
-                                d_dych.Add(gm_dych, lt_dych);
-                            else if (cart_dych == "cart blood" && gm_dych.name == "dych blood")
-                                d_dych.Add(gm_dych, lt_dych);
-                            else if (cart_dych == "cart energy" && gm_dych.name == "dych energy")
-                                d_dych.Add(gm_dych, lt_dych);
-                            else if (cart_dych == "cart ice" && gm_dych.name == "dych ice")
-                                d_dych.Add(gm_dych, lt_dych);
-                            else if (cart_dych == "cart rock" && gm_dych.name == "dych rock")
-                                d_dych.Add(gm_dych, lt_dych);
-                        }
-                        else if (lt_dych.Count > 0)
-                        {
-                            if (pr_mob.lt_carts.Contains("cart fire") && gm_dych.name == "dych fire")
-                                d_dych.Add(gm_dych, lt_dych);
-                            else if (pr_mob.lt_carts.Contains("cart poition") && gm_dych.name == "dych poition")
-                                d_dych.Add(gm_dych, lt_dych);
-                            else if (pr_mob.lt_carts.Contains("cart ice") && gm_dych.name == "dych ice")
-                                d_dych.Add(gm_dych, lt_dych);
-                            else if (pr_mob.lt_carts.Contains("cart rock") && gm_dych.name == "dych rock")
-                                d_dych.Add(gm_dych, lt_dych);
-                            else if (pr_mob.lt_carts.Contains("cart blood") && gm_dych.name == "dych blood")
-                                d_dych.Add(gm_dych, lt_dych);
-                            else if (pr_mob.lt_carts.Contains("cart energy") && gm_dych.name == "dych energy")
-                                d_dych.Add(gm_dych, lt_dych);
-                        }
-                    }
-
-                }
-
-                List<object> lt_now = new List<object>();
-                List<object> lt_now_att = new List<object>();
-                List<object> lt_now_att_dm = new List<object>();
-                List<object> lt_now_att_tuman = new List<object>();
-                List<object> lt_now_baf = new List<object>();
-                List<object> lt_now_baf_tuman = new List<object>();
-
-                //List<object> lt_now_dych = new List<object>();
-
-
-
-
-
-                bool bl_cent = true;
-
-
-                //Debug.Log("true dist -2 " + pr_mob.lt_carts_art.Count);
-                if (lt.Count > 0)
-                {
-
-
-                    foreach (object obj in lt)
-                    {
-                        bool bl_energy = true;
-
-
-                        par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                        foreach (par_baf baf in mb.lt_bafs)
-                        {
-                            if (baf.type == par_baf.type_baf.energy)
+                            if (b)
                             {
-                                //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                                //bl_cent = false;
-                                bl_energy = false;
+                                q_now.Enqueue("cart spirit(boss)");
+                                b = false;
                             }
-
+                            q_now.Enqueue(st);
                         }
-
-                        if (mb.friend && pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now_att_dm.Add(obj);
-                        if (mb.friend && (pr_mob.lt_carts.Contains("cart fire") || pr_mob.lt_carts.Contains("cart ice") || pr_mob.lt_carts.Contains("cart poition") || pr_mob.lt_carts.Contains("cart rock")))
-                        {
-                            lt_now_att.Add(obj);
-                            if (pr_mob.lt_carts.Contains("cart tuman(boss)"))
-                            {
-                                lt_now_att_tuman.Add(obj);
-                            }
-                        }
-                        else if (!lt_name_dych.Contains(((GameObject)obj).name) && !mb.friend && ((pr_mob.lt_carts.Contains("cart energy") && bl_energy) || (pr_mob.lt_carts.Contains("cart blood") && mb.hp < mb.hp_max)))
-                        {
-                            lt_now_baf.Add(obj);
-                            if (pr_mob.lt_carts.Contains("cart tuman(boss)"))
-                            {
-                                lt_now_baf_tuman.Add(obj);
-                            }
-                        }
+                        if(q_now.Count>0)
+                            lt_at_sp.Add(new atack_cart(q_now, a.cel, pr_mob.get_pr_at(priority_atack.type_atack.sp_boss)));
 
                     }
-
-                }
-                bool bl_att_dych = false;
-                if (d_dych.Count > 0)
-                {
-                    //KeyValuePair<GameObject, List<object>> gm_dych = d_dych.Keys[Random.Range(0, d_dych.Count)];
-                    List<GameObject> dych_lt = new List<GameObject>(d_dych.Keys);
-
-                    while (dych_lt.Count > 0)
-                    {
-                        bl_att_dych = false;
-                        GameObject gm_dych = dych_lt[Random.Range(0, dych_lt.Count)];
-                        List<object> gm_dych_lt = d_dych[gm_dych];
-
-                        par_mob pr_dych = gm_dych.GetComponent<par_mob>();
-                        List<object> eath_dych_lt = way_find_lt(eath, pr_dych.x, pr_dych.y, pr_dych.distanse_min);
-
-
-
-
-                        List<object> lt_att_0 = new List<object>();
-                        List<object> lt_att_1 = new List<object>();
-                        List<object> lt_att_2 = new List<object>();
-                        List<object> lt_att_3 = new List<object>();
-
-                        foreach (object gm_eath in eath_dych_lt)
-                        {
-                            par_eath p_e = ((GameObject)gm_eath).GetComponent<par_eath>();
-                            if (object_bool(p_e.x, p_e.y))
-                            {
-                                lt_att_3.Add(gm_eath);
-                            }
-                        }
-                        //Debug.Log(gm_dych.name + gm_dych_lt);
-                        List<List<object>> rd_dych = null;
-                        if (bl_art && Random.Range(0, 2) == 0 && lt_att_3.Count != 0)
-                        {
-                            rd_dych = new List<List<object>>() { lt_att_3 };
-                        }
-                        else
-                        {
-                            if (gm_dych_lt != null)
-                            {
-                                foreach (object obj in gm_dych_lt)
-                                {
-                                    bool bl_energy = true;
-
-
-                                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                                    foreach (par_baf baf in mb.lt_bafs)
-                                    {
-                                        if (baf.type == par_baf.type_baf.energy)
-                                        {
-                                            //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                                            //bl_cent = false;
-                                            bl_energy = false;
-                                        }
-
-                                    }
-
-                                    if (!lt_name_dych.Contains(((GameObject)obj).name) && !mb.friend)
-                                    {
-                                        if ((gm_dych.name == "dych blood" && mb.hp < mb.hp_max) || (bl_energy && gm_dych.name == "dych energy"))
-                                        {
-                                            if (pr_mob.lt_carts.Contains("cart tuman(boss)"))
-                                                lt_att_0.Add(obj);
-                                            lt_att_2.Add(obj);
-                                        }
-
-                                    }
-                                    else if (((GameObject)obj).GetComponent<par_mob>().friend)
-                                    {
-                                        if (pr_mob.lt_carts.Contains("cart damage"))
-                                            lt_att_1.Add(obj);
-                                        if (gm_dych.name == "dych fire" || gm_dych.name == "dych poition" || gm_dych.name == "dych rock" || gm_dych.name == "dych ice")
-                                        {
-                                            if (pr_mob.lt_carts.Contains("cart tuman(boss)"))
-                                                lt_att_0.Add(obj);
-
-                                            lt_att_2.Add(obj);
-                                        }
-                                    }
-
-                                }
-                            }
-
-
-                            rd_dych = new List<List<object>> { lt_att_0, lt_att_1, lt_att_2, lt_att_3 };
-                            if (lt_att_0.Count == 0)
-                                rd_dych.Remove(lt_att_0);
-                            if (lt_att_1.Count == 0)
-                                rd_dych.Remove(lt_att_1);
-                            if (lt_att_2.Count == 0)
-                                rd_dych.Remove(lt_att_2);
-                            if (!(bl_art && lt_att_3.Count != 0))
-                                rd_dych.Remove(lt_att_3);
-                        }
-
-
-
-                        List<object> int_rd = null;
-                        if (rd_dych.Count > 0)
-                        {
-                            int_rd = rd_dych[Random.Range(0, rd_dych.Count)];
-                        }
-                        if (int_rd != null)
-                        {
-                            GameObject gm_rd = (GameObject)int_rd[Random.Range(0, int_rd.Count)];
-
-                            string type = null;
-                            string type_1 = null;
-                            if (int_rd == lt_att_0)
-                            {
-                                type_1 = "cart tuman(boss)";
-                            }
-                            else if (int_rd == lt_att_1)
-                            {
-                                type_1 = "cart damage";
-
-                            }
-                            else if (int_rd == lt_att_2)
-                            {
-
-                            }
-                            if (gm_dych.name == "dych fire")
-                                type = "cart fire";
-                            else if (gm_dych.name == "dych poition")
-                                type = "cart poition";
-                            else if (gm_dych.name == "dych rock")
-                                type = "cart rock";
-                            else if (gm_dych.name == "dych blood")
-                                type = "cart blood";
-                            else if (gm_dych.name == "dych energy")
-                                type = "cart energy";
-                            else if (gm_dych.name == "dych ice")
-                                type = "cart ice";
-
-
-                            bl_att_dych = true;
-
-                            //pr_mob.cel = gm_rd;
-                            cel = gm_rd;
-
-
-
-                            if (int_rd != lt_att_2 && int_rd != lt_att_3)
-                            {
-
-                                st_carts.Enqueue(type_1);
-                                st_carts.Enqueue(type);
-                                //cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                                //atact = true;
-                            }
-                            else
-                            {
-                                //pr_mob.cart_active_now = type;
-                                //pr_mob.lt_carts_active_now.Add(type);
-                                //pr_mob.remove_cart(type);
-
-                                st_carts.Enqueue(type);
-                                //cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                                //atact = true;
-                            }
-
-                            atact = true;
-                        }
-                        if (bl_att_dych)
-                            break;
-                        else
-                            dych_lt.Remove(gm_dych);
-                    }
-
-
-
-
-                }
-                if (!bl_att_dych)
-                {
-                    List<int> lt_rd = null;
-                    if (bl_art && Random.Range(0, 2) == 0 && lt_now_eath.Count != 0)//тут Random.Range(0, 2) == 0
-                    {
-                        lt_rd = new List<int>() { 5 };
-                    }
-                    else
-                    {
-                        lt_rd = new List<int>() { 0, 1, 2, 3, 4, 5 };
-                        if (lt_now_att.Count == 0)
-                            lt_rd.Remove(0);
-                        if (lt_now_att_tuman.Count == 0)
-                            lt_rd.Remove(1);
-                        if (lt_now_baf.Count == 0)
-                            lt_rd.Remove(2);
-                        if (lt_now_baf_tuman.Count == 0)
-                            lt_rd.Remove(3);
-                        if (lt_now_att_dm.Count == 0)
-                            lt_rd.Remove(4);
-                        if (!(bl_art && lt_now_eath.Count != 0))
-                            lt_rd.Remove(5);
-                    }
-
-                    int rd = -1;
-                    if (lt_rd.Count > 0)
-                        rd = lt_rd[Random.Range(0, lt_rd.Count)];
-                    if (rd != -1)
-                    {
-                        if (rd == 0)
-                        {
-                            //pr_mob.cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                            cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                        }
-                        else if (rd == 1)
-                        {
-                            //pr_mob.cel = (GameObject)lt_now_att_tuman[Random.Range(0, lt_now_att_tuman.Count)];
-                            cel = (GameObject)lt_now_att_tuman[Random.Range(0, lt_now_att_tuman.Count)];
-                        }
-                        else if (rd == 2)
-                        {
-                            //pr_mob.cel = (GameObject)lt_now_baf[Random.Range(0, lt_now_baf.Count)];
-                            cel = (GameObject)lt_now_baf[Random.Range(0, lt_now_baf.Count)];
-                        }
-                        else if (rd == 3)
-                        {
-                            //pr_mob.cel = (GameObject)lt_now_baf_tuman[Random.Range(0, lt_now_baf_tuman.Count)];
-                            cel = (GameObject)lt_now_baf_tuman[Random.Range(0, lt_now_baf_tuman.Count)];
-                        }
-                        else if (rd == 4)
-                        {
-                            //pr_mob.cel = (GameObject)lt_now_att_dm[Random.Range(0, lt_now_att_dm.Count)];
-                            cel = (GameObject)lt_now_att_dm[Random.Range(0, lt_now_att_dm.Count)];
-                        }
-                        else if (rd == 5)
-                        {
-                            //pr_mob.cel = (GameObject)lt_now_eath[Random.Range(0, lt_now_eath.Count)];
-                            cel = (GameObject)lt_now_eath[Random.Range(0, lt_now_eath.Count)];
-                        }
-
-
-
-                        //bool bl_comb = false;
-
-                        string type = null;
-                        string type_1 = null;
-                        if (rd == 5)
-                        {
-                            type = cart_dych;
-                        }
-                        else if (rd == 4)
-                        {
-
-                            List<string> lt_el = new List<string>();
-                            if (pr_mob.lt_carts.Contains("cart energy"))
-                                lt_el.Add("cart energy");
-                            if (pr_mob.lt_carts.Contains("cart ice"))
-                                lt_el.Add("cart ice");
-                            if (pr_mob.lt_carts.Contains("cart fire"))
-                                lt_el.Add("cart fire");
-                            if (pr_mob.lt_carts.Contains("cart poition"))
-                                lt_el.Add("cart poition");
-                            if (pr_mob.lt_carts.Contains("cart blood"))
-                                lt_el.Add("cart blood");
-                            if (pr_mob.lt_carts.Contains("cart rock"))
-                                lt_el.Add("cart rock");
-
-                            if (lt_el.Count > 0)
-                                type = lt_el[Random.Range(0, lt_el.Count)];
-
-                            //type = cart_dych;
-                        }
-                        else if (rd == 0 || rd == 1)
-                        {
-                            List<string> lt_el = new List<string>();
-                            if (pr_mob.lt_carts.Contains("cart ice"))
-                                lt_el.Add("cart ice");
-                            if (pr_mob.lt_carts.Contains("cart fire"))
-                                lt_el.Add("cart fire");
-                            if (pr_mob.lt_carts.Contains("cart poition"))
-                                lt_el.Add("cart poition");
-                            if (pr_mob.lt_carts.Contains("cart rock"))
-                                lt_el.Add("cart rock");
-                            if (lt_el.Count > 0)
-                                type = lt_el[Random.Range(0, lt_el.Count)];
-                        }
-                        else if (rd == 2 || rd == 3)
-                        {
-                            bool bl_energy = true;
-
-
-                            par_mob mb = pr_mob.cel.GetComponent<par_mob>();
-                            foreach (par_baf baf in mb.lt_bafs)
-                            {
-                                if (baf.type == par_baf.type_baf.energy)
-                                {
-                                    //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                                    //bl_cent = false;
-                                    bl_energy = false;
-                                }
-
-                            }
-
-                            List<string> lt_el = new List<string>();
-                            if (!mb.friend)
-                            {
-                                if (pr_mob.lt_carts.Contains("cart blood") && mb.hp < mb.hp_max)
-                                    lt_el.Add("cart blood");
-                                if (pr_mob.lt_carts.Contains("cart energy") && bl_energy)
-                                    lt_el.Add("cart energy");
-                            }
-                            if (lt_el.Count > 0)
-                                type = lt_el[Random.Range(0, lt_el.Count)];
-                        }
-                        if (rd == 1 || rd == 3)
-                        {
-                            type_1 = "cart tuman(boss)";
-                        }
-                        else if (rd == 4)
-                        {
-                            type_1 = "cart damage";
-                        }
-
-
-
-                        if (type_1 != null && type != null)
-                        {
-                            st_carts.Enqueue(type_1);
-                            st_carts.Enqueue(type);
-                        }
-                        else if (type != null)
-                        {
-                            pr_mob.cart_active_now = type;
-                            pr_mob.lt_carts_active_now.Add(type);
-                            pr_mob.remove_cart(type);
-
-
-                            st_carts.Enqueue(type);
-                            //cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                            //atact = true;
-                        }
-                        if (type_1 != null || type != null)
-                        {
-                            atact = true;
-                        }
-                    }
-
-                }
-
-                */
-            }
-        }
-
-
-        if (mob_list[num].name == "goblin blood elit" || mob_list[num].name == "blood defender")
-        {
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            List<object> lt_now_bar = new List<object>();
-            List<object> lt_now_att = new List<object>();
-            List<object> lt_now_bar_base = new List<object>();
-            List<object> lt_now_att_base = new List<object>();
-            //bool bl_cent = true;
-            int count_friend = 0;
-            if (lt.Count > 0)
-            {
-
-                foreach (object obj in lt)
-                {
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    bool bl = true;
-                    if (mb.friend)
-                        count_friend++;
-                    if (pr_mob.lt_carts.Contains("cart blood"))
-                    {
-                        if (!mb.friend && mb.hp < mb.hp_max)
-                            lt_now.Add(obj);
-                        bl = true;
-                        foreach (par_baf baf in mb.lt_bafs)
-                        {
-                            if (baf.type == par_baf.type_baf.bar_blood)
-                            {
-                                //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                                //bl_cent = false;
-                                bl = false;
-                            }
-
-                        }
-                        if (mb.friend && pr_mob.lt_carts.Contains("cart damage") && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                            lt_now_att.Add(obj);
-                        //else if (mb.friend && pr_mob.lt_carts.Contains("cart barier") && !bl )
-                        //lt_now_bar.Add(obj);
-
-                    }
-                    bl = true;
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.bar)
-                        {
-                            //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                            //bl_cent = false;
-                            bl = false;
-                        }
-
-                    }
-                    if (!mb.friend && pr_mob.lt_carts.Contains("cart barier") && bl)
-                        lt_now_bar_base.Add(obj);
-                    if (mb.friend && pr_mob.lt_carts.Contains("cart damage") && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                        lt_now_att_base.Add(obj);
-
-                }
-                //Debug.Log("hiller atack");
-
-            }
-            if (count_friend == 0 && Random.Range(0, 2) == 0)
-            {
-                return false;
-            }
-            List<int> lt_rd = new List<int>() { 0, 1, 2 };
-            if (lt_now.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now_bar.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now_att.Count == 0)
-                lt_rd.Remove(2);
-            int a_rd = -1;
-
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-            if (a_rd == 0)
-            {
-                /*
-                string type = "cart blood";
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                //st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart blood");
-                cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 1)
-            {
-                /*
-                string type = "cart barier";
-                pr_mob.cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart blood");
-
-                pr_mob.remove_cart(type);
-                atact = true;
-                */
-
-                st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart blood");
-                cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 2)
-            {
-                /*
-                string type = "cart damage";
-                pr_mob.cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart blood");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart damage");
-                st_carts.Enqueue("cart blood");
-                cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else
-            {
-                lt_rd = new List<int>() { 0, 1 };
-                if (lt_now_bar_base.Count == 0)
-                    lt_rd.Remove(0);
-                if (lt_now_att_base.Count == 0)
-                    lt_rd.Remove(1);
-                if (lt_rd.Count > 0)
-                    a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-                if (a_rd == 0)
-                {
-                    /*
-                    string type = "cart barier";
-                    pr_mob.cel = (GameObject)lt_now_bar_base[Random.Range(0, lt_now_bar_base.Count)];
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                    if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                        pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                    else
-                    {
-                        pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                    }
-                    anim.col_anim++;
-                    pr_mob.cart_active_now = type;
-                    pr_mob.lt_carts_active_now.Add(type);
-
-                    //pr_mob.lt_carts_added_now.Add(type);
-                    //pr_mob.lt_carts_added.Add(type);
-                    //pr_mob.lt_carts_added.Add("cart blood");
-
-                    pr_mob.remove_cart(type);
-
-                    atact = true;
-                    */
-                    st_carts.Enqueue("cart barier");
-                    cel = (GameObject)lt_now_bar_base[Random.Range(0, lt_now_bar_base.Count)];
-                    atact = true;
-                    //next_hod();
-                }
-                else if (a_rd == 1)
-                {
-                    /*
-                    string type = "cart damage";
-                    pr_mob.cel = (GameObject)lt_now_att_base[Random.Range(0, lt_now_att_base.Count)];
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                    if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                        pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                    else
-                    {
-                        pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                    }
-                    anim.col_anim++;
-                    pr_mob.cart_active_now = type;
-                    pr_mob.lt_carts_active_now.Add(type);
-
-                    //pr_mob.lt_carts_added_now.Add(type);
-                    //pr_mob.lt_carts_added.Add(type);
-                    //pr_mob.lt_carts_added.Add("cart blood");
-
-                    pr_mob.remove_cart(type);
-
-                    atact = true;
-                    */
-
-                    st_carts.Enqueue("cart damage");
-                    cel = (GameObject)lt_now_att_base[Random.Range(0, lt_now_att_base.Count)];
-                    atact = true;
-                    //next_hod();
                 }
                 /*
-                else if(pr_mob.hp < pr_mob.hp_max && pr_mob.lt_carts.Contains("cart blood"))
+                foreach (atack_cart a in lt_rd_atack)
                 {
-                    string type = "cart blood";
-                    pr_mob.cel = mob_list[num];
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                    if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                        pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                    else
+                    Queue<string> q_now = new Queue<string>();
+                    bool b = true;
+                    foreach (string st in a.que_cart)
                     {
-                        pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                    }
-                    anim.col_anim++;
-                    pr_mob.cart_active_now = type;
-                    pr_mob.lt_carts_active_now.Add(type);
-                    pr_mob.remove_cart(type);
+                        par_cart c = GameObject.Find(st).GetComponent<par_cart>();
 
-                    atact = true;
-                    //next_hod();
+                        if (b)
+                        {
+                            q_now.Enqueue("cart spirit(boss)");
+                            b = false;
+                        }
+                        q_now.Enqueue(st);
+                    }
+                    lt_at_sp.Add(new atack_cart(q_now, a.cel, pr_mob.get_pr_at(priority_atack.type_atack.sp_boss)));
                 }
                 */
+                if(lt_at_sp.Count>0)
+                    lt_rd_atack.Add(lt_at_sp);
             }
 
         }
-        if (mob_list[num].name == "goblin energy elit" || mob_list[num].name == "energy defender")
+
+        
+        if (mob_list[num].name == "goblin blood elit" || mob_list[num].name == "defender blood")
         {
-            /*
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            if (lt.Count > 0 && pr_mob.lt_carts.Contains("cart energy"))
-            {
-                foreach (object obj in lt)
-                {
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    if (!mb.friend && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                        lt_now.Add(obj);
-                }
-                //Debug.Log("hiller atack");
-
-            }
-            bool bl = false;
-            foreach (par_baf baf in pr_mob.lt_bafs)
-            {
-                if (baf.type == par_baf.type_baf.energy)
-                    bl = true;
-            }
-            if (lt_now.Count > 0 && bl)
-            {
-                string type = "cart energy";
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                next_hod();
-            }
-            else if ( pr_mob.lt_carts.Contains("cart energy") && !bl)
-            {
-                Debug.Log("cel energy "+ mob_list[num].name);
-                string type = "cart energy";
-                pr_mob.cel = mob_list[num];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                next_hod();
-            }
-            */
-
-
-
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            List<object> lt_now_bar = new List<object>();
-            List<object> lt_now_att = new List<object>();
-            List<object> lt_now_bar_base = new List<object>();
-            List<object> lt_now_att_base = new List<object>();
-            //bool bl_cent = true;
-            int count_friend = 0;
-            int count_mob = 0;
-            if (lt.Count > 0)
-            {
-
-                foreach (object obj in lt)
-                {
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    bool bl = true;
-
-                    if (mb.friend)
-                        count_friend++;
-                    else
-                        count_mob++;
-                    if (pr_mob.lt_carts.Contains("cart energy"))
-                    {
-                        bl = true;
-                        foreach (par_baf baf in mb.lt_bafs)
-                        {
-                            if (baf.type == par_baf.type_baf.energy)
-                            {
-                                //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                                //bl_cent = false;
-                                bl = false;
-                            }
-
-                        }
-
-                        if (!mb.friend && bl && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                            lt_now.Add(obj);
-
-                        if (mb.friend && pr_mob.lt_carts.Contains("cart damage") && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                            lt_now_att.Add(obj);
-                        //else if (mb.friend && pr_mob.lt_carts.Contains("cart barier") && !bl && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                        //lt_now_bar.Add(obj);
-
-                    }
-                    bl = true;
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.bar)
-                        {
-                            //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                            //bl_cent = false;
-                            bl = false;
-                        }
-
-                    }
-                    if (!mb.friend && pr_mob.lt_carts.Contains("cart barier") && bl)
-                        lt_now_bar_base.Add(obj);
-                    if (mb.friend && pr_mob.lt_carts.Contains("cart damage") && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                        lt_now_att_base.Add(obj);
-
-                }
-                //Debug.Log("hiller atack");
-
-            }
-            if (count_friend == 0)
-            {
-                return false;
-            }
-            List<int> lt_rd = new List<int>() { 0, 1, 2 };
-            if (lt_now.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now_bar.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now_att.Count == 0)
-                lt_rd.Remove(2);
-
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-
-            bool bl_en = false;
-            foreach (par_baf baf in pr_mob.lt_bafs)
-            {
-                if (baf.type == par_baf.type_baf.energy)
-                    bl_en = true;
-            }
-            if (!bl_en && pr_mob.lt_carts.Contains("cart energy") && count_mob>0)
-            {
-                /*
-                string type = "cart energy";
-                pr_mob.cel = mob_list[num];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-
-                st_carts.Enqueue("cart energy");
-                cel = mob_list[num];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 0 && count_mob>0)
-            {
-                /*
-                string type = "cart energy";
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                //st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart energy");
-                cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 1)
-            {
-                /*
-                string type = "cart barier";
-                pr_mob.cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart energy");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-
-                st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart energy");
-                cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 2)
-            {
-                /*
-                string type = "cart damage";
-                pr_mob.cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart energy");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-
-                st_carts.Enqueue("cart damage");
-                st_carts.Enqueue("cart energy");
-                cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else
-            {
-                lt_rd = new List<int>() { 0, 1 };
-                if (lt_now_bar_base.Count == 0)
-                    lt_rd.Remove(0);
-                if (lt_now_att_base.Count == 0)
-                    lt_rd.Remove(1);
-                if (lt_rd.Count > 0)
-                    a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-                if (a_rd == 0)
-                {
-                    /*
-                    string type = "cart barier";
-                    pr_mob.cel = (GameObject)lt_now_bar_base[Random.Range(0, lt_now_bar_base.Count)];
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                    if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                        pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                    else
-                    {
-                        pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                    }
-                    anim.col_anim++;
-                    pr_mob.cart_active_now = type;
-                    pr_mob.lt_carts_active_now.Add(type);
-
-                    //pr_mob.lt_carts_added_now.Add(type);
-                    //pr_mob.lt_carts_added.Add(type);
-                    //pr_mob.lt_carts_added.Add("cart blood");
-
-                    pr_mob.remove_cart(type);
-
-                    atact = true;
-                    */
-                    st_carts.Enqueue("cart barier");
-                    cel = (GameObject)lt_now_bar_base[Random.Range(0, lt_now_bar_base.Count)];
-                    atact = true;
-                    //next_hod();
-                }
-                else if (a_rd == 1)
-                {
-                    /*
-                    string type = "cart damage";
-                    pr_mob.cel = (GameObject)lt_now_att_base[Random.Range(0, lt_now_att_base.Count)];
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                    if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                        pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                    else
-                    {
-                        pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                    }
-                    anim.col_anim++;
-                    pr_mob.cart_active_now = type;
-                    pr_mob.lt_carts_active_now.Add(type);
-
-                    //pr_mob.lt_carts_added_now.Add(type);
-                    //pr_mob.lt_carts_added.Add(type);
-                    //pr_mob.lt_carts_added.Add("cart blood");
-
-                    pr_mob.remove_cart(type);
-
-                    atact = true;
-                    */
-
-                    st_carts.Enqueue("cart damage");
-                    cel = (GameObject)lt_now_att_base[Random.Range(0, lt_now_att_base.Count)];
-                    atact = true;
-                    //next_hod();
-                }
-
-            }
-
-
-
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-        if (mob_list[num].name == "goblin ice elit")
+        if (mob_list[num].name == "goblin energy elit" || mob_list[num].name == "defender energy")
         {
-            /*
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            if (pr_mob.lt_carts.Contains("cart fire") && way(pr_mob.x, pr_mob.y, pr_mob.distanse_min)[player.x, player.y] != -1)
-            {
-                string type = "cart fire";
-                pr_mob.cel = player.gameObject;
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                next_hod();
-            }
-            */
-
-
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            List<object> lt_now_bar = new List<object>();
-            List<object> lt_now_att = new List<object>();
-            List<object> lt_now_bar_base = new List<object>();
-            List<object> lt_now_att_base = new List<object>();
-            //bool bl_cent = true;
-            int count_friend = 0;
-            if (lt.Count > 0)
-            {
-
-                foreach (object obj in lt)
-                {
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    bool bl = true;
-                    if (mb.friend)
-                        count_friend++;
-                    if (pr_mob.lt_carts.Contains("cart ice"))
-                    {
-                        if (mb.friend && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                            lt_now.Add(obj);
-                        bl = true;
-                        foreach (par_baf baf in mb.lt_bafs)
-                        {
-                            if (baf.type == par_baf.type_baf.bar_fire)
-                            {
-                                //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                                //bl_cent = false;
-                                bl = false;
-                            }
-
-                        }
-                        if (!mb.friend && pr_mob.lt_carts.Contains("cart barier") && bl)
-                            lt_now_bar.Add(obj);
-                        if (mb.friend && pr_mob.lt_carts.Contains("cart damage") && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                            lt_now_att.Add(obj);
-                    }
-                    bl = true;
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.bar)
-                        {
-                            //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                            //bl_cent = false;
-                            bl = false;
-                        }
-
-                    }
-                    if (!mb.friend && pr_mob.lt_carts.Contains("cart barier") && bl)
-                        lt_now_bar_base.Add(obj);
-                    if (mb.friend && pr_mob.lt_carts.Contains("cart damage") && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                        lt_now_att_base.Add(obj);
-
-                }
-                //Debug.Log("hiller atack");
-
-            }
-            if (count_friend == 0 && Random.Range(0, 2) == 0)
-            {
-                return false;
-            }
-            List<int> lt_rd = new List<int>() { 0, 1, 2 };
-            if (lt_now.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now_bar.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now_att.Count == 0)
-                lt_rd.Remove(2);
-
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-            if (a_rd == 0)
-            {
-                /*
-                string type = "cart ice";
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                //st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart ice");
-                cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 1)
-            {
-                /*
-                string type = "cart barier";
-                pr_mob.cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart ice");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart ice");
-                cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 2)
-            {
-                /*
-                string type = "cart damage";
-                pr_mob.cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart ice");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-
-                st_carts.Enqueue("cart damage");
-                st_carts.Enqueue("cart ice");
-                cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else
-            {
-                lt_rd = new List<int>() { 0, 1 };
-                if (lt_now_bar_base.Count == 0)
-                    lt_rd.Remove(0);
-                if (lt_now_att_base.Count == 0)
-                    lt_rd.Remove(1);
-
-                if (lt_rd.Count > 0)
-                    a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-                if (a_rd == 0)
-                {
-
-                    /*
-                    string type = "cart barier";
-                    pr_mob.cel = (GameObject)lt_now_bar_base[Random.Range(0, lt_now_bar_base.Count)];
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                    if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                        pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                    else
-                    {
-                        pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                    }
-                    anim.col_anim++;
-                    pr_mob.cart_active_now = type;
-                    pr_mob.lt_carts_active_now.Add(type);
-
-                    pr_mob.remove_cart(type);
-
-                    atact = true;
-
-                    st_carts.Enqueue("cart damage");
-                    cel = (GameObject)lt_now_att_base[Random.Range(0, lt_now_att_base.Count)];
-                    atact = true;
-                    */
-                    //next_hod();
-                    st_carts.Enqueue("cart barier");
-                    cel = (GameObject)lt_now_bar_base[Random.Range(0, lt_now_bar_base.Count)];
-                    atact = true;
-                }
-
-                else if (a_rd == 1)
-                {
-                    /*
-                    string type = "cart damage";
-                    pr_mob.cel = (GameObject)lt_now_att_base[Random.Range(0, lt_now_att_base.Count)];
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                    if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                        pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                    else
-                    {
-                        pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                    }
-                    anim.col_anim++;
-                    pr_mob.cart_active_now = type;
-                    pr_mob.lt_carts_active_now.Add(type);
-
-                    //pr_mob.lt_carts_added_now.Add(type);
-                    //pr_mob.lt_carts_added.Add(type);
-                    //pr_mob.lt_carts_added.Add("cart blood");
-
-                    pr_mob.remove_cart(type);
-
-                    atact = true;
-                    */
-
-                    st_carts.Enqueue("cart damage");
-                    cel = (GameObject)lt_now_att_base[Random.Range(0, lt_now_att_base.Count)];
-                    atact = true;
-                    //next_hod();
-                }
-
-            }
-
-
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-        if (mob_list[num].name == "goblin poition elit")
+        if (mob_list[num].name == "goblin ice elit" || mob_list[num].name == "defender ice")
         {
-            /*
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            if (pr_mob.lt_carts.Contains("cart fire") && way(pr_mob.x, pr_mob.y, pr_mob.distanse_min)[player.x, player.y] != -1)
-            {
-                string type = "cart fire";
-                pr_mob.cel = player.gameObject;
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                next_hod();
-            }
-            */
-
-
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            List<object> lt_now_bar = new List<object>();
-            List<object> lt_now_att = new List<object>();
-            List<object> lt_now_bar_base = new List<object>();
-            List<object> lt_now_att_base = new List<object>();
-            //bool bl_cent = true;
-            int count_friend = 0;
-            if (lt.Count > 0)
-            {
-
-                foreach (object obj in lt)
-                {
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    bool bl = true;
-                    if (mb.friend)
-                        count_friend++;
-                    if (pr_mob.lt_carts.Contains("cart poition"))
-                    {
-                        if (mb.friend && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                            lt_now.Add(obj);
-                        bl = true;
-                        foreach (par_baf baf in mb.lt_bafs)
-                        {
-                            if (baf.type == par_baf.type_baf.bar_fire)
-                            {
-                                //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                                //bl_cent = false;
-                                bl = false;
-                            }
-
-                        }
-                        if (!mb.friend && pr_mob.lt_carts.Contains("cart barier") && bl)
-                            lt_now_bar.Add(obj);
-                        if (mb.friend && pr_mob.lt_carts.Contains("cart damage") && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                            lt_now_att.Add(obj);
-                    }
-                    bl = true;
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.bar)
-                        {
-                            //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                            //bl_cent = false;
-                            bl = false;
-                        }
-
-                    }
-                    if (!mb.friend && pr_mob.lt_carts.Contains("cart barier") && bl)
-                        lt_now_bar_base.Add(obj);
-                    if (mb.friend && pr_mob.lt_carts.Contains("cart damage") && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                        lt_now_att_base.Add(obj);
-
-                }
-                //Debug.Log("hiller atack");
-
-            }
-            if (count_friend == 0 && Random.Range(0, 2) == 0)
-            {
-                return false;
-            }
-            List<int> lt_rd = new List<int>() { 0, 1, 2 };
-            if (lt_now.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now_bar.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now_att.Count == 0)
-                lt_rd.Remove(2);
-
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-            if (a_rd == 0)
-            {
-                /*
-                string type = "cart poition";
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                //st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart poition");
-                cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 1)
-            {
-                /*
-                string type = "cart barier";
-                pr_mob.cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart poition");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart poition");
-                cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 2)
-            {
-                /*
-                string type = "cart damage";
-                pr_mob.cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart poition");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart damage");
-                st_carts.Enqueue("cart poition");
-                cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else
-            {
-                lt_rd = new List<int>() { 0, 1 };
-                if (lt_now_bar_base.Count == 0)
-                    lt_rd.Remove(0);
-                if (lt_now_att_base.Count == 0)
-                    lt_rd.Remove(1);
-
-                if (lt_rd.Count > 0)
-                    a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-                if (a_rd == 0)
-                {
-                    /*
-                    string type = "cart barier";
-                    pr_mob.cel = (GameObject)lt_now_bar_base[Random.Range(0, lt_now_bar_base.Count)];
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                    if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                        pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                    else
-                    {
-                        pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                    }
-                    anim.col_anim++;
-                    pr_mob.cart_active_now = type;
-                    pr_mob.lt_carts_active_now.Add(type);
-
-                    //pr_mob.lt_carts_added_now.Add(type);
-                    //pr_mob.lt_carts_added.Add(type);
-                    //pr_mob.lt_carts_added.Add("cart blood");
-
-                    pr_mob.remove_cart(type);
-
-                    atact = true;
-                    */
-                    st_carts.Enqueue("cart barier");
-                    cel = (GameObject)lt_now_bar_base[Random.Range(0, lt_now_bar_base.Count)];
-                    atact = true;
-                    //next_hod();
-                }
-                else if (a_rd == 1)
-                {
-                    /*
-                    string type = "cart damage";
-                    pr_mob.cel = (GameObject)lt_now_att_base[Random.Range(0, lt_now_att_base.Count)];
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                    if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                        pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                    else
-                    {
-                        pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                    }
-                    anim.col_anim++;
-                    pr_mob.cart_active_now = type;
-                    pr_mob.lt_carts_active_now.Add(type);
-
-                    //pr_mob.lt_carts_added_now.Add(type);
-                    //pr_mob.lt_carts_added.Add(type);
-                    //pr_mob.lt_carts_added.Add("cart blood");
-
-                    pr_mob.remove_cart(type);
-
-                    atact = true;
-                    */
-
-                    st_carts.Enqueue("cart damage");
-                    cel = (GameObject)lt_now_att_base[Random.Range(0, lt_now_att_base.Count)];
-                    atact = true;
-                    //next_hod();
-                }
-
-            }
-
-
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-
-
-
-        if (mob_list[num].name == "goblin fire elit")
+        if (mob_list[num].name == "goblin poition elit" || mob_list[num].name == "defender poition")
         {
-
-
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            List<object> lt_now_bar = new List<object>();
-            List<object> lt_now_att = new List<object>();
-            List<object> lt_now_bar_base = new List<object>();
-            List<object> lt_now_att_base = new List<object>();
-            //bool bl_cent = true;
-            int count_friend = 0;
-            if (lt.Count > 0)
-            {
-
-                foreach (object obj in lt)
-                {
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    bool bl = true;
-                    if (mb.friend)
-                        count_friend++;
-                    if (pr_mob.lt_carts.Contains("cart fire"))
-                    {
-                        if (mb.friend && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                            lt_now.Add(obj);
-                        bl = true;
-                        foreach (par_baf baf in mb.lt_bafs)
-                        {
-                            if (baf.type == par_baf.type_baf.bar_fire)
-                            {
-                                //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                                //bl_cent = false;
-                                bl = false;
-                            }
-
-                        }
-                        if (!mb.friend && pr_mob.lt_carts.Contains("cart barier") && bl)
-                            lt_now_bar.Add(obj);
-                        if (mb.friend && pr_mob.lt_carts.Contains("cart damage") && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                            lt_now_att.Add(obj);
-                    }
-                    bl = true;
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.bar)
-                        {
-                            //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                            //bl_cent = false;
-                            bl = false;
-                        }
-
-                    }
-                    if (!mb.friend && pr_mob.lt_carts.Contains("cart barier") && bl)
-                        lt_now_bar_base.Add(obj);
-                    if (mb.friend && pr_mob.lt_carts.Contains("cart damage") && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                        lt_now_att_base.Add(obj);
-
-                }
-                //Debug.Log("hiller atack");
-
-            }
-            if (count_friend == 0 && Random.Range(0, 2) == 0)
-            {
-                return false;
-            }
-            List<int> lt_rd = new List<int>() { 0, 1, 2 };
-            if (lt_now.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now_bar.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now_att.Count == 0)
-                lt_rd.Remove(2);
-
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-            if (a_rd == 0)
-            {
-                /*
-                string type = "cart fire";
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                //st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart fire");
-                cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 1)
-            {
-                /*
-                string type = "cart barier";
-                pr_mob.cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart fire");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-
-                st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart fire");
-                cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 2)
-            {
-                /*
-                string type = "cart damage";
-                pr_mob.cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart fire");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart damage");
-                st_carts.Enqueue("cart fire");
-                cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else
-            {
-                lt_rd = new List<int>() { 0, 1 };
-                if (lt_now_bar_base.Count == 0)
-                    lt_rd.Remove(0);
-                if (lt_now_att_base.Count == 0)
-                    lt_rd.Remove(1);
-
-                if (lt_rd.Count > 0)
-                    a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-                if (a_rd == 0)
-                {
-                    /*
-                    string type = "cart barier";
-                    pr_mob.cel = (GameObject)lt_now_bar_base[Random.Range(0, lt_now_bar_base.Count)];
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                    if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                        pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                    else
-                    {
-                        pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                    }
-                    anim.col_anim++;
-                    pr_mob.cart_active_now = type;
-                    pr_mob.lt_carts_active_now.Add(type);
-
-                    //pr_mob.lt_carts_added_now.Add(type);
-                    //pr_mob.lt_carts_added.Add(type);
-                    //pr_mob.lt_carts_added.Add("cart blood");
-
-                    pr_mob.remove_cart(type);
-
-                    atact = true;
-                    */
-                    st_carts.Enqueue("cart barier");
-                    cel = (GameObject)lt_now_bar_base[Random.Range(0, lt_now_bar_base.Count)];
-                    atact = true;
-                    //next_hod();
-                }
-                else if (a_rd == 1)
-                {
-                    /*
-                    string type = "cart damage";
-                    pr_mob.cel = (GameObject)lt_now_att_base[Random.Range(0, lt_now_att_base.Count)];
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                    if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                        pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                    else
-                    {
-                        pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                    }
-                    anim.col_anim++;
-                    pr_mob.cart_active_now = type;
-                    pr_mob.lt_carts_active_now.Add(type);
-
-                    //pr_mob.lt_carts_added_now.Add(type);
-                    //pr_mob.lt_carts_added.Add(type);
-                    //pr_mob.lt_carts_added.Add("cart blood");
-
-                    pr_mob.remove_cart(type);
-
-                    atact = true;
-                    */
-                    st_carts.Enqueue("cart damage");
-                    cel = (GameObject)lt_now_att_base[Random.Range(0, lt_now_att_base.Count)];
-                    atact = true;
-                    //next_hod();
-                }
-
-            }
-
-
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-        if (mob_list[num].name == "goblin rock elit")
+        if (mob_list[num].name == "goblin fire elit" || mob_list[num].name == "defender fire")
         {
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            List<object> lt_now_bar = new List<object>();
-            List<object> lt_now_att = new List<object>();
-            List<object> lt_now_bar_base = new List<object>();
-            List<object> lt_now_att_base = new List<object>();
-            //bool bl_cent = true;
-            int count_friend = 0;
-            if (lt.Count > 0)
-            {
-
-                foreach (object obj in lt)
-                {
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    bool bl = true;
-                    if (mb.friend)
-                        count_friend++;
-                    if (pr_mob.lt_carts.Contains("cart rock"))
-                    {
-                        if (mb.friend && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                            lt_now.Add(obj);
-                        bl = true;
-                        foreach (par_baf baf in mb.lt_bafs)
-                        {
-                            if (baf.type == par_baf.type_baf.bar_rock)
-                            {
-                                //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                                //bl_cent = false;
-                                bl = false;
-                            }
-
-                        }
-                        if (!mb.friend && pr_mob.lt_carts.Contains("cart barier") && bl)
-                            lt_now_bar.Add(obj);
-                        if (mb.friend && pr_mob.lt_carts.Contains("cart damage") && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                            lt_now_att.Add(obj);
-                    }
-                    bl = true;
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.bar)
-                        {
-                            //if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                            //bl_cent = false;
-                            bl = false;
-                        }
-
-                    }
-                    if (!mb.friend && pr_mob.lt_carts.Contains("cart barier") && bl)
-                        lt_now_bar_base.Add(obj);
-                    if (mb.friend && pr_mob.lt_carts.Contains("cart damage") && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                        lt_now_att_base.Add(obj);
-
-                }
-                //Debug.Log("hiller atack");
-
-            }
-            if (count_friend == 0 && Random.Range(0, 2) == 0)
-            {
-                return false;
-            }
-            List<int> lt_rd = new List<int>() { 0, 1, 2 };
-            if (lt_now.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now_bar.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now_att.Count == 0)
-                lt_rd.Remove(2);
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-            if (a_rd == 0)
-            {
-                /*
-                string type = "cart rock";
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                //st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart rock");
-                cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 1)
-            {
-                /*
-                string type = "cart barier";
-                pr_mob.cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart rock");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart rock");
-                cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 2)
-            {
-                /*
-                string type = "cart damage";
-                pr_mob.cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart rock");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart damage");
-                st_carts.Enqueue("cart rock");
-                cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else
-            {
-                lt_rd = new List<int>() { 0, 1 };
-                if (lt_now_bar_base.Count == 0)
-                    lt_rd.Remove(0);
-                if (lt_now_att_base.Count == 0)
-                    lt_rd.Remove(1);
-                if (lt_rd.Count > 0)
-                    a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-                if (a_rd == 0)
-                {
-                    /*
-                    string type = "cart barier";
-                    pr_mob.cel = (GameObject)lt_now_bar_base[Random.Range(0, lt_now_bar_base.Count)];
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                    if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                        pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                    else
-                    {
-                        pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                    }
-                    anim.col_anim++;
-                    pr_mob.cart_active_now = type;
-                    pr_mob.lt_carts_active_now.Add(type);
-
-                    //pr_mob.lt_carts_added_now.Add(type);
-                    //pr_mob.lt_carts_added.Add(type);
-                    //pr_mob.lt_carts_added.Add("cart blood");
-
-                    pr_mob.remove_cart(type);
-
-                    atact = true;
-                    */
-
-                    st_carts.Enqueue("cart barier");
-                    cel = (GameObject)lt_now_bar_base[Random.Range(0, lt_now_bar_base.Count)];
-                    atact = true;
-                    //next_hod();
-                }
-                else if (a_rd == 1)
-                {
-                    /*
-                    string type = "cart damage";
-                    pr_mob.cel = (GameObject)lt_now_att_base[Random.Range(0, lt_now_att_base.Count)];
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                    if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                        pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                    else
-                    {
-                        pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                    }
-                    anim.col_anim++;
-                    pr_mob.cart_active_now = type;
-                    pr_mob.lt_carts_active_now.Add(type);
-
-                    //pr_mob.lt_carts_added_now.Add(type);
-                    //pr_mob.lt_carts_added.Add(type);
-                    //pr_mob.lt_carts_added.Add("cart blood");
-
-                    pr_mob.remove_cart(type);
-
-                    atact = true;
-                    */
-
-                    st_carts.Enqueue("cart damage");
-                    cel = (GameObject)lt_now_att_base[Random.Range(0, lt_now_att_base.Count)];
-                    atact = true;
-                    //next_hod();
-                }
-
-            }
-
-
-
-
-
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
+        if (mob_list[num].name == "goblin rock elit" || mob_list[num].name == "defender rock")
+        {
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
         if (mob_list[num].name == "derlorg")
         {
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            List<object> lt_now1 = new List<object>();
-            bool bl_cent = true;
-            if (lt.Count > 0)
-            {
-                foreach (object obj in lt)
-                {
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    bool bl = true;
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.seal)
-                        {
-                            if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                                bl_cent = false;
-                            bl = false;
-                        }
-
-                    }
-                    if (mb.friend && !(mb.x == pr_mob.x && mb.y == pr_mob.y))
-                    {
-                        if (pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now.Add(obj);
-                        if (bl && pr_mob.lt_carts.Contains("cart derlorg"))
-                        {
-                            lt_now1.Add(obj);
-                        }
-                    }
-
-                }
-                //Debug.Log("hiller atack");
-
-            }
-
-            List<int> lt_rd = new List<int>() { 0, 1, 2 };
-            if (lt_now.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now1.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now.Count == 0 || lt_now1.Count == 0)
-                lt_rd.Remove(2);
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-
-            if (a_rd == 0)
-            {
-                /*
-                string type = "cart damage";
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 1)
-            {
-                /*
-                string type = "cart derlorg";
-                pr_mob.cel = (GameObject)lt_now1[Random.Range(0, lt_now1.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart derlorg");
-                cel = (GameObject)lt_now1[Random.Range(0, lt_now1.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 2)
-            {
-                /*
-                string type = "cart derlorg";
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart damage");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                atact = true;
-                //next_hod();
-            }
-
-            /*
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            if (pr_mob.lt_carts.Contains("cart rock 1") && way(pr_mob.x, pr_mob.y, pr_mob.distanse_min)[player.x, player.y] != -1)
-            {
-                string type = "cart rock 1";
-                pr_mob.cel = player.gameObject;
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                next_hod();
-            }
-            else if (pr_mob.lt_carts.Contains("cart rock") && way(pr_mob.x, pr_mob.y, pr_mob.distanse_min)[player.x, player.y] != -1)
-            {
-                string type = "cart rock";
-                pr_mob.cel = player.gameObject;
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                next_hod();
-            }
-            */
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
         if (mob_list[num].name == "derlorg shaman")
         {
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            List<object> lt_now1 = new List<object>();
-            List<object> lt_now2 = new List<object>();
-            bool bl_cent = true;
-            if (lt.Count > 0)
-            {
-                foreach (object obj in lt)
-                {
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    bool bl = true;
-                    bool bl_bar = true;
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.seal)
-                        {
-                            if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                                bl_cent = false;
-                            bl = false;
-                        }
-                        else if (baf.type == par_baf.type_baf.bar)
-                        {
-                            if (mb.x == pr_mob.x && mb.y == pr_mob.y)
-                                bl_cent = false;
-                            bl_bar = false;
-                        }
-
-                    }
-                    if (!mb.friend && bl_bar && pr_mob.lt_carts.Contains("cart barier"))
-                    {
-                        lt_now.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now2.Add(obj);
-                    }
-
-                    if (mb.friend && bl && pr_mob.lt_carts.Contains("cart derlorg"))
-                    {
-                        lt_now1.Add(obj);
-                    }
-
-
-                }
-                //Debug.Log("hiller atack");
-
-            }
-
-            List<int> lt_rd = new List<int>() { 0, 1, 2 };
-            if (lt_now.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now1.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now2.Count == 0)
-                lt_rd.Remove(2);
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-
-            if (a_rd == 0)
-            {
-                /*
-                string type = "cart barier";
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 1)
-            {
-                /*
-                string type = "cart derlorg";
-                pr_mob.cel = (GameObject)lt_now1[Random.Range(0, lt_now1.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-
-                st_carts.Enqueue("cart derlorg");
-                cel = (GameObject)lt_now1[Random.Range(0, lt_now1.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 2)
-            {
-                /*
-                string type = "cart derlorg";
-                pr_mob.cel = (GameObject)lt_now2[Random.Range(0, lt_now2.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart barier");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now2[Random.Range(0, lt_now2.Count)];
-                atact = true;
-                //next_hod();
-            }
-
-
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
         if (mob_list[num].name == "derlorg energy")
         {
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now_seal = new List<object>();
-            List<object> lt_now_att = new List<object>();
-            List<object> lt_now_att_baf = new List<object>();
-            List<object> lt_now_att_seal = new List<object>();
-
-            List<object> lt_now_bar = new List<object>();
-            //List<object> lt_now_bar_baf = new List<object>();
-            List<object> lt_now_bar_seal = new List<object>();
-
-            List<object> lt_now_baf = new List<object>();
-            List<object> lt_now_baf_seal = new List<object>();
-            bool bl_cent = true;
-            int count_friend = 0;
-            if (lt.Count > 0)
-            {
-                foreach (object obj in lt)
-                {
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    bool bl = true;
-                    bool bl_bar = true;
-                    bool bl_bar_seal = true;
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.energy)
-                        {
-                            bl = false;
-                        }
-                        else if (baf.type == par_baf.type_baf.bar)
-                        {
-                            bl_bar = false;
-                        }
-                        else if (baf.type == par_baf.type_baf.seal_barier)
-                        {
-                            bl_bar_seal = false;
-                        }
-                    }
-                    if (mb.friend)
-                    {
-                        count_friend++;
-                        if (pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_seal.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now_att.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart energy") && pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now_att_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart damage") && pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_att_seal.Add(obj);
-                    }
-                    else if (bl)
-                    {
-                        if (bl)
-                        {
-                            if (pr_mob.lt_carts.Contains("cart energy"))
-                                lt_now_baf.Add(obj);
-                            if (pr_mob.lt_carts.Contains("cart energy") && pr_mob.lt_carts.Contains("cart derlorg"))
-                                lt_now_baf_seal.Add(obj);
-                        }
-
-
-                        if (pr_mob.lt_carts.Contains("cart barier") && bl_bar && bl_bar_seal)
-                            lt_now_bar.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart barier") && pr_mob.lt_carts.Contains("cart derlorg") && bl_bar && bl_bar_seal)
-                            lt_now_bar_seal.Add(obj);
-                    }
-
-
-                }
-                //Debug.Log("hiller atack");
-
-            }
-            if (count_friend == 0 && Random.Range(0, 2) == 0)
-            {
-                return false;
-            }
-            List<int> lt_rd = new List<int>() { 0, 1, 2, 3, 4, 5 };
-            if (lt_now_seal.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now_att.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now_baf.Count == 0)
-                lt_rd.Remove(2);
-            if (lt_now_att_baf.Count == 0)
-                lt_rd.Remove(3);
-            if (lt_now_att_seal.Count == 0)
-                lt_rd.Remove(4);
-            if (lt_now_baf_seal.Count == 0)
-                lt_rd.Remove(5);
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-
-            if (a_rd == 0)
-            {
-                st_carts.Enqueue("cart derlorg");
-                cel = (GameObject)lt_now_seal[Random.Range(0, lt_now_seal.Count)];
-                atact = true;
-            }
-            else if (a_rd == 1)
-            {
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                atact = true;
-            }
-            else if (a_rd == 2)
-            {
-                st_carts.Enqueue("cart energy");
-                cel = (GameObject)lt_now_baf[Random.Range(0, lt_now_baf.Count)];
-                atact = true;
-            }
-            else if (a_rd == 3)
-            {
-                st_carts.Enqueue("cart damage");
-                st_carts.Enqueue("cart energy");
-                cel = (GameObject)lt_now_att_baf[Random.Range(0, lt_now_att_baf.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 4)
-            {
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now_att_seal[Random.Range(0, lt_now_att_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 5)
-            {
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart energy");
-                cel = (GameObject)lt_now_baf_seal[Random.Range(0, lt_now_baf_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 6)
-            {
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                atact = true;
-            }
-            else if (a_rd == 8)
-            {
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now_bar_seal[Random.Range(0, lt_now_bar_seal.Count)];
-                atact = true;
-            }
-        }
-        if (mob_list[num].name == "derlorg blood")
-        {
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now_seal = new List<object>();
-            List<object> lt_now_att = new List<object>();
-            List<object> lt_now_att_baf = new List<object>();
-            List<object> lt_now_att_seal = new List<object>();
-
-            List<object> lt_now_bar = new List<object>();
-            //List<object> lt_now_bar_baf = new List<object>();
-            List<object> lt_now_bar_seal = new List<object>();
-
-            List<object> lt_now_baf = new List<object>();
-            List<object> lt_now_baf_seal = new List<object>();
-            bool bl_cent = true;
-            int count_friend = 0;
-            if (lt.Count > 0)
-            {
-                foreach (object obj in lt)
-                {
-
-
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-
-                    bool bl_bar = true;
-                    bool bl_bar_seal = true;
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.bar)
-                        {
-                            bl_bar = false;
-                        }
-                        else if (baf.type == par_baf.type_baf.seal_barier)
-                        {
-                            bl_bar_seal = false;
-                        }
-
-                    }
-
-
-                    if (mb.friend)
-                    {
-                        count_friend++;
-                        if (pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_seal.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now_att.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart blood") && pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now_att_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart damage") && pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_att_seal.Add(obj);
-                    }
-                    else
-                    {
-                        if (mb.hp < mb.hp_max)
-                        {
-                            if (pr_mob.lt_carts.Contains("cart blood"))
-                                lt_now_baf.Add(obj);
-                            if (pr_mob.lt_carts.Contains("cart blood") && pr_mob.lt_carts.Contains("cart derlorg"))
-                                lt_now_baf_seal.Add(obj);
-                        }
-
-                        if (pr_mob.lt_carts.Contains("cart barier") && bl_bar && bl_bar_seal)
-                            lt_now_bar.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart barier") && pr_mob.lt_carts.Contains("cart derlorg") && bl_bar && bl_bar_seal)
-                            lt_now_bar_seal.Add(obj);
-                    }
-
-
-                }
-                //Debug.Log("hiller atack");
-
-            }
-
-            if (count_friend == 0 && Random.Range(0, 2) == 0)
-            {
-                return false;
-            }
-            List<int> lt_rd = new List<int>() { 0, 1, 2, 3, 4, 5, 6, 8 };
-            if (lt_now_seal.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now_att.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now_baf.Count == 0)
-                lt_rd.Remove(2);
-            if (lt_now_att_baf.Count == 0)
-                lt_rd.Remove(3);
-            if (lt_now_att_seal.Count == 0)
-                lt_rd.Remove(4);
-            if (lt_now_baf_seal.Count == 0)
-                lt_rd.Remove(5);
-            if (lt_now_bar.Count == 0)
-                lt_rd.Remove(6);
-            if (lt_now_bar_seal.Count == 0)
-                lt_rd.Remove(8);
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-
-            if (a_rd == 0)
-            {
-                st_carts.Enqueue("cart derlorg");
-                cel = (GameObject)lt_now_seal[Random.Range(0, lt_now_seal.Count)];
-                atact = true;
-            }
-            else if (a_rd == 1)
-            {
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                atact = true;
-            }
-            else if (a_rd == 2)
-            {
-                st_carts.Enqueue("cart blood");
-                cel = (GameObject)lt_now_baf[Random.Range(0, lt_now_baf.Count)];
-                atact = true;
-            }
-            else if (a_rd == 3)
-            {
-                st_carts.Enqueue("cart damage");
-                st_carts.Enqueue("cart blood");
-                cel = (GameObject)lt_now_att_baf[Random.Range(0, lt_now_att_baf.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 4)
-            {
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now_att_seal[Random.Range(0, lt_now_att_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 5)
-            {
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart blood");
-                cel = (GameObject)lt_now_baf_seal[Random.Range(0, lt_now_baf_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 6)
-            {
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                atact = true;
-            }
-            else if (a_rd == 8)
-            {
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now_bar_seal[Random.Range(0, lt_now_bar_seal.Count)];
-                atact = true;
-            }
-        }
-        if (mob_list[num].name == "derlorg fire")
-        {
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now_seal = new List<object>();
-            List<object> lt_now_att = new List<object>();
-            List<object> lt_now_att_baf = new List<object>();
-            List<object> lt_now_att_seal = new List<object>();
-            List<object> lt_now_bar = new List<object>();
-            List<object> lt_now_bar_baf = new List<object>();
-            List<object> lt_now_bar_seal = new List<object>();
-            List<object> lt_now_baf = new List<object>();
-            List<object> lt_now_baf_seal = new List<object>();
-            bool bl_cent = true;
-
-            int count_friend = 0;
-            if (lt.Count > 0)
-            {
-                foreach (object obj in lt)
-                {
-                    bool bl_bar = true;
-                    bool bl_bar_seal = true;
-                    bool bl_bar_baf = true;
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.bar)
-                        {
-                            bl_bar = false;
-                        }
-                        else if (baf.type == par_baf.type_baf.bar_fire)
-                        {
-                            bl_bar_baf = false;
-                        }
-                        else if (baf.type == par_baf.type_baf.seal_barier)
-                        {
-                            bl_bar_seal = false;
-                        }
-
-                    }
-
-
-                    if (mb.friend)
-                    {
-                        count_friend++;
-                        if (pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_seal.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now_att.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart fire") && pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now_att_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart damage") && pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_att_seal.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart fire"))
-                            lt_now_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart fire") && pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_baf_seal.Add(obj);
-                    }
-                    else
-                    {
-                        if (pr_mob.lt_carts.Contains("cart barier") && pr_mob.lt_carts.Contains("cart fire") && bl_bar_baf)
-                            lt_now_bar_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart barier") && pr_mob.lt_carts.Contains("cart seal") && bl_bar_seal && bl_bar)
-                            lt_now_bar_seal.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart barier") && bl_bar_seal && bl_bar)
-                            lt_now_bar.Add(obj);
-                    }
-
-
-                }
-                //Debug.Log("hiller atack");
-
-            }
-
-            if (count_friend == 0 && Random.Range(0, 2) == 0)
-            {
-                return false;
-            }
-
-            List<int> lt_rd = new List<int>() { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-            if (lt_now_seal.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now_att.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now_baf.Count == 0)
-                lt_rd.Remove(2);
-            if (lt_now_att_baf.Count == 0)
-                lt_rd.Remove(3);
-            if (lt_now_att_seal.Count == 0)
-                lt_rd.Remove(4);
-            if (lt_now_baf_seal.Count == 0)
-                lt_rd.Remove(5);
-            if (lt_now_bar.Count == 0)
-                lt_rd.Remove(6);
-            if (lt_now_bar_baf.Count == 0)
-                lt_rd.Remove(7);
-            if (lt_now_bar_seal.Count == 0)
-                lt_rd.Remove(8);
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-
-            if (a_rd == 0)
-            {
-                st_carts.Enqueue("cart derlorg");
-                cel = (GameObject)lt_now_seal[Random.Range(0, lt_now_seal.Count)];
-                atact = true;
-            }
-            else if (a_rd == 1)
-            {
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                atact = true;
-            }
-            else if (a_rd == 2)
-            {
-                st_carts.Enqueue("cart fire");
-                cel = (GameObject)lt_now_baf[Random.Range(0, lt_now_baf.Count)];
-                atact = true;
-            }
-            else if (a_rd == 3)
-            {
-                st_carts.Enqueue("cart damage");
-                st_carts.Enqueue("cart fire");
-                cel = (GameObject)lt_now_att_baf[Random.Range(0, lt_now_att_baf.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 4)
-            {
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now_att_seal[Random.Range(0, lt_now_att_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 5)
-            {
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart fire");
-                cel = (GameObject)lt_now_baf_seal[Random.Range(0, lt_now_baf_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 6)
-            {
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                atact = true;
-            }
-            else if (a_rd == 7)
-            {
-                st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart fire");
-                cel = (GameObject)lt_now_bar_baf[Random.Range(0, lt_now_bar_baf.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 8)
-            {
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now_bar_seal[Random.Range(0, lt_now_bar_seal.Count)];
-                atact = true;
-            }
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
         if (mob_list[num].name == "derlorg ice")
         {
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now_seal = new List<object>();
-            List<object> lt_now_att = new List<object>();
-            List<object> lt_now_att_baf = new List<object>();
-            List<object> lt_now_att_seal = new List<object>();
-            List<object> lt_now_bar = new List<object>();
-            List<object> lt_now_bar_baf = new List<object>();
-            List<object> lt_now_bar_seal = new List<object>();
-            List<object> lt_now_baf = new List<object>();
-            List<object> lt_now_baf_seal = new List<object>();
-            bool bl_cent = true;
-
-            int count_friend = 0;
-            if (lt.Count > 0)
-            {
-                foreach (object obj in lt)
-                {
-                    bool bl_bar = true;
-                    bool bl_bar_seal = true;
-                    bool bl_bar_baf = true;
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.bar)
-                        {
-                            bl_bar = false;
-                        }
-                        else if (baf.type == par_baf.type_baf.bar_ice)
-                        {
-                            bl_bar_baf = false;
-                        }
-                        else if (baf.type == par_baf.type_baf.seal_barier)
-                        {
-                            bl_bar_seal = false;
-                        }
-
-                    }
-
-
-                    if (mb.friend)
-                    {
-                        count_friend++;
-                        if (pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_seal.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now_att.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart ice") && pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now_att_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart damage") && pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_att_seal.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart ice"))
-                            lt_now_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart ice") && pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_baf_seal.Add(obj);
-                    }
-                    else
-                    {
-                        if (pr_mob.lt_carts.Contains("cart barier") && pr_mob.lt_carts.Contains("cart ice") && bl_bar_baf)
-                            lt_now_bar_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart barier") && pr_mob.lt_carts.Contains("cart seal") && bl_bar_seal && bl_bar)
-                            lt_now_bar_seal.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart barier") && bl_bar_seal && bl_bar)
-                            lt_now_bar.Add(obj);
-                    }
-
-
-                }
-                //Debug.Log("hiller atack");
-
-            }
-
-            if (count_friend == 0 && Random.Range(0, 2) == 0)
-            {
-                return false;
-            }
-
-            List<int> lt_rd = new List<int>() { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-            if (lt_now_seal.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now_att.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now_baf.Count == 0)
-                lt_rd.Remove(2);
-            if (lt_now_att_baf.Count == 0)
-                lt_rd.Remove(3);
-            if (lt_now_att_seal.Count == 0)
-                lt_rd.Remove(4);
-            if (lt_now_baf_seal.Count == 0)
-                lt_rd.Remove(5);
-            if (lt_now_bar.Count == 0)
-                lt_rd.Remove(6);
-            if (lt_now_bar_baf.Count == 0)
-                lt_rd.Remove(7);
-            if (lt_now_bar_seal.Count == 0)
-                lt_rd.Remove(8);
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-
-            if (a_rd == 0)
-            {
-                st_carts.Enqueue("cart derlorg");
-                cel = (GameObject)lt_now_seal[Random.Range(0, lt_now_seal.Count)];
-                atact = true;
-            }
-            else if (a_rd == 1)
-            {
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                atact = true;
-            }
-            else if (a_rd == 2)
-            {
-                st_carts.Enqueue("cart ice");
-                cel = (GameObject)lt_now_baf[Random.Range(0, lt_now_baf.Count)];
-                atact = true;
-            }
-            else if (a_rd == 3)
-            {
-                st_carts.Enqueue("cart damage");
-                st_carts.Enqueue("cart ice");
-                cel = (GameObject)lt_now_att_baf[Random.Range(0, lt_now_att_baf.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 4)
-            {
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now_att_seal[Random.Range(0, lt_now_att_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 5)
-            {
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart ice");
-                cel = (GameObject)lt_now_baf_seal[Random.Range(0, lt_now_baf_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 6)
-            {
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                atact = true;
-            }
-            else if (a_rd == 7)
-            {
-                st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart ice");
-                cel = (GameObject)lt_now_bar_baf[Random.Range(0, lt_now_bar_baf.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 8)
-            {
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now_bar_seal[Random.Range(0, lt_now_bar_seal.Count)];
-                atact = true;
-            }
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
+        if (mob_list[num].name == "derlorg fire")
+        {
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
         if (mob_list[num].name == "derlorg poition")
         {
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now_seal = new List<object>();
-            List<object> lt_now_att = new List<object>();
-            List<object> lt_now_att_baf = new List<object>();
-            List<object> lt_now_att_seal = new List<object>();
-            List<object> lt_now_bar = new List<object>();
-            List<object> lt_now_bar_baf = new List<object>();
-            List<object> lt_now_bar_seal = new List<object>();
-            List<object> lt_now_baf = new List<object>();
-            List<object> lt_now_baf_seal = new List<object>();
-            bool bl_cent = true;
-
-            int count_friend = 0;
-            if (lt.Count > 0)
-            {
-                foreach (object obj in lt)
-                {
-                    bool bl_bar = true;
-                    bool bl_bar_seal = true;
-                    bool bl_bar_baf = true;
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.bar)
-                        {
-                            bl_bar = false;
-                        }
-                        else if (baf.type == par_baf.type_baf.bar_poition)
-                        {
-                            bl_bar_baf = false;
-                        }
-                        else if (baf.type == par_baf.type_baf.seal_barier)
-                        {
-                            bl_bar_seal = false;
-                        }
-
-                    }
-
-
-                    if (mb.friend)
-                    {
-                        count_friend++;
-                        if (pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_seal.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now_att.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart poition") && pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now_att_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart damage") && pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_att_seal.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart poition"))
-                            lt_now_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart poition") && pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_baf_seal.Add(obj);
-                    }
-                    else
-                    {
-                        if (pr_mob.lt_carts.Contains("cart barier") && pr_mob.lt_carts.Contains("cart poition") && bl_bar_baf)
-                            lt_now_bar_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart barier") && pr_mob.lt_carts.Contains("cart seal") && bl_bar_seal && bl_bar)
-                            lt_now_bar_seal.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart barier") && bl_bar_seal && bl_bar)
-                            lt_now_bar.Add(obj);
-                    }
-
-
-                }
-                //Debug.Log("hiller atack");
-
-            }
-
-            if (count_friend == 0 && Random.Range(0, 2) == 0)
-            {
-                return false;
-            }
-
-            List<int> lt_rd = new List<int>() { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-            if (lt_now_seal.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now_att.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now_baf.Count == 0)
-                lt_rd.Remove(2);
-            if (lt_now_att_baf.Count == 0)
-                lt_rd.Remove(3);
-            if (lt_now_att_seal.Count == 0)
-                lt_rd.Remove(4);
-            if (lt_now_baf_seal.Count == 0)
-                lt_rd.Remove(5);
-            if (lt_now_bar.Count == 0)
-                lt_rd.Remove(6);
-            if (lt_now_bar_baf.Count == 0)
-                lt_rd.Remove(7);
-            if (lt_now_bar_seal.Count == 0)
-                lt_rd.Remove(8);
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-
-            if (a_rd == 0)
-            {
-                st_carts.Enqueue("cart derlorg");
-                cel = (GameObject)lt_now_seal[Random.Range(0, lt_now_seal.Count)];
-                atact = true;
-            }
-            else if (a_rd == 1)
-            {
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                atact = true;
-            }
-            else if (a_rd == 2)
-            {
-                st_carts.Enqueue("cart poition");
-                cel = (GameObject)lt_now_baf[Random.Range(0, lt_now_baf.Count)];
-                atact = true;
-            }
-            else if (a_rd == 3)
-            {
-                st_carts.Enqueue("cart damage");
-                st_carts.Enqueue("cart poition");
-                cel = (GameObject)lt_now_att_baf[Random.Range(0, lt_now_att_baf.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 4)
-            {
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now_att_seal[Random.Range(0, lt_now_att_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 5)
-            {
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart poition");
-                cel = (GameObject)lt_now_baf_seal[Random.Range(0, lt_now_baf_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 6)
-            {
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 7)
-            {
-
-
-                st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart poition");
-                cel = (GameObject)lt_now_bar_baf[Random.Range(0, lt_now_bar_baf.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 8)
-            {
-
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now_bar_seal[Random.Range(0, lt_now_bar_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
+        if (mob_list[num].name == "derlorg blood")
+        {
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
         if (mob_list[num].name == "derlorg rock")
         {
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now_seal = new List<object>();
-            List<object> lt_now_att = new List<object>();
-            List<object> lt_now_att_baf = new List<object>();
-            List<object> lt_now_att_seal = new List<object>();
-            List<object> lt_now_bar = new List<object>();
-            List<object> lt_now_bar_baf = new List<object>();
-            List<object> lt_now_bar_seal = new List<object>();
-            List<object> lt_now_baf = new List<object>();
-            List<object> lt_now_baf_seal = new List<object>();
-            bool bl_cent = true;
-
-            int count_friend = 0;
-            if (lt.Count > 0)
-            {
-                foreach (object obj in lt)
-                {
-                    bool bl_bar = true;
-                    bool bl_bar_seal = true;
-                    bool bl_bar_baf = true;
-                    par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
-                    foreach (par_baf baf in mb.lt_bafs)
-                    {
-                        if (baf.type == par_baf.type_baf.bar)
-                        {
-                            bl_bar = false;
-                        }
-                        else if (baf.type == par_baf.type_baf.bar_rock)
-                        {
-                            bl_bar_baf = false;
-                        }
-                        else if (baf.type == par_baf.type_baf.seal_barier)
-                        {
-                            bl_bar_seal = false;
-                        }
-
-                    }
-
-
-                    if (mb.friend)
-                    {
-                        count_friend++;
-                        if (pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_seal.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now_att.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart rock") && pr_mob.lt_carts.Contains("cart damage"))
-                            lt_now_att_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart damage") && pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_att_seal.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart rock"))
-                            lt_now_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart rock") && pr_mob.lt_carts.Contains("cart derlorg"))
-                            lt_now_baf_seal.Add(obj);
-                    }
-                    else
-                    {
-                        if (pr_mob.lt_carts.Contains("cart barier") && pr_mob.lt_carts.Contains("cart rock") && bl_bar_baf)
-                            lt_now_bar_baf.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart barier") && pr_mob.lt_carts.Contains("cart seal") && bl_bar_seal && bl_bar)
-                            lt_now_bar_seal.Add(obj);
-                        if (pr_mob.lt_carts.Contains("cart barier") && bl_bar_seal && bl_bar)
-                            lt_now_bar.Add(obj);
-                    }
-
-
-                }
-                //Debug.Log("hiller atack");
-
-            }
-
-            if (count_friend == 0 && Random.Range(0, 2) == 0)
-            {
-                return false;
-            }
-
-            List<int> lt_rd = new List<int>() { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-            if (lt_now_seal.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now_att.Count == 0)
-                lt_rd.Remove(1);
-            if (lt_now_baf.Count == 0)
-                lt_rd.Remove(2);
-            if (lt_now_att_baf.Count == 0)
-                lt_rd.Remove(3);
-            if (lt_now_att_seal.Count == 0)
-                lt_rd.Remove(4);
-            if (lt_now_baf_seal.Count == 0)
-                lt_rd.Remove(5);
-            if (lt_now_bar.Count == 0)
-                lt_rd.Remove(6);
-            if (lt_now_bar_baf.Count == 0)
-                lt_rd.Remove(7);
-            if (lt_now_bar_seal.Count == 0)
-                lt_rd.Remove(8);
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-
-            if (a_rd == 0)
-            {
-                /*
-                string type = "cart derlorg";
-                pr_mob.cel = (GameObject)lt_now_seal[Random.Range(0, lt_now_seal.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-
-                */
-                st_carts.Enqueue("cart derlorg");
-                cel = (GameObject)lt_now_seal[Random.Range(0, lt_now_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 1)
-            {
-                /*
-                string type = "cart damage";
-                pr_mob.cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now_att[Random.Range(0, lt_now_att.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 2)
-            {
-                /*
-                string type = "cart rock";
-                pr_mob.cel = (GameObject)lt_now_baf[Random.Range(0, lt_now_baf.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart rock");
-                cel = (GameObject)lt_now_baf[Random.Range(0, lt_now_baf.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 3)
-            {
-                /*
-                string type = "cart damage";
-                pr_mob.cel = (GameObject)lt_now_att_baf[Random.Range(0, lt_now_att_baf.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart rock");
-
-                pr_mob.remove_cart(type);
-
-
-                atact = true;
-                */
-
-                st_carts.Enqueue("cart damage");
-                st_carts.Enqueue("cart rock");
-                cel = (GameObject)lt_now_att_baf[Random.Range(0, lt_now_att_baf.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 4)
-            {
-                /*
-                string type = "cart derlorg";
-                pr_mob.cel = (GameObject)lt_now_att_seal[Random.Range(0, lt_now_att_seal.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart damage");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart damage");
-                cel = (GameObject)lt_now_att_seal[Random.Range(0, lt_now_att_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 5)
-            {
-                /*
-                string type = "cart derlorg";
-                pr_mob.cel = (GameObject)lt_now_baf_seal[Random.Range(0, lt_now_baf_seal.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                pr_mob.lt_carts_added.Add("cart rock");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart rock");
-                cel = (GameObject)lt_now_baf_seal[Random.Range(0, lt_now_baf_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 6)
-            {
-                /*
-                string type = "cart barier";
-                pr_mob.cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                //pr_mob.lt_carts_added_now.Add(type);
-                //pr_mob.lt_carts_added.Add(type);
-                //pr_mob.lt_carts_added.Add("cart fire");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now_bar[Random.Range(0, lt_now_bar.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 7)
-            {
-                /*
-                string type = "cart barier";
-                pr_mob.cel = (GameObject)lt_now_bar_baf[Random.Range(0, lt_now_bar_baf.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                pr_mob.lt_carts_added.Add("cart rock");
-                //pr_mob.lt_carts_added.Add("cart fire");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-
-                st_carts.Enqueue("cart barier");
-                st_carts.Enqueue("cart rock");
-                cel = (GameObject)lt_now_bar_baf[Random.Range(0, lt_now_bar_baf.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else if (a_rd == 8)
-            {
-                /*
-                string type = "cart derlorg";
-                pr_mob.cel = (GameObject)lt_now_bar_seal[Random.Range(0, lt_now_bar_seal.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-
-                pr_mob.lt_carts_added_now.Add(type);
-                pr_mob.lt_carts_added.Add("cart barier");
-                //pr_mob.lt_carts_added.Add("cart fire");
-
-                pr_mob.remove_cart(type);
-
-                atact = true;
-                */
-
-                st_carts.Enqueue("cart derlorg");
-                st_carts.Enqueue("cart barier");
-                cel = (GameObject)lt_now_bar_seal[Random.Range(0, lt_now_bar_seal.Count)];
-                atact = true;
-                //next_hod();
-            }
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-
+        if (mob_list[num].name == "derlorg bomb")
+        {
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
+        if (mob_list[num].name == "derlorg necro")
+        {
+            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
+        }
         if (mob_list[num].name == "dungalorg")
         {
-            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
+            List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_attack);
             List<object> lt_now_att = new List<object>();
             List<object> lt_now_seal = new List<object>();
             List<object> lt_now_d = new List<object>();
@@ -10031,153 +7080,22 @@ if (bf.type == par_baf.type_baf.fire)
 
 
 
-        else if (mob_list[num].name == "spider (spawned)")
+
+        //Debug.Log("atack carts 0");
+        if (lt_rd_atack.Count>0)
         {
-            //List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            bool bl_cent = true;
-            if (pr_mob.lt_mob_vizited.Count > 0)
+            atact = true;
+            List<atack_cart> lt1 = rand_list(lt_rd_atack);
+            atack_cart at_cart_now = rand_list(lt1);
+            //Debug.Log(lt1.Count);
+            cel = at_cart_now.cel;
+            Debug.Log("atack carts");
+            foreach (string st in at_cart_now.que_cart)
             {
-                foreach (GameObject obj in pr_mob.lt_mob_vizited)
-                {
-                    par_mob mb = obj.GetComponent<par_mob>();
-                    if (Vector2.Distance(new Vector2(mb.x, mb.y), new Vector2(pr_mob.x, pr_mob.y)) <= pr_mob.distanse_min)
-                    {
-
-                        if (mb.friend != pr_mob.friend && pr_mob.lt_carts.Contains("cart spider poition"))
-                        {
-                            lt_now.Add(obj);
-                        }
-
-                    }
-
-
-
-                }
-                //Debug.Log("hiller atack");
-
+                Debug.Log(st);
             }
-
-            List<int> lt_rd = new List<int>() { 0 };
-            if (lt_now.Count == 0)
-                lt_rd.Remove(0);
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-
-            if (a_rd == 0)
-            {
-                /*
-                string type = "cart spider poition";
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-                */
-                st_carts.Enqueue("cart spider poition");
-                cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                atact = true;
-                //next_hod();
-            }
-
-
-
-        }
-        else if (mob_list[num].name == "spider")
-        {
-            //List<object> lt = way_find_lt(mob, pr_mob.x, pr_mob.y, pr_mob.distanse_min);
-            List<object> lt_now = new List<object>();
-            List<object> lt_now_1 = new List<object>();
-            bool bl_cent = true;
-            if (pr_mob.lt_mob_vizited.Count > 0)
-            {
-                foreach (Vector2 v2 in pr_mob.lt_v2_vizited)
-                {
-                    par_mob mb = null;
-                    int v_x = (int)v2.x;
-                    int v_y = (int)v2.y;
-                    if (func.mob[v_x, v_y] != null)
-                        mb = func.mob[v_x, v_y].GetComponent<par_mob>();
-                    if (Vector2.Distance(v2, new Vector2(pr_mob.x, pr_mob.y)) <= pr_mob.distanse_min)
-                    {
-                        if (object_bool(v_x, v_y) && pr_mob.lt_carts.Contains("cart spider"))
-                        {
-                            lt_now.Add(func.eath[v_x, v_y]);
-                        }
-
-
-                    }
-
-
-
-                }
-                foreach (GameObject gm in pr_mob.lt_mob_vizited)
-                {
-                    par_mob mb = gm.GetComponent<par_mob>();
-                    if ((mb.friend == pr_mob.friend) && gm.name == "spider (spawned)" && pr_mob.lt_carts.Contains("cart spider"))
-                    {
-                        lt_now_1.Add(gm);
-                    }
-                }
-
-                //Debug.Log("hiller atack");
-
-            }
-
-            List<int> lt_rd = new List<int>() { 0, 1 };
-            if (lt_now.Count == 0)
-                lt_rd.Remove(0);
-            if (lt_now_1.Count == 0)
-                lt_rd.Remove(1);
-            int a_rd = -1;
-            if (lt_rd.Count > 0)
-                a_rd = lt_rd[Random.Range(0, lt_rd.Count)];
-
-            if (a_rd == 0)
-            {
-                /*
-                string type = "cart spider";
-                pr_mob.cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                pr_mob.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (!pr_mob.gameObject.GetComponent<Animator>().GetBool("selected"))
-                    pr_mob.gameObject.GetComponent<Animator>().SetBool("selected", true);
-                else
-                {
-                    pr_mob.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
-                }
-                anim.col_anim++;
-                pr_mob.cart_active_now = type;
-                pr_mob.lt_carts_active_now.Add(type);
-                pr_mob.remove_cart(type);
-                */
-                st_carts.Enqueue("cart spider");
-                cel = (GameObject)lt_now[Random.Range(0, lt_now.Count)];
-                atact = true;
-                //next_hod();
-            }
-            else
-            {
-                st_carts.Enqueue("cart spider");
-                cel = (GameObject)lt_now_1[Random.Range(0, lt_now_1.Count)];
-                atact = true;
-            }
-
-
-        }
-
-
-
-        if (atact)
-        {
-            string type = st_carts.Dequeue();
+            //Debug.Log("end atack carts");
+            string type = at_cart_now.que_cart.Dequeue();
             pr_mob.cel = cel;
 
             List<string> lt_rez = new List<string>(pr_mob.lt_carts);
@@ -10197,11 +7115,13 @@ if (bf.type == par_baf.type_baf.fire)
 
             int sila = pr_mob.max_sila(type);
             bool bl_add = false;
-            Debug.Log("sila " + type + "   =" + sila);
+            //Debug.Log("sila " + type + "   =" + sila);
             lt_rez.Remove(type);
+            
             if (sila > 0)
             {
                 int rr = Random.Range(0, sila + 1);
+                int r_sila = -1;
                 for (int i = 0; i < rr; i++)
                 {
                     if (lt_rez.Contains(type))
@@ -10211,43 +7131,57 @@ if (bf.type == par_baf.type_baf.fire)
                             bl_add = true;
                             pr_mob.lt_carts_added_now.Add(type);
                         }
-
+                        r_sila++;
                         pr_mob.lt_carts_added.Add(type);
                         lt_rez.Remove(type);
                     }
                     else
                         break;
                 }
+                for (int i = 0; i < r_sila; i++)
+                {
+                    pr_mob.rem_sila(type);
+                }
 
             }
 
             pr_mob.lt_carts_active_now.Add(type);
 
-            if (st_carts.Count > 0)
+            if (at_cart_now.que_cart.Count > 0)
             {
                 if (!bl_add)
                 {
                     bl_add = true;
                     pr_mob.lt_carts_added_now.Add(type);
                 }
-                foreach (string st in st_carts)
+                foreach (string st in at_cart_now.que_cart)
                 {
                     pr_mob.lt_carts_added.Add(st);
                     sila = pr_mob.max_sila(st);
-                    Debug.Log("sila " + st + "   =" + sila);
+                    //Debug.Log("sila " + st + "   =" + sila);
+
+                    int r_sila = -1;
+
                     if (sila > 0)
                     {
                         int rr = Random.Range(0, sila + 1);
-                        Debug.Log("rr= " + rr);
+                       
+                        //Debug.Log("rr= " + rr);
                         for (int i = 0; i < rr; i++)
                         {
+                            
                             if (lt_rez.Contains(st))
                             {
+                                r_sila++;
                                 pr_mob.lt_carts_added.Add(st);
                                 lt_rez.Remove(st);
                             }
                             else
                                 break;
+                        }
+                        for (int i = 0; i < r_sila; i++)
+                        {
+                            pr_mob.rem_sila(st);
                         }
 
                     }
@@ -10257,128 +7191,6 @@ if (bf.type == par_baf.type_baf.fire)
             pr_mob.remove_cart(type);
 
         }
-        /*      
-              if (false)
-              {
-                  List<GameObject> lt_friends = new List<GameObject>();
-                  List<GameObject> lt_no_friends = new List<GameObject>();
-                  List<GameObject> lt_empty = new List<GameObject>();
-
-                  foreach (Vector2 v2 in pr_mob.lt_v2_vizited)
-                  {
-                      par_mob mb = null;
-                      int v_x = (int)v2.x;
-                      int v_y = (int)v2.y;
-                      if (func.mob[v_x, v_y] != null)
-                          mb = func.mob[v_x, v_y].GetComponent<par_mob>();
-
-                      if (Vector2.Distance(v2, new Vector2(pr_mob.x, pr_mob.y)) <= pr_mob.distanse_min)
-                      {
-                          if (mb != null)
-                          {
-                              if (mb.friend == pr_mob.friend)
-                                  lt_friends.Add(func.mob[v_x, v_y]);
-                              else
-                                  lt_no_friends.Add(func.mob[v_x, v_y]);
-                          }
-                          else
-                              lt_empty.Add(func.eath[v_x, v_y]);
-                      }
-
-
-
-                  }
-
-
-                  Dictionary<string, List<GameObject>> lt_rd_attack = new Dictionary<string, List<GameObject>>();
-
-                  if (lt_no_friends.Count > 0)
-                  {
-                      if (pr_mob.type_lt_attack.Contains(type_atack_mob.damage))
-                      {
-                          if (pr_mob.lt_carts.Contains("cart damage"))
-                              lt_rd_attack.Add("cart damage");
-                          if (pr_mob.lt_carts.Contains("cart damage 1"))
-                              lt_rd_attack.Add("cart damage 1");
-                          if (pr_mob.lt_carts.Contains("cart damage 2"))
-                              lt_rd_attack.Add("cart damage 2");
-
-                          if (pr_mob.type_lt_attack.Contains(type_atack_mob.blood) || pr_mob.type_lt_attack.Contains(type_atack_mob.elemental))
-                          {
-                              if (pr_mob.lt_carts.Contains("cart blood"))
-                                  lt_rd_attack.Add("cart blood");
-                              if (pr_mob.lt_carts.Contains("cart blood 1"))
-                                  lt_rd_attack.Add("cart blood 1");
-                              if (pr_mob.lt_carts.Contains("cart blood 2"))
-                                  lt_rd_attack.Add("cart blood 2");
-                          }
-                          if (pr_mob.type_lt_attack.Contains(type_atack_mob.rock) || pr_mob.type_lt_attack.Contains(type_atack_mob.elemental))
-                          {
-                              if (pr_mob.lt_carts.Contains("cart rock"))
-                                  lt_rd_attack.Add("cart rock");
-                              if (pr_mob.lt_carts.Contains("cart rock 1"))
-                                  lt_rd_attack.Add("cart rock 1");
-                              if (pr_mob.lt_carts.Contains("cart rock 2"))
-                                  lt_rd_attack.Add("cart rock 2");
-                          }
-                          if (pr_mob.type_lt_attack.Contains(type_atack_mob.ice) || pr_mob.type_lt_attack.Contains(type_atack_mob.elemental))
-                          {
-                              if (pr_mob.lt_carts.Contains("cart ice"))
-                                  lt_rd_attack.Add("cart ice");
-                              if (pr_mob.lt_carts.Contains("cart ice 1"))
-                                  lt_rd_attack.Add("cart ice 1");
-                              if (pr_mob.lt_carts.Contains("cart ice 2"))
-                                  lt_rd_attack.Add("cart ice 2");
-                          }
-                          if (pr_mob.type_lt_attack.Contains(type_atack_mob.energy) || pr_mob.type_lt_attack.Contains(type_atack_mob.elemental))
-                          {
-                              if (pr_mob.lt_carts.Contains("cart ice"))
-                                  lt_rd_attack.Add("cart ice");
-                              if (pr_mob.lt_carts.Contains("cart ice 1"))
-                                  lt_rd_attack.Add("cart ice 1");
-                              if (pr_mob.lt_carts.Contains("cart ice 2"))
-                                  lt_rd_attack.Add("cart ice 2");
-                          }
-                      }
-                      if (pr_mob.type_lt_attack.Contains(type_atack_mob.blood) || pr_mob.type_lt_attack.Contains(type_atack_mob.elemental))
-                      {
-                          if (pr_mob.lt_carts.Contains("cart blood"))
-                              lt_rd_attack.Add("cart blood");
-                          if (pr_mob.lt_carts.Contains("cart blood 1"))
-                              lt_rd_attack.Add("cart blood 1");
-                          if (pr_mob.lt_carts.Contains("cart blood 2"))
-                              lt_rd_attack.Add("cart blood 2");
-                      }
-                      if (pr_mob.type_lt_attack.Contains(type_atack_mob.rock) || pr_mob.type_lt_attack.Contains(type_atack_mob.elemental))
-                      {
-                          if (pr_mob.lt_carts.Contains("cart rock"))
-                              lt_rd_attack.Add("cart rock");
-                          if (pr_mob.lt_carts.Contains("cart rock 1"))
-                              lt_rd_attack.Add("cart rock 1");
-                          if (pr_mob.lt_carts.Contains("cart rock 2"))
-                              lt_rd_attack.Add("cart rock 2");
-                      }
-                      if (pr_mob.type_lt_attack.Contains(type_atack_mob.ice) || pr_mob.type_lt_attack.Contains(type_atack_mob.elemental))
-                      {
-                          if (pr_mob.lt_carts.Contains("cart ice"))
-                              lt_rd_attack.Add("cart ice");
-                          if (pr_mob.lt_carts.Contains("cart ice 1"))
-                              lt_rd_attack.Add("cart ice 1");
-                          if (pr_mob.lt_carts.Contains("cart ice 2"))
-                              lt_rd_attack.Add("cart ice 2");
-                      }
-                      if (pr_mob.type_lt_attack.Contains(type_atack_mob.energy) || pr_mob.type_lt_attack.Contains(type_atack_mob.elemental))
-                      {
-                          if (pr_mob.lt_carts.Contains("cart ice"))
-                              lt_rd_attack.Add("cart ice");
-                          if (pr_mob.lt_carts.Contains("cart ice 1"))
-                              lt_rd_attack.Add("cart ice 1");
-                          if (pr_mob.lt_carts.Contains("cart ice 2"))
-                              lt_rd_attack.Add("cart ice 2");
-                      }
-                  }
-              }
-      */
 
 
 
@@ -10447,7 +7259,7 @@ if (bf.type == par_baf.type_baf.fire)
                             {
                                 pr_mob.speed--;
                                 //if (pr_mob.speed_now>1 || pr_mob.speed ==0)
-                                //pr_mob.speed_now--;
+                                pr_mob.speed_now= pr_mob.speed;
                                 //pr_mob.speed_now--;
                                 mob_list[hod_mob_now_int].GetComponent<Animator>().speed = 1;
                                 del = true;
@@ -10460,7 +7272,7 @@ if (bf.type == par_baf.type_baf.fire)
                             else if (bf.type == par_baf.type_baf.ice && bl_skip)
                             {
                                 pr_mob.speed++;
-                                //pr_mob.speed_now++;
+                                pr_mob.speed_now= pr_mob.speed;
                                 mob_list[hod_mob_now_int].GetComponent<Animator>().speed = 1;
 
                                 mob_list[hod_mob_now_int].GetComponent<SpriteRenderer>().color = new Vector4(1, 1, 1, 1);
@@ -10564,9 +7376,31 @@ if (bf.type == par_baf.type_baf.fire)
             //if 
             //return;
             bool sp = false;
+
+            mb_now.par_lt_sila = new List<string>(mb_now.par_lt_sila_base);
+
+            if (!mb_now.speed_hod)
+            {
+
+
+                //mb_now.par_lt_speed = new List<string>(mb_now.par_lt_speed_base);
+                mb_now.par_lt_speed = new List<string>(mb_now.par_lt_speed_base);
+                data.data_now.cl_carts_speed = 0;
+                mb_now.speed_now--;
+                //nums_mob_wolk.RemoveAt(nums_mob_wolk.Count - 1);
+            }
             if (mb_now.speed_now <= 0)
             {
-                nums_mob_wolk.RemoveAt(nums_mob_wolk.Count - 1);
+                if (!mb_now.speed_hod)
+                {
+                    //mb_now.par_lt_sila = new List<string>(mb_now.par_lt_sila_base);
+                    
+                    //mb_now.par_lt_speed = new List<string>(mb_now.par_lt_speed_base);
+                    mb_now.atacked = false;
+                    //data.data_now.cl_carts_speed = 0;
+
+                    nums_mob_wolk.RemoveAt(nums_mob_wolk.Count - 1);
+                }
                 if (mb_now.speed > 0)
                 {
                     mb_now.speed_now = mb_now.speed;
@@ -10585,9 +7419,7 @@ if (bf.type == par_baf.type_baf.fire)
                     end_hod_all();
                 }
 
-                mb_now.par_lt_sila = new List<string>(mb_now.par_lt_sila_base);
-                mb_now.par_lt_speed = new List<string>(mb_now.par_lt_speed_base);
-                data.data_now.cl_carts_speed = 0;
+
             }
 
 
@@ -10599,6 +7431,13 @@ if (bf.type == par_baf.type_baf.fire)
             //Debug.Log("is sp=" + sp);
             //if (mb_now.speed_now <= 0)
             GameObject.Find("func").GetComponent<func>().baf_after_hod(sp);
+
+            if (mb_now.long_life > 0)
+                mb_now.long_life--;
+            if (mb_now.long_life == 0)
+                mb_now.dead();
+
+
         }
 
 
@@ -10613,7 +7452,7 @@ if (bf.type == par_baf.type_baf.fire)
     {
 
 
-
+        Debug.Log("next hod debug");
 
 
         //if(mb_now.speed_now > 0)    
@@ -10694,6 +7533,9 @@ if (bf.type == par_baf.type_baf.fire)
         //ui.cart_sprite.Clear();
         num_lev = 0;
         num_lev_type = 0;
+
+        ui_atack.lt_cart_comb = new List<ui_atack.atack_comb>();
+        ui_atack.lt_cart_comb_selected = new List<ui_atack.atack_comb>();
     }
 
     public static GameObject[,] mob;
@@ -10703,6 +7545,7 @@ if (bf.type == par_baf.type_baf.fire)
     public static Queue<GameObject>[,] que_effects;
     public static List<GameObject>[,] lt_lovyshka;
     public static List<GameObject>[,] lt_v2_viz_friend;
+    public static List<GameObject>[,] lt_v2_viz_mob;
 
     public static List<GameObject> lovyshka_now;
     public static List<GameObject> lovyshka_after;
@@ -10715,7 +7558,7 @@ if (bf.type == par_baf.type_baf.fire)
     public static GameObject[] mob_list;
     public static List<int> nums_mob = new List<int>();
     public static List<int> nums_mob_wolk = new List<int>();
-    public static Dictionary<string, GameObject> cart_effects = new Dictionary<string, GameObject>();
+    public static Dictionary<string, string> cart_effects = new Dictionary<string, string>();
     public static GameObject gm_wolk_friend;
 
 
@@ -10739,6 +7582,36 @@ if (bf.type == par_baf.type_baf.fire)
 
     public static Dictionary<type_lvl, AudioClip> music_lvl = new Dictionary<type_lvl, AudioClip>();
     public List<AudioClip> music_lvl_lt = new List<AudioClip>();
+
+
+    public static Dictionary<type_lvl, string> cave_location = new Dictionary<type_lvl, string>();
+    public static Dictionary<type_lvl, string> rock_location = new Dictionary<type_lvl, string>();
+    public static Dictionary<type_lvl, string> grass_location = new Dictionary<type_lvl, string>();
+    public static Dictionary<type_lvl, string> facel_location = new Dictionary<type_lvl, string>();
+    public static Dictionary<type_lvl, string> camp_location = new Dictionary<type_lvl, string>();
+    public static Dictionary<type_lvl, string> eath_location = new Dictionary<type_lvl, string>();
+    public static Dictionary<type_lvl, string> stalact_location = new Dictionary<type_lvl, string>();
+
+    public static void add_lt_ef(string st_comb,string name)
+    {
+        Transform tr = GameObject.Find("effects").transform;
+        List<List<string>> lt_lt_st = par_cart.cart_combinations.get_comb_now(st_comb);
+        Debug.Log("comb "+st_comb+" "+lt_lt_st.Count);
+        foreach (List<string> lt in lt_lt_st)
+        {
+            Debug.Log("count "+lt.Count);
+            string st_now = "";
+            for (int i = 0; i < lt.Count; i++)
+            {
+                
+                st_now += lt[i];
+                if (i < lt.Count - 1)
+                    st_now += "-";
+            }
+            Debug.Log(st_now+" is res");
+            cart_effects.Add(st_now, name);
+        }
+    }
     void Start()
     {
 
@@ -10764,7 +7637,8 @@ if (bf.type == par_baf.type_baf.fire)
 
 
             bf_sp.Add(par_baf.type_baf.rage, sp_lt_bf[12]);
-
+            bf_sp.Add(par_baf.type_baf.seal_spetial, sp_lt_bf[13]);
+            /*
             bf_sp.Add(par_baf.type_baf.seal_damage, sp_lt_bf[13]);
             bf_sp.Add(par_baf.type_baf.seal_barier, sp_lt_bf[14]);
             bf_sp.Add(par_baf.type_baf.seal_blood, sp_lt_bf[15]);
@@ -10773,26 +7647,61 @@ if (bf.type == par_baf.type_baf.fire)
             bf_sp.Add(par_baf.type_baf.seal_poition, sp_lt_bf[18]);
             bf_sp.Add(par_baf.type_baf.seal_ice, sp_lt_bf[19]);
             bf_sp.Add(par_baf.type_baf.seal_energy, sp_lt_bf[20]);
+*/
+            bf_sp.Add(par_baf.type_baf.berserk, sp_lt_bf[14]);
 
-            bf_sp.Add(par_baf.type_baf.berserk, sp_lt_bf[21]);
-
-            bf_sp.Add(par_baf.type_baf.bar_rock, sp_lt_bf[22]);
-            bf_sp.Add(par_baf.type_baf.bar_fire, sp_lt_bf[23]);
-            bf_sp.Add(par_baf.type_baf.bar_energy, sp_lt_bf[24]);
-            bf_sp.Add(par_baf.type_baf.bar_blood, sp_lt_bf[25]);
-            bf_sp.Add(par_baf.type_baf.bar_ice, sp_lt_bf[26]);
-            bf_sp.Add(par_baf.type_baf.bar_poition, sp_lt_bf[27]);
+            bf_sp.Add(par_baf.type_baf.bar_rock, sp_lt_bf[15]);
+            bf_sp.Add(par_baf.type_baf.bar_fire, sp_lt_bf[16]);
+            bf_sp.Add(par_baf.type_baf.bar_energy, sp_lt_bf[17]);
+            bf_sp.Add(par_baf.type_baf.bar_blood, sp_lt_bf[18]);
+            bf_sp.Add(par_baf.type_baf.bar_ice, sp_lt_bf[19]);
+            bf_sp.Add(par_baf.type_baf.bar_poition, sp_lt_bf[20]);
 
 
         }
         if (music_lvl.Count == 0)
         {
             music_lvl.Add(type_lvl.bases, music_lvl_lt[0]);
-            music_lvl.Add(type_lvl.bases_1, music_lvl_lt[0]);
-            music_lvl.Add(type_lvl.derlorg, music_lvl_lt[1]);
-            music_lvl.Add(type_lvl.spider, music_lvl_lt[2]);
+            music_lvl.Add(type_lvl.bases_1, music_lvl_lt[1]);
+            music_lvl.Add(type_lvl.rock, music_lvl_lt[2]);
+            music_lvl.Add(type_lvl.fire, music_lvl_lt[3]);
+            music_lvl.Add(type_lvl.poition, music_lvl_lt[4]);
+            music_lvl.Add(type_lvl.energy, music_lvl_lt[5]);
+            music_lvl.Add(type_lvl.blood, music_lvl_lt[6]);
+            music_lvl.Add(type_lvl.ice, music_lvl_lt[7]);
+            
+            
+            music_lvl.Add(type_lvl.derlorg, music_lvl_lt[8]);
+           
         }
+        if (anim_color.static_colors.Count == 0)
+        {
+            //anim_color.static_colors.Add(par_cart.type_cart.sp_bomb, new Color32(255, 255, 255, 255));
 
+            anim_color.static_colors.Add(par_cart.type_cart.damage, new Color32(189, 104, 255, 255));
+            anim_color.static_colors.Add(par_cart.type_cart.sp_barier, new Color32(255, 104, 177, 255));
+            anim_color.static_colors.Add(par_cart.type_cart.sp_bomb, new Color32(255, 222, 177, 255));
+            anim_color.static_colors.Add(par_cart.type_cart.sp_dych, new Color32(165, 255, 211, 255));
+
+            anim_color.static_colors.Add(par_cart.type_cart.blood, new Color32(219, 11, 11, 255));
+            anim_color.static_colors.Add(par_cart.type_cart.fire, new Color32(255, 160, 29, 255));
+            anim_color.static_colors.Add(par_cart.type_cart.energy, new Color32(123, 191, 255, 255));
+            anim_color.static_colors.Add(par_cart.type_cart.ice, new Color32(229, 252, 255, 255));
+            anim_color.static_colors.Add(par_cart.type_cart.poition, new Color32(96, 229, 83, 255));
+            anim_color.static_colors.Add(par_cart.type_cart.rock, new Color32(123, 83, 59, 255));
+
+            anim_color.static_colors.Add(par_cart.type_cart.derlorg, new Color32(255, 250, 144, 255));
+
+            anim_color.static_colors.Add(par_cart.type_cart.rage_boss, anim_color.static_colors[par_cart.type_cart.blood]);
+            anim_color.static_colors.Add(par_cart.type_cart.shaman_boss, anim_color.static_colors[par_cart.type_cart.sp_dych]);
+
+            anim_color.static_colors.Add(par_cart.type_cart.spirit_blood, anim_color.static_colors[par_cart.type_cart.blood]);
+            anim_color.static_colors.Add(par_cart.type_cart.spirit_fire, anim_color.static_colors[par_cart.type_cart.fire]);
+            anim_color.static_colors.Add(par_cart.type_cart.spirit_energy, anim_color.static_colors[par_cart.type_cart.energy]);
+            anim_color.static_colors.Add(par_cart.type_cart.spirit_ice, anim_color.static_colors[par_cart.type_cart.ice]);
+            anim_color.static_colors.Add(par_cart.type_cart.spirit_poition, anim_color.static_colors[par_cart.type_cart.poition]);
+            anim_color.static_colors.Add(par_cart.type_cart.spirit_rock, anim_color.static_colors[par_cart.type_cart.rock]);
+        }
 
         //mob_list = new GameObject[size_global*size_global];
         mob = new GameObject[size_global, size_global];
@@ -10803,11 +7712,13 @@ if (bf.type == par_baf.type_baf.fire)
         que_effects = new Queue<GameObject>[size_global, size_global];
         lt_lovyshka = new List<GameObject>[size_global, size_global];
         lt_v2_viz_friend = new List<GameObject>[size_global, size_global];
+        lt_v2_viz_mob = new List<GameObject>[size_global, size_global];
         for (int i = 0; i < size_global; i++)
         {
             for (int j = 0; j < size_global; j++)
             {
                 lt_v2_viz_friend[j, i] = new List<GameObject>();
+                lt_v2_viz_mob[j, i] = new List<GameObject>();
                 que_effects[j, i] = new Queue<GameObject>();
                 lt_lovyshka[j, i] = new List<GameObject>();
                 lovyshka_now = new List<GameObject>();
@@ -10815,8 +7726,114 @@ if (bf.type == par_baf.type_baf.fire)
             }
         }
 
-        Transform tr = GameObject.Find("effects").transform;
+        if (cave_location.Count == 0)
+        {
+            cave_location.Add(type_lvl.bases, "cave");
+            facel_location.Add(type_lvl.bases, "fakel");
+            camp_location.Add(type_lvl.bases, "camp");
+            rock_location.Add(type_lvl.bases, "rock");
+            grass_location.Add(type_lvl.bases, "grass");
+            eath_location.Add(type_lvl.bases, "eath");
+            stalact_location.Add(type_lvl.bases, "stalact");
 
+
+            cave_location.Add(type_lvl.bases_1, "cave 1");
+            facel_location.Add(type_lvl.bases_1, "fakel 1");
+            camp_location.Add(type_lvl.bases_1, "fakel 1");
+            rock_location.Add(type_lvl.bases_1, "wall");
+            grass_location.Add(type_lvl.bases_1, null);
+            eath_location.Add(type_lvl.bases_1, "eath 1");
+            stalact_location.Add(type_lvl.bases_1, "colonna");
+
+            cave_location.Add(type_lvl.fire, "fire portal");
+            facel_location.Add(type_lvl.fire, "camp fire");
+            camp_location.Add(type_lvl.fire, "camp fire");
+            rock_location.Add(type_lvl.fire, "rock fire");
+            grass_location.Add(type_lvl.fire, "grass fire");
+            eath_location.Add(type_lvl.fire, "eath fire");
+            stalact_location.Add(type_lvl.fire, "stalact");
+
+
+            cave_location.Add(type_lvl.poition, "poition portal");
+            facel_location.Add(type_lvl.poition, "facel poition");
+            camp_location.Add(type_lvl.poition, "facel poition");
+            rock_location.Add(type_lvl.poition, "rock poition");
+            grass_location.Add(type_lvl.poition, "grass poition");
+            eath_location.Add(type_lvl.poition, "eath poition");
+            stalact_location.Add(type_lvl.poition, "decor poition");
+
+            cave_location.Add(type_lvl.ice, "ice portal");
+            facel_location.Add(type_lvl.ice, "facel ice");
+            camp_location.Add(type_lvl.ice, "facel ice");
+            rock_location.Add(type_lvl.ice, "rock ice");
+            grass_location.Add(type_lvl.ice, "ice grass");
+            eath_location.Add(type_lvl.ice, "eath ice");
+            stalact_location.Add(type_lvl.ice, "decor ice");
+
+            cave_location.Add(type_lvl.blood, "blood portal");
+            facel_location.Add(type_lvl.blood, "blood facel");
+            camp_location.Add(type_lvl.blood, "blood facel");
+            rock_location.Add(type_lvl.blood, "rock blood");
+            grass_location.Add(type_lvl.blood, null);
+            eath_location.Add(type_lvl.blood, "eath blood");
+            stalact_location.Add(type_lvl.blood, "decor blood");
+
+            cave_location.Add(type_lvl.derlorg, "cave derlorg");
+            facel_location.Add(type_lvl.derlorg, "fakel derlorg");
+            camp_location.Add(type_lvl.derlorg, "camp derlorg");
+            rock_location.Add(type_lvl.derlorg, "rock derlorg");
+            grass_location.Add(type_lvl.derlorg, null);
+            eath_location.Add(type_lvl.derlorg, "eath derlorg");
+            stalact_location.Add(type_lvl.derlorg, "stalact");
+
+            cave_location.Add(type_lvl.rock, "rock portal");
+            facel_location.Add(type_lvl.rock, "fakel");
+            camp_location.Add(type_lvl.rock, "camp");
+            rock_location.Add(type_lvl.rock, "rock rock");
+            grass_location.Add(type_lvl.rock, null);
+            eath_location.Add(type_lvl.rock, "eath rock");
+            stalact_location.Add(type_lvl.rock, "decor rock");
+
+            cave_location.Add(type_lvl.energy, "energy portal");
+            facel_location.Add(type_lvl.energy, "energy facel");
+            camp_location.Add(type_lvl.energy, "energy facel");
+            rock_location.Add(type_lvl.energy, "rock energy");
+            grass_location.Add(type_lvl.energy, null);
+            eath_location.Add(type_lvl.energy, "eath energy");
+            stalact_location.Add(type_lvl.energy, "decor energy");
+        }
+
+
+        //List<List<string>> lt_lt_st = par_cart.cart_combinations.get_comb_now("cart rock[n]");
+        add_lt_ef("cart damage[n]", "atack base");
+        add_lt_ef("cart barier[n]", "bases bar ef");
+
+        add_lt_ef("cart rock[n]", "rock ef");
+        add_lt_ef("cart blood[n]", "blood ef");
+        add_lt_ef("cart fire[n]", "fire ef");
+        add_lt_ef("cart ice[n]", "ice ef");
+        add_lt_ef("cart energy[n]", "energy ef");
+        add_lt_ef("cart poition[n]", "poition ef");
+
+        add_lt_ef("cart damage[n]-cart rock[n]", "atack rock");
+        add_lt_ef("cart damage[n]-cart blood[n]", "atack blood");
+        add_lt_ef("cart damage[n]-cart fire[n]", "atack fire");
+        add_lt_ef("cart damage[n]-cart ice[n]", "atack ice");
+        add_lt_ef("cart damage[n]-cart energy[n]", "atack energy");
+        add_lt_ef("cart damage[n]-cart poition[n]", "atack poition");
+
+        add_lt_ef("cart barier[n]-cart rock[n]", "bases rock bar ef");
+        add_lt_ef("cart barier[n]-cart blood[n]", "bases blood bar ef");
+        add_lt_ef("cart barier[n]-cart fire[n]", "bases fire bar ef");
+        add_lt_ef("cart barier[n]-cart ice[n]", "bases ice bar ef");
+        add_lt_ef("cart barier[n]-cart energy[n]", "bases energy bar ef");
+        add_lt_ef("cart barier[n]-cart poition[n]", "bases poition bar ef");
+
+        add_lt_ef("cart derlorg[n]", "derlorg ef");
+        add_lt_ef("cart bomb[n]", "bomb create");
+
+        //add_lt_ef("cart")
+        /*
         cart_effects.Add("cart rock", tr.Find("rock ef").gameObject);
         cart_effects.Add("cart rock 1", tr.Find("rock 1 ef").gameObject);
 
@@ -10885,7 +7902,7 @@ if (bf.type == par_baf.type_baf.fire)
         cart_effects.Add("spawn dych ice", tr.Find("spawn dych ice").gameObject);
         cart_effects.Add("spawn dych poition", tr.Find("spawn dych poition").gameObject);
 
-                */
+                
 
         //cart_effects.Add("cart spirit energy", tr.Find("spirit energy ef").gameObject);
         cart_effects.Add("cart spirit fire", tr.Find("spirit fire ef").gameObject);
@@ -10923,14 +7940,22 @@ if (bf.type == par_baf.type_baf.fire)
         //cart_effects.Add("cart crystall 1", tr.Find("create crystall").gameObject);
         cart_effects.Add("crystall destroy", tr.Find("crystall destroy").gameObject);
 
-        cart_effects.Add("cart rage(boss)", tr.Find("rage ef").gameObject);
+        
+        */
+        Transform tr = GameObject.Find("effects").transform;
 
-        cart_effects.Add("berserk ef", tr.Find("berserk ef").gameObject);
-        cart_effects.Add("create cave derlorg", tr.Find("create cave derlorg").gameObject);
+        cart_effects.Add("cart rage(boss)", "rage ef");
+
+        cart_effects.Add("spawn dych", "spawn dych");
+        cart_effects.Add("spirit base", "spirit base");
+        cart_effects.Add("berserk ef", "berserk ef");
+        cart_effects.Add("bomb destroy", "bomb destroy");
+        cart_effects.Add("create cave derlorg", "create cave derlorg");
         //cart_effects.Add("cart blood", tr.Find("rock ef").gameObject;
         //mob_list[0] = GameObject.Find("player");
         //Debug.Log("func");
         par_cart.cart_combinations.collections();
+        //Debug.Log(par_cart.cart_combinations.get_comb(par_cart.cart_combinations.lt_comb).Count);
         /*
         foreach (par_cart.cart_combinations.comb_cart ss in par_cart.cart_combinations.lt_comb)
         {
@@ -10948,11 +7973,12 @@ if (bf.type == par_baf.type_baf.fire)
         nums_mob.Add(0);
         nums_mob_wolk.Add(0);
 
-        type_lvl_now = type_lvl.bases_1;
+        type_lvl_now = type_lvl.bases;
 
         generate_room();
         GameObject.Find("func").GetComponent<AudioSource>().clip = music_lvl[type_lvl_now];
         GameObject.Find("func").GetComponent<AudioSource>().Play();
+        //par_cart.cart_combinations.print(par_cart.cart_combinations.get_comb("cart damage[n]-cart ice[n]"));
 
     }
     public float aaa = 0;
@@ -10961,10 +7987,17 @@ if (bf.type == par_baf.type_baf.fire)
 
     public List<int> lt1 = new List<int>();
     public List<int> lt2 = new List<int>();
+
+
+    //public List<int> lt_i = new List<int>();
     // Update is called once per frame
     void Update()
     {
+        //Debug.Log(num_lev);
+        //lt_i = nums_mob_wolk;
+        //par_cart.cart_combinations.print(par_cart.cart_combinations.get_comb("cart ice-cart energy"));
         //Debug.Log(col_friend);
+        //Debug.Log(par_cart.cart_combinations.lt_comb.Count);
         lt1 = new List<int>(nums_mob);
         lt2 = new List<int>(nums_mob_wolk);
         //Debug.Log(hod_mob_now_friend);

@@ -4,6 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
+using static Unity.Collections.AllocatorManager;
+using static UnityEngine.EventSystems.EventTrigger;
+using System.Linq;
+using JetBrains.Annotations;
 
 public class par_mob : parametrs, IPointerClickHandler, interfase_click
 {
@@ -18,36 +22,129 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         active,
         disactive
     }
-    public enum type_atack_mob
+    public class priority_atack
     {
-        none,
-        damage,barier,crystall,
-        blood,rock,ice,energy,fire,poition,
-        elemental,
-        spider,
-        seal
+        public int pos = 0;
+        public type_atack type;
+        public enum type_atack
+        {
+            none,
+            damage,
+            barier, bomb, dych,
+            blood, rock, ice, energy, fire, poition,
+            elemental,
+            spider,
+            seal,
+            sp_boss
+
+        }
+        public priority_atack(type_atack tp, int pos)
+        {
+            this.type = tp;
+            this.pos = pos;
+        }
     }
-    
+    public void base_pr()
+    {
+        //Debug.Log(System.Enum.GetValues(typeof(priority_atack.type_atack)).Length+" aaaa");
+        type_priority_attack.Add(new priority_atack(priority_atack.type_atack.none, 0));
+        /*
+        foreach (priority_atack.type_atack tp in System.Enum.GetValues(typeof(priority_atack.type_atack)))
+        {
+            Debug.Log(tp + " aaaa");
+            type_priority_attack.Add( new priority_atack( tp, 0));
+        }
+        */
+    }
     [Header("mob parametrs")]
     public List<string> par_lt_sila = new List<string>();
     public List<string> par_lt_sila_base = new List<string>();
+    //public List<string> par_lt_sila_save = new List<string>();
+
     public List<string> par_lt_speed = new List<string>();
     public List<string> par_lt_speed_base = new List<string>();
     [Header("base parametrs")]
 
     public bool friendly = false;
-    public type_friend friend_type= type_friend.none;
+    public type_friend friend_type = type_friend.none;
     public bool nps = false;
-    public int distanse_min = 1;
+    //public int distanse_min = 1;
     public int distanse_max = 1;
     public int distanse_attack = 3;
     public bool vizited = false;
+    public bool can_atacked = false;
+    public int long_life = -1;
     //public List<string> lt_mob_speed_par = new List<string>();
     //public List<string> lt_mob_speed_par_base = new List<string>();
     //public List<string> lt_mob_sila_par = new List<string>();
     //public List<string> lt_mob_sila_par_base = new List<string>();
+    public bool contains_cart_type(par_cart.type_cart tp)
+    {
+        bool bl = false;
+        if (tp == par_cart.type_cart.damage && (lt_carts.Contains("cart damage") || lt_carts.Contains("cart damage 1") || lt_carts.Contains("cart damage 2")))
+            bl = true;
+        else if (tp == par_cart.type_cart.sp_barier && (lt_carts.Contains("cart barier") || lt_carts.Contains("cart barier 1") || lt_carts.Contains("cart barier 2")))
+            bl = true;
+        else if (tp == par_cart.type_cart.sp_dych && (lt_carts.Contains("cart dych") || lt_carts.Contains("cart dych 1") || lt_carts.Contains("cart dych 2")))
+            bl = true;
+        else if (tp == par_cart.type_cart.sp_bomb && (lt_carts.Contains("cart bomb") || lt_carts.Contains("cart bomb 1") || lt_carts.Contains("cart bomb 2")))
+            bl = true;
 
-    public List<type_atack_mob> type_lt_attack = new List<type_atack_mob>();
+        else if (tp == par_cart.type_cart.blood && (lt_carts.Contains("cart blood") || lt_carts.Contains("cart blood 1") || lt_carts.Contains("cart blood 2")))
+            bl = true;
+        else if (tp == par_cart.type_cart.rock && (lt_carts.Contains("cart rock") || lt_carts.Contains("cart rock 1") || lt_carts.Contains("cart rock 2")))
+            bl = true;
+        else if (tp == par_cart.type_cart.fire && (lt_carts.Contains("cart fire") || lt_carts.Contains("cart fire 1") || lt_carts.Contains("cart fire 2")))
+            bl = true;
+        else if (tp == par_cart.type_cart.poition && (lt_carts.Contains("cart poition") || lt_carts.Contains("cart poition 1") || lt_carts.Contains("cart poition 2")))
+            bl = true;
+        else if (tp == par_cart.type_cart.ice && (lt_carts.Contains("cart ice") || lt_carts.Contains("cart ice 1") || lt_carts.Contains("cart ice 2")))
+            bl = true;
+        else if (tp == par_cart.type_cart.energy && (lt_carts.Contains("cart energy") || lt_carts.Contains("cart energy 1") || lt_carts.Contains("cart energy 2")))
+            bl = true;
+
+        else if (tp == par_cart.type_cart.spirit_blood && (lt_carts.Contains("cart spirit blood") ))
+            bl = true;
+        else if (tp == par_cart.type_cart.spirit_rock && (lt_carts.Contains("cart spirit rock")))
+            bl = true;
+        else if (tp == par_cart.type_cart.spirit_fire && (lt_carts.Contains("cart spirit fire") ))
+            bl = true;
+        else if (tp == par_cart.type_cart.spirit_poition && (lt_carts.Contains("cart spirit poition") ))
+            bl = true;
+        else if (tp == par_cart.type_cart.spirit_ice && (lt_carts.Contains("cart spirit ice")))
+            bl = true;
+        else if (tp == par_cart.type_cart.spirit_energy && (lt_carts.Contains("cart spirit energy")))
+            bl = true;
+        return bl;
+    }
+    public bool contains_pr_at(priority_atack.type_atack tp)
+    {
+        return (get_pr_at(tp) != -1);
+    }
+    public int get_pr_at(priority_atack.type_atack tp)
+    {
+        //if()
+        bool bl_tip = false;
+        int pos = -1;
+        //Debug.Log("priority " + type_priority_attack.Count);
+        foreach (priority_atack pr in type_priority_attack)
+        {
+            Debug.Log(pr.type + " " + pr.pos);
+            if (pr.type == priority_atack.type_atack.none && !bl_tip)
+            {
+                pos = pr.pos;
+            }
+            else if (pr.type == tp)
+            {
+                pos = pr.pos;
+                bl_tip = true;
+                break;
+            }
+
+        }
+        return pos;
+    }
+    public List<priority_atack> type_priority_attack = new List<priority_atack>();
     [Header("carts parametrs")]
     public List<string> lt_carts = new List<string>();
     public List<par_cart_art> lt_carts_art = new List<par_cart_art>();
@@ -81,7 +178,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
     public bool run_mob = true;
 
 
-    
+
     public bool friend
     {
         get
@@ -154,20 +251,18 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
     {
         add_baf(baf, time, 0);
     }
-    public void add_baf(par_baf.type_baf baf, int time, int power)
+    public void add_baf(par_baf.type_baf baf, int time, int pow)
+    {
+        add_baf(baf, time, pow, null);
+    }
+    public void add_baf(par_baf.type_baf baf, int time, int power, List<string> lt_par)
     {
         Debug.Log("add baf " + baf + " " + time + " " + power);
         List<par_baf.type_baf> lt_baf_pow_time = new List<par_baf.type_baf> {
 
 
 
-            par_baf.type_baf.seal_damage, par_baf.type_baf.seal_barier,
-            par_baf.type_baf.seal_fire,
-            par_baf.type_baf.seal_rock,
-            par_baf.type_baf.seal_poition,
-            par_baf.type_baf.seal_blood,
-            par_baf.type_baf.seal_energy,
-            par_baf.type_baf.seal_ice };
+            par_baf.type_baf.seal_spetial};
         List<par_baf.type_baf> lt_baf_barier = new List<par_baf.type_baf> { par_baf.type_baf.bar,
             par_baf.type_baf.bar_fire,
             par_baf.type_baf.bar_rock,
@@ -177,12 +272,39 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             par_baf.type_baf.bar_ice };
 
         par_baf bf_first = null;
+        bool bl = true;
         foreach (par_baf pr_baf in lt_bafs)
         {
-            if (pr_baf.type == baf && (!lt_baf_pow_time.Contains(pr_baf.type)) || (lt_baf_pow_time.Contains(pr_baf.type) && pr_baf.power == power))
+
+            if (pr_baf.type == par_baf.type_baf.seal_spetial)
+            {
+                List<par_cart.type_cart> lt_tp1 = null;
+                if (lt_par != null)
+                {
+                    lt_par.ConvertAll(x =>
+                    {
+                        return GameObject.Find(x).GetComponent<par_cart>().type;
+                    });
+                }
+
+                List<par_cart.type_cart> lt_tp2 = pr_baf.lt_cart.ConvertAll(x =>
+                {
+                    return GameObject.Find(x).GetComponent<par_cart>().type;
+                });
+                //lt_tp1.
+                if (lt_tp1 != null && lt_tp1.SequenceEqual(lt_tp2))
+                {
+                    bf_first = pr_baf;
+                }
+            }
+            else if ((lt_baf_barier.Contains(pr_baf.type) && lt_baf_barier.Contains(baf))){
+                bf_first = pr_baf;
+                bl = false;
+            }
+            else if (pr_baf.type == baf && (!lt_baf_pow_time.Contains(pr_baf.type)) || (lt_baf_pow_time.Contains(pr_baf.type) && pr_baf.power == power))
                 bf_first = pr_baf;
         }
-        bool bl = true;
+        
         /*
         if (bf_first != null)
         {
@@ -202,19 +324,40 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 bl = false;
         }
         */
-
+        par_baf new_baf = null;
         if (bf_first == null)
         {
             bl = false;
             GameObject gm_bf = null;
+            new_baf = gameObject.AddComponent<par_baf>();
             if (baf == par_baf.type_baf.fire)
             {
                 gm_bf = Instantiate(GameObject.Find("effects").transform.Find("fire").gameObject, gameObject.transform);
                 gm_bf.name = "fire";
             }
+            else if (baf == par_baf.type_baf.seal_spetial)
+            {
+                gm_bf = Instantiate(GameObject.Find("effects").transform.Find("seal").gameObject, gameObject.transform);
+                List<par_cart.type_cart> lt_tp = lt_par.ConvertAll(x =>
+                {
+                    return GameObject.Find(x).GetComponent<par_cart>().type;
+                });
+                string stt = "seal ";
+                for (int i = 0; i < lt_tp.Count; i++)
+                {
+                    stt += lt_tp[i];
+                    if (i < lt_tp.Count - 1)
+                        stt += "-";
+                }
+                //List<List<string>> lt_lt_st = par_cart.cart_combinations.get_comb_now(st_comb);
+                //gm_bf.name =
+                gm_bf.name = stt;
+
+                func.set_anim_color(gm_bf, lt_par);
+            }
             else if (baf == par_baf.type_baf.rage)
             {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
+                //new_baf = gameObject.AddComponent<par_baf>();
                 new_baf.long_baf = time;
                 new_baf.type = baf;
                 new_baf.before = true;
@@ -229,31 +372,14 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
             else if (baf == par_baf.type_baf.berserk)
             {
-                /*
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
-                new_baf.long_baf = time;
-                new_baf.type = baf;
-                new_baf.power = power;
-                new_baf.before = true;
-                lt_bafs.Add(new_baf);
-                */
-
-
-
-                //bf_first = new_baf;
-                //speed++;
-                //speed_now++;
-                //gm_bf = Instantiate(GameObject.Find("effects").transform.Find("poition").gameObject, gameObject.transform);
-                //gm_bf.name = "poition";
-
-                //gameObject.GetComponent<Animator>().speed = 1.5f;
+                
             }
 
 
 
             else if (baf == par_baf.type_baf.energy)
             {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
+                //new_baf = gameObject.AddComponent<par_baf>();
                 new_baf.long_baf = time;
                 new_baf.type = baf;
                 new_baf.before = false;
@@ -261,29 +387,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 lt_bafs.Add(new_baf);
                 speed++;
                 speed_now++;
-                //speed_now++;
-                //speed_now = 1;
 
-
-                /*
-                if (speed > 1 && hod_now)
-                {
-                    //speed_now = 2;
-                    speed_now = 1;
-
-                    if (func.nums_mob_wolk.Count > 0)
-                        func.nums_mob_wolk.Insert(func.nums_mob_wolk.Count, num);
-                    else
-                    {
-                        func.nums_mob_wolk = new List<int>(func.nums_mob);
-                        func.nums_mob_wolk.Insert(func.nums_mob_wolk.Count, num);
-                    }
-                    //if (!hod_now)
-                    //speed_now--;
-                }
-                else if (!hod_now)
-                    new_baf.skip_first = true;
-                */
 
                 gm_bf = Instantiate(GameObject.Find("effects").transform.Find("energy").gameObject, gameObject.transform);
                 gm_bf.name = "energy";
@@ -293,7 +397,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
             else if (baf == par_baf.type_baf.poition)
             {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
+                //new_baf = gameObject.AddComponent<par_baf>();
                 new_baf.long_baf = time;
                 new_baf.power = power;
                 new_baf.type = baf;
@@ -308,13 +412,13 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
             else if (baf == par_baf.type_baf.ice)
             {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
+                //new_baf = gameObject.AddComponent<par_baf>();
                 new_baf.long_baf = time;
                 new_baf.type = baf;
                 new_baf.before = false;
                 lt_bafs.Add(new_baf);
                 speed--;
-                //speed_now--;
+                speed_now--;
                 /*
                 if (speed == 1)
                 {
@@ -340,7 +444,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
             else if (baf == par_baf.type_baf.seal)
             {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
+                //new_baf = gameObject.AddComponent<par_baf>();
                 new_baf.long_baf = time;
                 new_baf.type = baf;
                 new_baf.skip_first = true;
@@ -354,140 +458,13 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 //gameObject.GetComponent<SpriteRenderer>().color = new Vector4(0.75f, 1, 1, 1);
             }
 
-            else if (baf == par_baf.type_baf.seal_damage)
-            {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
-                new_baf.long_baf = time;
-                new_baf.type = baf;
-                new_baf.power = power;
-                new_baf.before = true;
-                lt_bafs.Add(new_baf);
-                //speed--;
-                //speed_now--;
-                gm_bf = Instantiate(GameObject.Find("effects").transform.Find("seal damage baf").gameObject, gameObject.transform);
-                gm_bf.name = "seal damage baf";
 
-                //gameObject.GetComponent<Animator>().speed = 0.5f;
-                //gameObject.GetComponent<SpriteRenderer>().color = new Vector4(0.75f, 1, 1, 1);
-            }
-            else if (baf == par_baf.type_baf.seal_barier)
-            {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
-                new_baf.long_baf = time;
-                new_baf.type = baf;
-                new_baf.power = power;
-                new_baf.before = true;
-                lt_bafs.Add(new_baf);
-                //speed--;
-                //speed_now--;
-                gm_bf = Instantiate(GameObject.Find("effects").transform.Find("seal barier baf").gameObject, gameObject.transform);
-                gm_bf.name = "seal barier baf";
 
-                //gameObject.GetComponent<Animator>().speed = 0.5f;
-                //gameObject.GetComponent<SpriteRenderer>().color = new Vector4(0.75f, 1, 1, 1);
-            }
-            else if (baf == par_baf.type_baf.seal_fire)
-            {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
-                new_baf.long_baf = time;
-                new_baf.type = baf;
-                new_baf.power = power;
-                new_baf.before = true;
-                lt_bafs.Add(new_baf);
-                //speed--;
-                //speed_now--;
-                gm_bf = Instantiate(GameObject.Find("effects").transform.Find("seal fire baf").gameObject, gameObject.transform);
-                gm_bf.name = "seal fire baf";
-
-                //gameObject.GetComponent<Animator>().speed = 0.5f;
-                //gameObject.GetComponent<SpriteRenderer>().color = new Vector4(0.75f, 1, 1, 1);
-            }
-            else if (baf == par_baf.type_baf.seal_poition)
-            {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
-                new_baf.long_baf = time;
-                new_baf.type = baf;
-                new_baf.power = power;
-                new_baf.before = true;
-                lt_bafs.Add(new_baf);
-                //speed--;
-                //speed_now--;
-                gm_bf = Instantiate(GameObject.Find("effects").transform.Find("seal poition baf").gameObject, gameObject.transform);
-                
-                gm_bf.name = "seal poition baf";
-
-                //gameObject.GetComponent<Animator>().speed = 0.5f;
-                //gameObject.GetComponent<SpriteRenderer>().color = new Vector4(0.75f, 1, 1, 1);
-            }
-            else if (baf == par_baf.type_baf.seal_rock)
-            {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
-                new_baf.long_baf = time;
-                new_baf.type = baf;
-                new_baf.power = power;
-                new_baf.before = true;
-                lt_bafs.Add(new_baf);
-                //speed--;
-                //speed_now--;
-                gm_bf = Instantiate(GameObject.Find("effects").transform.Find("seal rock baf").gameObject, gameObject.transform);
-                gm_bf.name = "seal rock baf";
-
-                //gameObject.GetComponent<Animator>().speed = 0.5f;
-                //gameObject.GetComponent<SpriteRenderer>().color = new Vector4(0.75f, 1, 1, 1);
-            }
-            else if (baf == par_baf.type_baf.seal_blood)
-            {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
-                new_baf.long_baf = time;
-                new_baf.type = baf;
-                new_baf.power = power;
-                new_baf.before = true;
-                lt_bafs.Add(new_baf);
-                //speed--;
-                //speed_now--;
-                gm_bf = Instantiate(GameObject.Find("effects").transform.Find("seal blood baf").gameObject, gameObject.transform);
-                gm_bf.name = "seal blood baf";
-
-                //gameObject.GetComponent<Animator>().speed = 0.5f;
-                //gameObject.GetComponent<SpriteRenderer>().color = new Vector4(0.75f, 1, 1, 1);
-            }
-            else if (baf == par_baf.type_baf.seal_energy)
-            {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
-                new_baf.long_baf = time;
-                new_baf.type = baf;
-                new_baf.power = power;
-                new_baf.before = true;
-                lt_bafs.Add(new_baf);
-                //speed--;
-                //speed_now--;
-                gm_bf = Instantiate(GameObject.Find("effects").transform.Find("seal energy baf").gameObject, gameObject.transform);
-                gm_bf.name = "seal energy baf";
-
-                //gameObject.GetComponent<Animator>().speed = 0.5f;
-                //gameObject.GetComponent<SpriteRenderer>().color = new Vector4(0.75f, 1, 1, 1);
-            }
-            else if (baf == par_baf.type_baf.seal_ice)
-            {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
-                new_baf.long_baf = time;
-                new_baf.type = baf;
-                new_baf.power = power;
-                new_baf.before = true;
-                lt_bafs.Add(new_baf);
-                //speed--;
-                //speed_now--;
-                gm_bf = Instantiate(GameObject.Find("effects").transform.Find("seal ice baf").gameObject, gameObject.transform);
-                gm_bf.name = "seal ice baf";
-
-                //gameObject.GetComponent<Animator>().speed = 0.5f;
-                //gameObject.GetComponent<SpriteRenderer>().color = new Vector4(0.75f, 1, 1, 1);
-            }
 
 
             else if (baf == par_baf.type_baf.bar)
             {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
+                //new_baf = gameObject.AddComponent<par_baf>();
                 new_baf.long_baf = time;
                 new_baf.type = baf;
                 new_baf.power = power;
@@ -499,7 +476,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
             else if (baf == par_baf.type_baf.bar_energy)
             {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
+                //new_baf = gameObject.AddComponent<par_baf>();
                 new_baf.long_baf = time;
                 new_baf.type = baf;
                 new_baf.power = power;
@@ -509,7 +486,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
             else if (baf == par_baf.type_baf.bar_rock)
             {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
+                //new_baf = gameObject.AddComponent<par_baf>();
                 new_baf.long_baf = time;
                 new_baf.type = baf;
                 new_baf.power = power;
@@ -519,7 +496,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
             else if (baf == par_baf.type_baf.bar_blood)
             {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
+                //new_baf = gameObject.AddComponent<par_baf>();
                 new_baf.long_baf = time;
                 new_baf.type = baf;
                 new_baf.power = power;
@@ -529,7 +506,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
             else if (baf == par_baf.type_baf.bar_fire)
             {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
+                //new_baf = gameObject.AddComponent<par_baf>();
                 new_baf.long_baf = time;
                 new_baf.type = baf;
                 new_baf.power = power;
@@ -539,7 +516,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
             else if (baf == par_baf.type_baf.bar_ice)
             {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
+                //new_baf = gameObject.AddComponent<par_baf>();
                 new_baf.long_baf = time;
                 new_baf.type = baf;
                 new_baf.power = power;
@@ -549,7 +526,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
             else if (baf == par_baf.type_baf.bar_poition)
             {
-                par_baf new_baf = gameObject.AddComponent<par_baf>();
+                //new_baf = gameObject.AddComponent<par_baf>();
                 new_baf.long_baf = time;
                 new_baf.type = baf;
                 new_baf.power = power;
@@ -622,23 +599,56 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             */
             if (gm_bf != null)
             {
+
                 gm_bf.transform.localPosition = new Vector3(0, 0, 0);
                 gm_bf.active = vizited;
+                new_baf.gm_anim = gm_bf;
             }
 
         }
+        else
+        {
+            //new_baf = bf_first;
+            //new_baf.gm_anim = bf_first.gm_anim;
+        }
         if (baf == par_baf.type_baf.fire)
         {
-            par_baf new_baf = gameObject.AddComponent<par_baf>();
+            if (new_baf == null)
+                new_baf = gameObject.AddComponent<par_baf>();
             new_baf.long_baf = time;
             new_baf.type = baf;
             new_baf.before = false;
             new_baf.power = power;
+
             lt_bafs.Add(new_baf);
+
+            if (bf_first != null)
+                new_baf.gm_anim = bf_first.gm_anim;
+        }
+        else if (baf == par_baf.type_baf.seal_spetial)
+        {
+            if (new_baf == null)
+                new_baf = gameObject.AddComponent<par_baf>();
+            new_baf.long_baf = time;
+            new_baf.type = baf;
+            new_baf.power = power;
+            new_baf.before = true;
+            new_baf.lt_cart = lt_par;
+            lt_bafs.Add(new_baf);
+            //speed--;
+            //speed_now--;
+            //gm_bf = Instantiate(GameObject.Find("effects").transform.Find("seal").gameObject, gameObject.transform);
+            //gm_bf.name = "seal";
+
+            //gameObject.GetComponent<Animator>().speed = 0.5f;
+            //gameObject.GetComponent<SpriteRenderer>().color = new Vector4(0.75f, 1, 1, 1);
+            if (bf_first != null)
+                new_baf.gm_anim = bf_first.gm_anim;
         }
         else if (baf == par_baf.type_baf.berserk)
         {
-            par_baf new_baf = gameObject.AddComponent<par_baf>();
+            if (new_baf == null)
+                new_baf = gameObject.AddComponent<par_baf>();
             new_baf.long_baf = time;
             new_baf.power = power;
             new_baf.skip_first = true;
@@ -646,6 +656,9 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             new_baf.type = baf;
             new_baf.before = false;
             lt_bafs.Add(new_baf);
+
+            if (bf_first != null)
+                new_baf.gm_anim = bf_first.gm_anim;
         }
         /*
         else if (baf == par_baf.type_baf.berserk && bf_first!=null)
@@ -751,11 +764,18 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
     {
         return activate_art(cart, x, y, null);
     }
-    public bool activate_art(par_cart_art cart, int x, int y,object par)
+    public bool activate_art(par_cart_art cart, int x, int y, object par)
     {
         Stack<object> st_par = new Stack<object>();
         st_par.Push(par);
         return activate_art(cart, x, y, st_par);
+    }
+    public static Stack<object> get_par_q(int i)
+    {
+        Stack<object> st_o = new Stack<object>();
+        st_o.Push(i);
+        st_o.Push("par -q");
+        return st_o;
     }
     public bool activate_art(par_cart_art cart, int x, int y, Stack<object> st_par)
     {
@@ -828,6 +848,19 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             else if (cart.name == "cart sp poition 1")
                 bl = spawn_cart("cart poition 1", lt_art[a]);
 
+            else if (cart.name == "cart sp rock 2")
+                bl = spawn_cart("cart rock 2", lt_art[a]);
+            else if (cart.name == "cart sp fire 2")
+                bl = spawn_cart("cart fire 2", lt_art[a]);
+            else if (cart.name == "cart sp energy 2")
+                bl = spawn_cart("cart energy 2", lt_art[a]);
+            else if (cart.name == "cart sp blood 2")
+                bl = spawn_cart("cart blood 2", lt_art[a]);
+            else if (cart.name == "cart sp ice 2")
+                bl = spawn_cart("cart ice 2", lt_art[a]);
+            else if (cart.name == "cart sp poition 2")
+                bl = spawn_cart("cart poition 2", lt_art[a]);
+
 
             else if (cart.name == "cart sp atack")
                 bl = spawn_cart("cart damage", lt_art[a]);
@@ -839,23 +872,34 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             else if (cart.name == "cart sp barier 1")
                 bl = spawn_cart("cart barier 1", lt_art[a]);
 
-            else if (cart.name == "cart sp crystall")
-                bl = spawn_cart("cart crystall", lt_art[a]);
-            else if (cart.name == "cart sp crystall 1")
-                bl = spawn_cart("cart crystall 1", lt_art[a]);
+            else if (cart.name == "cart sp atack 2")
+                bl = spawn_cart("cart damage 2", lt_art[a]);
+            else if (cart.name == "cart sp barier 2")
+                bl = spawn_cart("cart barier 2", lt_art[a]);
+
+            else if (cart.name == "cart sp bomb")
+                bl = spawn_cart("cart bomb", lt_art[a]);
+            else if (cart.name == "cart sp bomb 1")
+                bl = spawn_cart("cart bomb 1", lt_art[a]);
+            else if (cart.name == "cart sp bomb 2")
+                bl = spawn_cart("cart bomb 2", lt_art[a]);
 
             else if (cart.name == "cart sp derlorg")
                 bl = spawn_cart("cart derlorg", lt_art[a]);
 
-            else if (cart.name == "cart sp spider")
-                bl = spawn_cart("cart spider", lt_art[a]);
-            else if (cart.name == "cart sp spider(spawned)")
-                bl = spawn_cart("cart spider poition", lt_art[a]);
+            else if (cart.name == "cart sp dych")
+                bl = spawn_cart("cart dych", lt_art[a]);
+            else if (cart.name == "cart sp dych 1")
+                bl = spawn_cart("cart dych 1", lt_art[a]);
+            else if (cart.name == "cart sp dych 2")
+                bl = spawn_cart("cart dych 2", lt_art[a]);
+            //else if (cart.name == "cart sp spider(spawned)")
+            //bl = spawn_cart("cart spider poition", lt_art[a]);
 
             else if (cart.name == "cart elemental")
             {
                 bool bl1 = false;
-                bl1 =  spawn_cart("cart ice", lt_art[a]) || bl1;
+                bl1 = spawn_cart("cart ice", lt_art[a]) || bl1;
                 bl1 = spawn_cart("cart energy", lt_art[a]) || bl1;
                 bl1 = spawn_cart("cart poition", lt_art[a]) || bl1;
                 bl1 = spawn_cart("cart fire", lt_art[a]) || bl1;
@@ -867,10 +911,10 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             else if (cart.name == "cart universal")
             {
                 bool bl1 = false;
-                bl1 = bl1 || spawn_cart("cart damage", lt_art[a]);
-                bl1 = bl1 || spawn_cart("cart damage", lt_art[a]);
-                bl1 = bl1 || spawn_cart("cart barier", lt_art[a]);
-                bl1 = bl1 || spawn_cart("cart crystall", lt_art[a]);
+                bl1 = spawn_cart("cart dych", lt_art[a])||bl1 ;
+                //bl1 = bl1 || spawn_cart("cart damage", lt_art[a]);
+                bl1 = spawn_cart("cart barier", lt_art[a]) || bl1 ;
+                bl1 = spawn_cart("cart bomb", lt_art[a])|| bl1 ;
                 bl = bl1;
             }
 
@@ -946,6 +990,32 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
 
 
+
+            else if (cart.name == "cart sp spirit blood")
+            {
+                bl = spawn_cart("cart spirit blood", lt_art[a]);
+            }
+            else if (cart.name == "cart sp spirit rock")
+            {
+                bl = spawn_cart("cart spirit rock", lt_art[a]);
+            }
+            else if (cart.name == "cart sp spirit fire")
+            {
+                bl = spawn_cart("cart spirit fire", lt_art[a]);
+            }
+            else if (cart.name == "cart sp spirit poition")
+            {
+                bl = spawn_cart("cart spirit poition", lt_art[a]);
+            }
+            else if (cart.name == "cart sp spirit ice")
+            {
+                bl = spawn_cart("cart spirit ice", lt_art[a]);
+            }
+            else if (cart.name == "cart sp spirit energy")
+            {
+                bl = spawn_cart("cart spirit energy", lt_art[a]);
+            }
+
             else if (cart.name == "cart spirit")
             {
                 bl = spawn_cart("cart spirit(boss)", lt_art[a]);
@@ -975,7 +1045,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             else if (cart.name == "cart berserk")
             {
                 //func.create_effect("cart rage(boss)", x, y, gameObject);
-                func.create_effect(func.get_name_effect(new List<string> {"cart rage(boss)"}, null), this.x, this.y, gameObject, false, (hp_max-hp)/5, new List<string> { "cart rage(boss)" });
+                func.create_effect(func.get_name_effect(new List<string> { "cart rage(boss)" }, null), this.x, this.y, gameObject, false, 2, new List<string> { "cart rage(boss)" });
             }
 
 
@@ -984,7 +1054,11 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 cart.type == par_cart.type_cart.art_energy_cuzna ||
                 cart.type == par_cart.type_cart.art_fire_cuzna ||
                 cart.type == par_cart.type_cart.art_poition_cuzna ||
-                cart.type == par_cart.type_cart.art_rock_cuzna)
+                cart.type == par_cart.type_cart.art_rock_cuzna ||
+                cart.type == par_cart.type_cart.art_att_cuzna||
+                cart.type == par_cart.type_cart.art_bar_cuzna||
+                cart.type == par_cart.type_cart.art_bomb_cuzna||
+                cart.type == par_cart.type_cart.art_dych_cuzna)
             {
                 spawn_cart(st_par.Peek().ToString(), lt_art[a]);
                 bl = true;
@@ -1025,7 +1099,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 func.create_effect("cart rock 1", x, y, gameObject);
             }
             */
-            
+
 
             if (cart.name == "cart cuzna")
             {
@@ -1064,6 +1138,8 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                             spawn_cart("cart rock", lt_art[a]);
                         else if (lvl == 2)
                             spawn_cart("cart rock 1", lt_art[a]);
+                        else if (lvl == 4)
+                            spawn_cart("cart rock 2", lt_art[a]);
                     }
                 }
 
@@ -1084,6 +1160,8 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                             spawn_cart("cart blood", lt_art[a]);
                         else if (lvl == 2)
                             spawn_cart("cart blood 1", lt_art[a]);
+                        else if (lvl == 4)
+                            spawn_cart("cart blood 2", lt_art[a]);
                     }
                 }
 
@@ -1104,6 +1182,8 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                             spawn_cart("cart fire", lt_art[a]);
                         else if (lvl == 2)
                             spawn_cart("cart fire 1", lt_art[a]);
+                        else if (lvl == 4)
+                            spawn_cart("cart fire 2", lt_art[a]);
                     }
                 }
 
@@ -1124,6 +1204,8 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                             spawn_cart("cart energy", lt_art[a]);
                         else if (lvl == 2)
                             spawn_cart("cart energy 1", lt_art[a]);
+                        else if (lvl == 4)
+                            spawn_cart("cart energy 2", lt_art[a]);
 
                     }
                 }
@@ -1145,6 +1227,8 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                             spawn_cart("cart ice", lt_art[a]);
                         else if (lvl == 2)
                             spawn_cart("cart ice 1", lt_art[a]);
+                        else if (lvl == 4)
+                            spawn_cart("cart ice 2", lt_art[a]);
                     }
                 }
 
@@ -1165,6 +1249,25 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                             spawn_cart("cart poition", lt_art[a]);
                         else if (lvl == 2)
                             spawn_cart("cart poition 1", lt_art[a]);
+                        else if (lvl == 4)
+                            spawn_cart("cart poition 2", lt_art[a]);
+                    }
+                }
+
+                bl_dop = false;
+
+            }
+            else if (cart.name == "cart derlorg potoc")
+            {
+                if (st_par != null && st_par.Count > 0 && st_par.Peek() == "par spawn derlorg")
+                {
+                    st_par.Pop();
+                    List<string> lt_cart_rock = (List<string>)(st_par.Pop());
+
+                    foreach (string st_cart in lt_cart_rock)
+                    {
+                        int lvl = GameObject.Find(st_cart).GetComponent<par_cart>().lvl;
+                        spawn_cart("cart derlorg", lt_art[a]);
                     }
                 }
 
@@ -1328,16 +1431,16 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
 
 
-            
+
             //add_baf()
             if (lt_art[a] != null && bl_dop)
                 func.create_effect("activate art", null, lt_art[a].transform.position, true);
         }
 
-        Debug.Log(cart.name + " " + cart.q+" "+bl+" "+bl_dop);
+        Debug.Log(cart.name + " "+bl+" "+bl_dop+" "+ bl_passive);
         if (bl && bl_dop)
         {
-            Debug.Log("q and " + cart.type_q_now);
+            //Debug.Log("q and " + cart.type_q_now);
             if (cart.type_q_now == par_cart_art.type_q.stop_more_1)
             {
                 cart.q--;
@@ -1367,23 +1470,26 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
 
         par_cart_art art = gameObject.AddComponent<par_cart_art>();
-        par_cart_art art1 = GameObject.Find(cart).GetComponent<par_cart_art>();
+        par_cart_art art1 = func.baza[cart].GetComponent<par_cart_art>();
         art.type = art1.type;
         art.perez = art1.perez;
         art.perez_now = art1.perez;
+        art.tp_perez = art1.tp_perez;
         art.q = art1.q;
         art.q_max = art1.q_max;
         art.q_sum = art1.q_sum;
         art.type_q_now = art1.type_q_now;
         art.name = cart;
+        //art.name_real=
         art.lvl = art1.lvl;
         art.infa = art1.infa;
 
         string[] a_ = new string[3];
 
+
         a_[0] = "";
-        a_[1] = "1";
-        a_[2] = "2";
+        a_[1] = " 1";
+        a_[2] = " 2";
 
         if (!data.data_now.cart_collection.Contains(cart) && gameObject.name == data.data_now.pl_name_now)
         {
@@ -1410,7 +1516,54 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         string aa = "";
         if (art.lvl > 1)
             aa = " " + (art.lvl - 1).ToString();
-        if (art1.type == par_cart.type_cart.art_rock_sp || art1.type == par_cart.type_cart.art_rock_act || art1.type == par_cart.type_cart.art_speed_rock || art1.type == par_cart.type_cart.art_pow_rock)
+        if (art.lvl >= 2)
+        {
+            if (art1.type == par_cart.type_cart.art_rock_mast)
+            {
+                par_lt_sila_base.Add(par_cart.type_cart.rock.ToString());
+                par_lt_sila_base.Add(par_cart.type_cart.spirit_rock.ToString());
+                par_lt_speed_base.Add(par_cart.type_cart.rock.ToString());
+                par_lt_speed_base.Add(par_cart.type_cart.spirit_rock.ToString());
+            }
+            else if (art1.type == par_cart.type_cart.art_blood_mast)
+            {
+                par_lt_sila_base.Add(par_cart.type_cart.blood.ToString());
+                par_lt_sila_base.Add(par_cart.type_cart.spirit_blood.ToString());
+                par_lt_speed_base.Add(par_cart.type_cart.blood.ToString());
+                par_lt_speed_base.Add(par_cart.type_cart.spirit_blood.ToString());
+            }
+            else if (art1.type == par_cart.type_cart.art_energy_mast)
+            {
+                par_lt_sila_base.Add(par_cart.type_cart.energy.ToString());
+                par_lt_sila_base.Add(par_cart.type_cart.spirit_energy.ToString());
+                par_lt_speed_base.Add(par_cart.type_cart.energy.ToString());
+                par_lt_speed_base.Add(par_cart.type_cart.spirit_energy.ToString());
+            }
+            else if (art1.type == par_cart.type_cart.art_ice_mast)
+            {
+                par_lt_sila_base.Add(par_cart.type_cart.ice.ToString());
+                par_lt_sila_base.Add(par_cart.type_cart.spirit_ice.ToString());
+                par_lt_speed_base.Add(par_cart.type_cart.ice.ToString());
+                par_lt_speed_base.Add(par_cart.type_cart.spirit_ice.ToString());
+            }
+            else if (art1.type == par_cart.type_cart.art_fire_mast)
+            {
+                par_lt_sila_base.Add(par_cart.type_cart.fire.ToString());
+                par_lt_sila_base.Add(par_cart.type_cart.spirit_fire.ToString());
+                par_lt_speed_base.Add(par_cart.type_cart.fire.ToString());
+                par_lt_speed_base.Add(par_cart.type_cart.spirit_fire.ToString());
+            }
+            else if (art1.type == par_cart.type_cart.art_poition_mast)
+            {
+                par_lt_sila_base.Add(par_cart.type_cart.poition.ToString());
+                par_lt_sila_base.Add(par_cart.type_cart.spirit_poition.ToString());
+                par_lt_speed_base.Add(par_cart.type_cart.poition.ToString());
+                par_lt_speed_base.Add(par_cart.type_cart.spirit_poition.ToString());
+            }
+        }
+
+        //Debug.Log(((par_cart)art1).lvl + " " + art1.type);
+        if (art1.type == par_cart.type_cart.art_rock_sp || art1.type == par_cart.type_cart.art_rock_act || art1.type == par_cart.type_cart.art_speed_rock || art1.type == par_cart.type_cart.art_pow_rock || art1.type == par_cart.type_cart.art_rock_bomb || art1.type == par_cart.type_cart.art_rock_cuzna)
         {
             //Debug.Log("ttttttttttt"+aa);
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
@@ -1418,6 +1571,8 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             {
                 carts_count_max["cart rock" + a_[i]] += 2;
             }
+            if (((par_cart)art1).lvl == 4)
+                carts_count_max["cart spirit rock"] += 2;
             //carts_count_max["cart rock" + aa] += 2;
             for (int i = 0; i < ((par_cart)art1).lvl; i++)
             {
@@ -1433,7 +1588,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 }
             }
         }
-        else if (art1.type == par_cart.type_cart.art_blood_sp || art1.type == par_cart.type_cart.art_blood_act || art1.type == par_cart.type_cart.art_speed_blood || art1.type == par_cart.type_cart.art_pow_blood)
+        else if (art1.type == par_cart.type_cart.art_blood_sp || art1.type == par_cart.type_cart.art_blood_act || art1.type == par_cart.type_cart.art_speed_blood || art1.type == par_cart.type_cart.art_pow_blood || art1.type == par_cart.type_cart.art_blood_bomb || art1.type == par_cart.type_cart.art_blood_cuzna)
         {
             //carts_count_max["cart blood" + aa] += 2;
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
@@ -1441,6 +1596,8 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             {
                 carts_count_max["cart blood" + a_[i]] += 2;
             }
+            if (((par_cart)art1).lvl == 4)
+                carts_count_max["cart spirit blood"] += 2;
             for (int i = 0; i < ((par_cart)art1).lvl; i++)
             {
                 if (art1.type == par_cart.type_cart.art_blood_act)
@@ -1451,11 +1608,11 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 else if (art1.type == par_cart.type_cart.art_speed_blood)
                 {
                     par_lt_speed_base.Add(par_cart.type_cart.blood.ToString());
-                    par_lt_speed_base.Add(par_cart.type_cart.blood.ToString());
+                    par_lt_speed_base.Add(par_cart.type_cart.spirit_blood.ToString());
                 }
             }
         }
-        else if (art1.type == par_cart.type_cart.art_fire_sp || art1.type == par_cart.type_cart.art_fire_act || art1.type == par_cart.type_cart.art_speed_fire || art1.type == par_cart.type_cart.art_pow_fire)
+        else if (art1.type == par_cart.type_cart.art_fire_sp || art1.type == par_cart.type_cart.art_fire_act || art1.type == par_cart.type_cart.art_speed_fire || art1.type == par_cart.type_cart.art_pow_fire || art1.type == par_cart.type_cart.art_fire_bomb || art1.type == par_cart.type_cart.art_fire_cuzna)
         {
             //carts_count_max["cart fire" + aa] += 2;
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
@@ -1463,6 +1620,8 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             {
                 carts_count_max["cart fire" + a_[i]] += 2;
             }
+            if (((par_cart)art1).lvl == 4)
+                carts_count_max["cart spirit fire"] += 2;
             for (int i = 0; i < ((par_cart)art1).lvl; i++)
             {
                 if (art1.type == par_cart.type_cart.art_fire_act)
@@ -1477,7 +1636,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 }
             }
         }
-        else if (art1.type == par_cart.type_cart.art_energy_sp || art1.type == par_cart.type_cart.art_energy_act || art1.type == par_cart.type_cart.art_speed_energy || art1.type == par_cart.type_cart.art_pow_energy)
+        else if (art1.type == par_cart.type_cart.art_energy_sp || art1.type == par_cart.type_cart.art_energy_act || art1.type == par_cart.type_cart.art_speed_energy || art1.type == par_cart.type_cart.art_pow_energy || art1.type == par_cart.type_cart.art_energy_bomb || art1.type == par_cart.type_cart.art_energy_cuzna)
         {
             //carts_count_max["cart energy" + aa] += 2;
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
@@ -1485,6 +1644,8 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             {
                 carts_count_max["cart energy" + a_[i]] += 2;
             }
+            if (((par_cart)art1).lvl == 4)
+                carts_count_max["cart spirit energy"] += 2;
             for (int i = 0; i < ((par_cart)art1).lvl; i++)
             {
                 if (art1.type == par_cart.type_cart.art_energy_act)
@@ -1499,7 +1660,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 }
             }
         }
-        else if (art1.type == par_cart.type_cart.art_ice_sp || art1.type == par_cart.type_cart.art_ice_act || art1.type == par_cart.type_cart.art_speed_ice || art1.type == par_cart.type_cart.art_pow_ice)
+        else if (art1.type == par_cart.type_cart.art_ice_sp || art1.type == par_cart.type_cart.art_ice_act || art1.type == par_cart.type_cart.art_speed_ice || art1.type == par_cart.type_cart.art_pow_ice || art1.type == par_cart.type_cart.art_ice_bomb || art1.type == par_cart.type_cart.art_ice_cuzna)
         {
             //carts_count_max["cart ice" + aa] += 2;
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
@@ -1507,6 +1668,8 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             {
                 carts_count_max["cart ice" + a_[i]] += 2;
             }
+            if (((par_cart)art1).lvl == 4)
+                carts_count_max["cart spirit ice"] += 2;
             for (int i = 0; i < ((par_cart)art1).lvl; i++)
             {
                 if (art1.type == par_cart.type_cart.art_ice_act)
@@ -1516,12 +1679,12 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 }
                 else if (art1.type == par_cart.type_cart.art_speed_ice)
                 {
-                    par_lt_speed_base.Add(par_cart.type_cart.spirit_ice.ToString());
+                    par_lt_speed_base.Add(par_cart.type_cart.ice.ToString());
                     par_lt_speed_base.Add(par_cart.type_cart.spirit_ice.ToString());
                 }
             }
         }
-        else if (art1.type == par_cart.type_cart.art_poition_sp || art1.type == par_cart.type_cart.art_poition_act || art1.type == par_cart.type_cart.art_speed_poition || art1.type == par_cart.type_cart.art_pow_poition)
+        else if (art1.type == par_cart.type_cart.art_poition_sp || art1.type == par_cart.type_cart.art_poition_act || art1.type == par_cart.type_cart.art_speed_poition || art1.type == par_cart.type_cart.art_pow_poition || art1.type == par_cart.type_cart.art_poition_bomb || art1.type == par_cart.type_cart.art_poition_cuzna)
         {
             //carts_count_max["cart poition" + aa] += 2;
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
@@ -1529,6 +1692,8 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             {
                 carts_count_max["cart poition" + a_[i]] += 2;
             }
+            if (((par_cart)art1).lvl == 4)
+                carts_count_max["cart spirit poition"] += 2;
             for (int i = 0; i < ((par_cart)art1).lvl; i++)
             {
                 if (art1.type == par_cart.type_cart.art_poition_act)
@@ -1543,7 +1708,119 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 }
             }
         }
-        else if (art1.type == par_cart.type_cart.art_crystall_sp)
+
+
+
+        else if (art1.type == par_cart.type_cart.art_att_sp || art1.type == par_cart.type_cart.art_att_act || art1.type == par_cart.type_cart.art_speed_att || art1.type == par_cart.type_cart.art_att_pow || art1.type == par_cart.type_cart.art_att_bomb || art1.type == par_cart.type_cart.art_att_cuzna)
+        {
+            int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
+            for (int i = 0; i < a_f; i++)
+            {
+                carts_count_max["cart damage" + a_[i]] += 2;
+            }
+            //if (((par_cart)art1).lvl == 4)
+            //carts_count_max["cart spirit poition"] -= 2;
+            //carts_count_max["cart poition" + aa] += 2;
+            for (int i = 0; i < ((par_cart)art1).lvl; i++)
+            {
+                if (art1.type == par_cart.type_cart.art_att_act)
+                {
+                    par_lt_sila_base.Add(par_cart.type_cart.damage.ToString());
+                    //par_lt_sila_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+                else if (art1.type == par_cart.type_cart.art_speed_att)
+                {
+                    par_lt_speed_base.Add(par_cart.type_cart.damage.ToString());
+                    //par_lt_speed_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+            }
+        }
+
+        else if (art1.type == par_cart.type_cart.art_bar_sp || art1.type == par_cart.type_cart.art_bar_act || art1.type == par_cart.type_cart.art_speed_bar || art1.type == par_cart.type_cart.art_bar_pow || art1.type == par_cart.type_cart.art_bar_bomb || art1.type == par_cart.type_cart.art_bar_cuzna)
+        {
+            int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
+            for (int i = 0; i < a_f; i++)
+            {
+                carts_count_max["cart barier" + a_[i]]++;
+            }
+            //if (((par_cart)art1).lvl == 4)
+            //carts_count_max["cart spirit poition"] -= 2;
+            //carts_count_max["cart poition" + aa] += 2;
+            for (int i = 0; i < ((par_cart)art1).lvl; i++)
+            {
+                if (art1.type == par_cart.type_cart.art_bar_act)
+                {
+                    par_lt_sila_base.Add(par_cart.type_cart.sp_barier.ToString());
+                    //par_lt_sila_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+                else if (art1.type == par_cart.type_cart.art_speed_bar)
+                {
+                    par_lt_speed_base.Add(par_cart.type_cart.sp_barier.ToString());
+                    //par_lt_speed_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+            }
+        }
+
+        else if (art1.type == par_cart.type_cart.art_dych_sp || art1.type == par_cart.type_cart.art_dych_act || art1.type == par_cart.type_cart.art_speed_dych || art1.type == par_cart.type_cart.art_dych_pow || art1.type == par_cart.type_cart.art_dych_bomb || art1.type == par_cart.type_cart.art_dych_cuzna)
+        {
+            int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
+            for (int i = 0; i < a_f; i++)
+            {
+                carts_count_max["cart dych" + a_[i]]++;
+            }
+            //if (((par_cart)art1).lvl == 4)
+            //carts_count_max["cart spirit poition"] -= 2;
+            //carts_count_max["cart poition" + aa] += 2;
+            for (int i = 0; i < ((par_cart)art1).lvl; i++)
+            {
+                if (art1.type == par_cart.type_cart.art_dych_act)
+                {
+                    par_lt_sila_base.Add(par_cart.type_cart.sp_dych.ToString());
+                    //par_lt_sila_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+                else if (art1.type == par_cart.type_cart.art_speed_dych)
+                {
+                    par_lt_speed_base.Add(par_cart.type_cart.sp_dych.ToString());
+                    //par_lt_speed_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+            }
+        }
+
+        else if (art1.type == par_cart.type_cart.art_bomb_sp || art1.type == par_cart.type_cart.art_bomb_act || art1.type == par_cart.type_cart.art_speed_bomb || art1.type == par_cart.type_cart.art_pow_bomb || art1.type == par_cart.type_cart.art_bomb_bomb || art1.type == par_cart.type_cart.art_bomb_cuzna)
+        {
+            int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
+            for (int i = 0; i < a_f; i++)
+            {
+                carts_count_max["cart bomb" + a_[i]]++;
+            }
+            //if (((par_cart)art1).lvl == 4)
+            //carts_count_max["cart spirit poition"] -= 2;
+            //carts_count_max["cart poition" + aa] += 2;
+            for (int i = 0; i < ((par_cart)art1).lvl; i++)
+            {
+                if (art1.type == par_cart.type_cart.art_bomb_act)
+                {
+                    par_lt_sila_base.Add(par_cart.type_cart.sp_bomb.ToString());
+                    //par_lt_sila_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+                else if (art1.type == par_cart.type_cart.art_speed_bomb)
+                {
+                    par_lt_speed_base.Add(par_cart.type_cart.sp_bomb.ToString());
+                    //par_lt_speed_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+            }
+        }
+        /*
+        else if (art1.type == par_cart.type_cart.art_dych_sp)
+        {
+            //carts_count_max["cart crystall" + aa]++;
+            int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
+            for (int i = 0; i < a_f; i++)
+            {
+                carts_count_max["cart dych" + a_[i]] += 2;
+            }
+        }
+        else if (art1.type == par_cart.type_cart.art_bomb_sp)
         {
             //carts_count_max["cart crystall" + aa]++;
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
@@ -1572,10 +1849,10 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
         }
 
-
+        */
         else if (art1.type == par_cart.type_cart.art_base_st)
         {
-            carts_count_max["cart damage"] += 2;
+            carts_count_max["cart damage"] += 4;
         }
 
         else if (art1.type == par_cart.type_cart.art_att_st)
@@ -1620,18 +1897,15 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         else if (art1.type == par_cart.type_cart.art_derlorg_sp)
         {
             carts_count_max["cart derlorg"] += 2;
-            hp_max -= 2;
-            if (hp > hp_max)
-                hp = hp_max;
         }
 
-        else if (cart == "cart dop hill" || cart== "cart spirit fire heart" || cart == "cart spirit poition heart" || cart == "cart spirit energy heart" || cart == "cart spirit ice heart"|| cart == "cart spirit rock heart"|| cart == "cart spirit blood heart")
+        else if (cart == "cart dop hill" || cart == "cart spirit fire heart" || cart == "cart spirit poition heart" || cart == "cart spirit energy heart" || cart == "cart spirit ice heart" || cart == "cart spirit rock heart" || cart == "cart spirit blood heart")
         {
-            hp_max += 5;
+            hp_max += 10;
         }
         else if (cart == "cart berserk boss")
         {
-            hp_max += 10;
+            hp_max += 20;
         }
         else if (cart == "cart berserk")
         {
@@ -1643,10 +1917,6 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             hp_max+=2;
         }
         */
-        else if (cart == "cart mast")
-        {
-            col_art++;
-        }
         else if (cart == "cart inven")
         {
             col_art += 2;
@@ -1654,10 +1924,10 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             foreach (Transform tr in GameObject.Find("list carts").transform)
             {
                 string nm = tr.gameObject.name;
-                if (carts_count_max.ContainsKey(tr.gameObject.name))
+                if (carts_count_max.ContainsKey(nm))
                 {
                     par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
-                    if (type == par_cart.type_cart.sp_crystall || type == par_cart.type_cart.sp_barier || type == par_cart.type_cart.sp_cuznec || nm == "cart dungalorg(sleep) 1" || nm == "cart dungalorg 1")
+                    if (func.baza[nm].GetComponent<par_cart>().spetial || type == par_cart.type_cart.sp_cuznec || nm == "cart dungalorg(sleep) 1" || nm == "cart dungalorg 1")
                     {
                         carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] + 1;
                     }
@@ -1677,7 +1947,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
 
         }
-        else if (cart == "cart power")
+        else if (cart == "cart sila")
         {
             foreach (par_cart.type_cart tp in par_cart.get_types_tip())
             {
@@ -1685,6 +1955,180 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
 
         }
+
+        else if (cart == "cart derlorg act")
+        {
+            foreach (par_cart.type_cart tp in par_cart.get_types_tip())
+            {
+                par_lt_sila_base.Add(tp.ToString());
+            }
+
+        }
+        else if (cart == "cart derlorg speed")
+        {
+            foreach (par_cart.type_cart tp in par_cart.get_types_tip())
+            {
+                par_lt_speed_base.Add(tp.ToString());
+            }
+        }
+        if (cart == "cart sp derlorg" || cart == "cart derlorg act" || cart == "cart derlorg speed" || cart == "cart derlorg pow")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (func.baza[nm].GetComponent<par_cart>().spetial)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] - 1;
+                    }
+                    else
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] - 2;
+                    }
+                }
+            }
+        }
+        if(cart == "cart derlorg att")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type==par_cart.type_cart.damage)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] - 4;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg bar")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.sp_barier)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] - 2;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg bomb")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.sp_bomb)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] - 2;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg fire")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.fire || type == par_cart.type_cart.spirit_fire)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] - 4;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg poition")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.poition || type == par_cart.type_cart.spirit_poition)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] - 4;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg ice")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.ice || type == par_cart.type_cart.spirit_ice)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] - 4;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg energy")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.energy || type == par_cart.type_cart.spirit_energy)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] - 4;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg rock")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.rock || type == par_cart.type_cart.spirit_rock)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] - 4;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg blood")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.blood || type == par_cart.type_cart.spirit_blood)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] - 4;
+                    }
+                }
+            }
+        }
+
+
+
+
 
         return art;
     }
@@ -1723,16 +2167,64 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         string[] a_ = new string[3];
 
         a_[0] = "";
-        a_[1] = "1";
-        a_[2] = "2";
+        a_[1] = " 1";
+        a_[2] = " 2";
 
-        if (art1.type == par_cart.type_cart.art_rock_sp || art1.type == par_cart.type_cart.art_rock_act || art1.type == par_cart.type_cart.art_speed_rock || art1.type == par_cart.type_cart.art_pow_rock)
+        if (((par_cart)art1).lvl >=2)
+        {
+            if (art1.type == par_cart.type_cart.art_rock_mast)
+            {
+                par_lt_sila_base.Remove(par_cart.type_cart.rock.ToString());
+                par_lt_sila_base.Remove(par_cart.type_cart.spirit_rock.ToString());
+                par_lt_speed_base.Remove(par_cart.type_cart.rock.ToString());
+                par_lt_speed_base.Remove(par_cart.type_cart.spirit_rock.ToString());
+            }
+            else if (art1.type == par_cart.type_cart.art_blood_mast)
+            {
+                par_lt_sila_base.Remove(par_cart.type_cart.blood.ToString());
+                par_lt_sila_base.Remove(par_cart.type_cart.spirit_blood.ToString());
+                par_lt_speed_base.Remove(par_cart.type_cart.blood.ToString());
+                par_lt_speed_base.Remove(par_cart.type_cart.spirit_blood.ToString());
+            }
+            else if (art1.type == par_cart.type_cart.art_energy_mast)
+            {
+                par_lt_sila_base.Remove(par_cart.type_cart.energy.ToString());
+                par_lt_sila_base.Remove(par_cart.type_cart.spirit_energy.ToString());
+                par_lt_speed_base.Remove(par_cart.type_cart.energy.ToString());
+                par_lt_speed_base.Remove(par_cart.type_cart.spirit_energy.ToString());
+            }
+            else if (art1.type == par_cart.type_cart.art_ice_mast)
+            {
+                par_lt_sila_base.Remove(par_cart.type_cart.ice.ToString());
+                par_lt_sila_base.Remove(par_cart.type_cart.spirit_ice.ToString());
+                par_lt_speed_base.Remove(par_cart.type_cart.ice.ToString());
+                par_lt_speed_base.Remove(par_cart.type_cart.spirit_ice.ToString());
+            }
+            else if (art1.type == par_cart.type_cart.art_fire_mast)
+            {
+                par_lt_sila_base.Remove(par_cart.type_cart.fire.ToString());
+                par_lt_sila_base.Remove(par_cart.type_cart.spirit_fire.ToString());
+                par_lt_speed_base.Remove(par_cart.type_cart.fire.ToString());
+                par_lt_speed_base.Remove(par_cart.type_cart.spirit_fire.ToString());
+            }
+            else if (art1.type == par_cart.type_cart.art_poition_mast)
+            {
+                par_lt_sila_base.Remove(par_cart.type_cart.poition.ToString());
+                par_lt_sila_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                par_lt_speed_base.Remove(par_cart.type_cart.poition.ToString());
+                par_lt_speed_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+            }
+        }
+
+        if (art1.type == par_cart.type_cart.art_rock_sp || art1.type == par_cart.type_cart.art_rock_act || art1.type == par_cart.type_cart.art_speed_rock || art1.type == par_cart.type_cart.art_pow_rock || art1.type == par_cart.type_cart.art_rock_bomb || art1.type == par_cart.type_cart.art_rock_cuzna)
         {
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
             for (int i = 0; i < a_f; i++)
             {
                 carts_count_max["cart rock" + a_[i]] -= 2;
             }
+            if (((par_cart)art1).lvl == 4)
+                carts_count_max["cart spirit rock"] -= 2;
             //carts_count_max["cart rock" + aa] += 2;
             for (int i = 0; i < ((par_cart)art1).lvl; i++)
             {
@@ -1748,13 +2240,15 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 }
             }
         }
-        else if (art1.type == par_cart.type_cart.art_blood_sp || art1.type == par_cart.type_cart.art_blood_act || art1.type == par_cart.type_cart.art_speed_blood || art1.type == par_cart.type_cart.art_pow_blood)
+        else if (art1.type == par_cart.type_cart.art_blood_sp || art1.type == par_cart.type_cart.art_blood_act || art1.type == par_cart.type_cart.art_speed_blood || art1.type == par_cart.type_cart.art_pow_blood || art1.type == par_cart.type_cart.art_blood_bomb || art1.type == par_cart.type_cart.art_blood_cuzna)
         {
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
             for (int i = 0; i < a_f; i++)
             {
                 carts_count_max["cart blood" + a_[i]] -= 2;
             }
+            if (((par_cart)art1).lvl == 4)
+                carts_count_max["cart spirit blood"] -= 2;
             //carts_count_max["cart blood" + aa] += 2;
             for (int i = 0; i < ((par_cart)art1).lvl; i++)
             {
@@ -1766,17 +2260,19 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 else if (art1.type == par_cart.type_cart.art_speed_blood)
                 {
                     par_lt_speed_base.Remove(par_cart.type_cart.blood.ToString());
-                    par_lt_speed_base.Remove(par_cart.type_cart.blood.ToString());
+                    par_lt_speed_base.Remove(par_cart.type_cart.spirit_blood.ToString());
                 }
             }
         }
-        else if (art1.type == par_cart.type_cart.art_fire_sp || art1.type == par_cart.type_cart.art_fire_act || art1.type == par_cart.type_cart.art_speed_fire || art1.type == par_cart.type_cart.art_pow_fire)
+        else if (art1.type == par_cart.type_cart.art_fire_sp || art1.type == par_cart.type_cart.art_fire_act || art1.type == par_cart.type_cart.art_speed_fire || art1.type == par_cart.type_cart.art_pow_fire || art1.type == par_cart.type_cart.art_fire_bomb || art1.type == par_cart.type_cart.art_fire_cuzna)
         {
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
             for (int i = 0; i < a_f; i++)
             {
                 carts_count_max["cart fire" + a_[i]] -= 2;
             }
+            if (((par_cart)art1).lvl == 4)
+                carts_count_max["cart spirit fire"] -= 2;
             //carts_count_max["cart fire" + aa] += 2;
             for (int i = 0; i < ((par_cart)art1).lvl; i++)
             {
@@ -1792,13 +2288,15 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 }
             }
         }
-        else if (art1.type == par_cart.type_cart.art_energy_sp || art1.type == par_cart.type_cart.art_energy_act || art1.type == par_cart.type_cart.art_speed_energy || art1.type == par_cart.type_cart.art_pow_energy)
+        else if (art1.type == par_cart.type_cart.art_energy_sp || art1.type == par_cart.type_cart.art_energy_act || art1.type == par_cart.type_cart.art_speed_energy || art1.type == par_cart.type_cart.art_pow_energy || art1.type == par_cart.type_cart.art_energy_bomb || art1.type == par_cart.type_cart.art_energy_cuzna)
         {
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
             for (int i = 0; i < a_f; i++)
             {
                 carts_count_max["cart energy" + a_[i]] -= 2;
             }
+            if (((par_cart)art1).lvl == 4)
+                carts_count_max["cart spirit energy"] -= 2;
             //carts_count_max["cart energy" + aa] += 2;
             for (int i = 0; i < ((par_cart)art1).lvl; i++)
             {
@@ -1814,13 +2312,15 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 }
             }
         }
-        else if (art1.type == par_cart.type_cart.art_ice_sp || art1.type == par_cart.type_cart.art_ice_act || art1.type == par_cart.type_cart.art_speed_ice || art1.type == par_cart.type_cart.art_pow_ice)
+        else if (art1.type == par_cart.type_cart.art_ice_sp || art1.type == par_cart.type_cart.art_ice_act || art1.type == par_cart.type_cart.art_speed_ice || art1.type == par_cart.type_cart.art_pow_ice || art1.type == par_cart.type_cart.art_ice_bomb || art1.type == par_cart.type_cart.art_ice_cuzna)
         {
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
             for (int i = 0; i < a_f; i++)
             {
                 carts_count_max["cart ice" + a_[i]] -= 2;
             }
+            if (((par_cart)art1).lvl == 4)
+                carts_count_max["cart spirit ice"] -= 2;
             //carts_count_max["cart ice" + aa] += 2;
             for (int i = 0; i < ((par_cart)art1).lvl; i++)
             {
@@ -1831,18 +2331,20 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 }
                 else if (art1.type == par_cart.type_cart.art_speed_ice)
                 {
-                    par_lt_speed_base.Remove(par_cart.type_cart.spirit_ice.ToString());
+                    par_lt_speed_base.Remove(par_cart.type_cart.ice.ToString());
                     par_lt_speed_base.Remove(par_cart.type_cart.spirit_ice.ToString());
                 }
             }
         }
-        else if (art1.type == par_cart.type_cart.art_poition_sp || art1.type == par_cart.type_cart.art_poition_act || art1.type == par_cart.type_cart.art_speed_poition || art1.type == par_cart.type_cart.art_pow_poition)
+        else if (art1.type == par_cart.type_cart.art_poition_sp || art1.type == par_cart.type_cart.art_poition_act || art1.type == par_cart.type_cart.art_speed_poition || art1.type == par_cart.type_cart.art_pow_poition || art1.type == par_cart.type_cart.art_poition_bomb || art1.type == par_cart.type_cart.art_poition_cuzna)
         {
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
             for (int i = 0; i < a_f; i++)
             {
                 carts_count_max["cart poition" + a_[i]] -= 2;
             }
+            if (((par_cart)art1).lvl == 4)
+                carts_count_max["cart spirit poition"] -= 2;
             //carts_count_max["cart poition" + aa] += 2;
             for (int i = 0; i < ((par_cart)art1).lvl; i++)
             {
@@ -1859,14 +2361,125 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
         }
 
-        else if (art1.type == par_cart.type_cart.art_crystall_sp)
+        else if (art1.type == par_cart.type_cart.art_att_sp || art1.type == par_cart.type_cart.art_att_act || art1.type == par_cart.type_cart.art_speed_att || art1.type == par_cart.type_cart.art_att_pow || art1.type == par_cart.type_cart.art_att_bomb || art1.type == par_cart.type_cart.art_att_cuzna)
         {
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
             for (int i = 0; i < a_f; i++)
             {
-                carts_count_max["cart crystall" + a_[i]] += 2;
+                carts_count_max["cart damage" + a_[i]] -= 2;
             }
-            //carts_count_max["cart crystall" + aa]--;
+            //if (((par_cart)art1).lvl == 4)
+            //carts_count_max["cart spirit poition"] -= 2;
+            //carts_count_max["cart poition" + aa] += 2;
+            
+            for (int i = 0; i < ((par_cart)art1).lvl; i++)
+            {
+                if (art1.type == par_cart.type_cart.art_att_act)
+                {
+                    par_lt_sila_base.Remove(par_cart.type_cart.damage.ToString());
+                    //par_lt_sila_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+                else if (art1.type == par_cart.type_cart.art_speed_att)
+                {
+                    par_lt_speed_base.Remove(par_cart.type_cart.damage.ToString());
+                    //par_lt_speed_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+            }
+        }
+
+        else if (art1.type == par_cart.type_cart.art_bar_sp || art1.type == par_cart.type_cart.art_bar_act || art1.type == par_cart.type_cart.art_speed_bar || art1.type == par_cart.type_cart.art_bar_pow || art1.type == par_cart.type_cart.art_bar_bomb || art1.type == par_cart.type_cart.art_bar_cuzna)
+        {
+            int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
+            for (int i = 0; i < a_f; i++)
+            {
+                carts_count_max["cart barier" + a_[i]] --;
+            }
+            //if (((par_cart)art1).lvl == 4)
+            //carts_count_max["cart spirit poition"] -= 2;
+            //carts_count_max["cart poition" + aa] += 2;
+            for (int i = 0; i < ((par_cart)art1).lvl; i++)
+            {
+                if (art1.type == par_cart.type_cart.art_bar_act)
+                {
+                    par_lt_sila_base.Remove(par_cart.type_cart.sp_barier.ToString());
+                    //par_lt_sila_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+                else if (art1.type == par_cart.type_cart.art_speed_bar)
+                {
+                    par_lt_speed_base.Remove(par_cart.type_cart.sp_barier.ToString());
+                    //par_lt_speed_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+            }
+        }
+
+        else if (art1.type == par_cart.type_cart.art_dych_sp || art1.type == par_cart.type_cart.art_dych_act || art1.type == par_cart.type_cart.art_speed_dych || art1.type == par_cart.type_cart.art_dych_pow || art1.type == par_cart.type_cart.art_dych_bomb || art1.type == par_cart.type_cart.art_dych_cuzna)
+        {
+            int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
+            for (int i = 0; i < a_f; i++)
+            {
+                carts_count_max["cart dych" + a_[i]] --;
+            }
+            //if (((par_cart)art1).lvl == 4)
+            //carts_count_max["cart spirit poition"] -= 2;
+            //carts_count_max["cart poition" + aa] += 2;
+            for (int i = 0; i < ((par_cart)art1).lvl; i++)
+            {
+                if (art1.type == par_cart.type_cart.art_dych_act)
+                {
+                    par_lt_sila_base.Remove(par_cart.type_cart.sp_dych.ToString());
+                    //par_lt_sila_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+                else if (art1.type == par_cart.type_cart.art_speed_dych)
+                {
+                    par_lt_speed_base.Remove(par_cart.type_cart.sp_dych.ToString());
+                    //par_lt_speed_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+            }
+        }
+
+        else if (art1.type == par_cart.type_cart.art_bomb_sp || art1.type == par_cart.type_cart.art_bomb_act || art1.type == par_cart.type_cart.art_speed_bomb || art1.type == par_cart.type_cart.art_pow_bomb || art1.type == par_cart.type_cart.art_bomb_bomb || art1.type == par_cart.type_cart.art_bomb_cuzna)
+        {
+            int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
+            for (int i = 0; i < a_f; i++)
+            {
+                carts_count_max["cart bomb" + a_[i]]--;
+            }
+            //if (((par_cart)art1).lvl == 4)
+            //carts_count_max["cart spirit poition"] -= 2;
+            //carts_count_max["cart poition" + aa] += 2;
+            for (int i = 0; i < ((par_cart)art1).lvl; i++)
+            {
+                if (art1.type == par_cart.type_cart.art_bomb_act)
+                {
+                    par_lt_sila_base.Remove(par_cart.type_cart.sp_bomb.ToString());
+                    //par_lt_sila_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+                else if (art1.type == par_cart.type_cart.art_speed_bomb)
+                {
+                    par_lt_speed_base.Remove(par_cart.type_cart.sp_bomb.ToString());
+                    //par_lt_speed_base.Remove(par_cart.type_cart.spirit_poition.ToString());
+                }
+            }
+        }
+
+        /*
+        else if (art1.type == par_cart.type_cart.art_dych_sp)
+        {
+            //carts_count_max["cart crystall" + aa]++;
+            int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
+            for (int i = 0; i < a_f; i++)
+            {
+                carts_count_max["cart dych" + a_[i]] -= 2;
+            }
+        }
+        else if (art1.type == par_cart.type_cart.art_bomb_sp)
+        {
+            int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
+            for (int i = 0; i < a_f; i++)
+            {
+                carts_count_max["cart crystall" + a_[i]] -= 2;
+            }
+            //C:\Program Files\Unity\Hub\Editor\2022.3.40f1\Editor\Data\PlaybackEngines\AndroidPlayer\Tools\gradle
         }
 
 
@@ -1876,7 +2489,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
             for (int i = 0; i < a_f; i++)
             {
-                carts_count_max["cart damage" + a_[i]] += 2;
+                carts_count_max["cart damage" + a_[i]] -= 2;
             }
         }
         else if (art1.type == par_cart.type_cart.art_bar_sp)
@@ -1885,12 +2498,13 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
             for (int i = 0; i < a_f; i++)
             {
-                carts_count_max["cart barier" + a_[i]] += 2;
+                carts_count_max["cart barier" + a_[i]] -= 1;
             }
         }
+        */
         else if (art1.type == par_cart.type_cart.art_base_st)
         {
-            carts_count_max["cart damage"] -= 2;
+            carts_count_max["cart damage"] -= 4;
         }
 
         else if (art1.type == par_cart.type_cart.art_att_st)
@@ -1939,20 +2553,20 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         }
         else if (art1.type == par_cart.type_cart.art_derlorg_sp)
         {
-            carts_count_max["cart derlorg"] += 2;
-            hp_max += 2;
+            carts_count_max["cart derlorg"] -= 2;
+            //hp_max += 2;
         }
 
 
         else if (cart == "cart dop hill" || cart == "cart spirit fire heart" || cart == "cart spirit poition heart" || cart == "cart spirit energy heart" || cart == "cart spirit ice heart" || cart == "cart spirit rock heart" || cart == "cart spirit blood heart")
         {
-            hp_max -= 5;
+            hp_max -= 10;
             if (hp > hp_max)
                 hp = hp_max;
         }
         else if (cart == "cart berserk boss")
         {
-            hp_max -= 10;
+            hp_max -= 20;
             if (hp > hp_max)
                 hp = hp_max;
         }
@@ -1960,7 +2574,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         {
             //hp_max -= 5;
             //if (hp > hp_max)
-                //hp = hp_max;
+            //hp = hp_max;
         }
         /*
         else if (cart == "cart hp blood" || cart == "cart hp rock" || cart == "cart hp fire" || cart == "cart hp energy" || cart == "cart hp ice" || cart == "cart hp poition")
@@ -1970,10 +2584,6 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 hp = hp_max;
         }
         */
-        else if (cart == "cart mast")
-        {
-            col_art--;
-        }
         else if (cart == "cart inven")
         {
             col_art -= 2;
@@ -1984,7 +2594,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 if (carts_count_max.ContainsKey(tr.gameObject.name))
                 {
                     par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
-                    if (type == par_cart.type_cart.sp_crystall || type == par_cart.type_cart.sp_barier || type == par_cart.type_cart.sp_cuznec || nm == "cart dungalorg(sleep) 1" || nm == "cart dungalorg 1")
+                    if (func.baza[nm].GetComponent<par_cart>().spetial || type == par_cart.type_cart.sp_cuznec || nm == "cart dungalorg(sleep) 1" || nm == "cart dungalorg 1")
                     {
                         carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] - 1;
                     }
@@ -2004,13 +2614,185 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
 
         }
-        else if (cart == "cart power")
+        else if (cart == "cart sila")
         {
             foreach (par_cart.type_cart tp in par_cart.get_types_tip())
             {
                 par_lt_sila_base.Remove(tp.ToString());
             }
 
+        }
+
+
+
+        else if (cart == "cart derlorg act")
+        {
+            foreach (par_cart.type_cart tp in par_cart.get_types_tip())
+            {
+                par_lt_sila_base.Remove(tp.ToString());
+            }
+
+        }
+        else if (cart == "cart derlorg speed")
+        {
+            foreach (par_cart.type_cart tp in par_cart.get_types_tip())
+            {
+                par_lt_speed_base.Remove(tp.ToString());
+            }
+        }
+        if (cart == "cart sp derlorg" || cart == "cart derlorg act" || cart == "cart derlorg speed" || cart == "cart derlorg pow")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (func.baza[nm].GetComponent<par_cart>().spetial)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] + 1;
+                    }
+                    else
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] + 2;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg att")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.damage)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] + 4;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg bar")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.sp_barier)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] + 2;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg bomb")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.sp_bomb)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] + 2;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg fire")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.fire || type == par_cart.type_cart.spirit_fire)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] + 4;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg poition")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.poition || type == par_cart.type_cart.spirit_poition)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] + 4;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg ice")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.ice || type == par_cart.type_cart.spirit_ice)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] + 4;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg energy")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.energy || type == par_cart.type_cart.spirit_energy)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] + 4;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg rock")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.rock || type == par_cart.type_cart.spirit_rock)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] + 4;
+                    }
+                }
+            }
+        }
+        if (cart == "cart derlorg blood")
+        {
+            foreach (Transform tr in GameObject.Find("list carts").transform)
+            {
+                string nm = tr.gameObject.name;
+                if (carts_count_max.ContainsKey(nm))
+                {
+                    par_cart.type_cart type = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
+                    if (type == par_cart.type_cart.blood || type == par_cart.type_cart.spirit_blood)
+                    {
+                        carts_count_max[tr.gameObject.name] = carts_count_max[tr.gameObject.name] + 4;
+                    }
+                }
+            }
         }
         //Debug.Log("art is null " + (lt_carts_art[lt_carts_art.Count - 1] is null));
         //ad_cart_art_active(cart);
@@ -2108,7 +2890,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             data.data_now.col_carts_now = lt_carts.Count;
             if (data.data_now.col_carts_now >= 75 && !data.data_now.lt_achives_open.Contains("большая колода"))
                 data.give_achive("большая колода");
-            if (func.hod_mob_now_int == num && friend)
+            if (func.hod_mob_now_int == num && friend_type==type_friend.active&& friend)
             {
                 ui.print_carts_tip(num);
             }
@@ -2131,7 +2913,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
     public void remove_cart(string name)
     {
         lt_carts.Remove(name);
-        if (func.hod_mob_now_int == num && friend)
+        if (func.hod_mob_now_int == num && friend_type==type_friend.active && friend)
         {
             ui.print_carts_tip(num);
         }
@@ -2140,13 +2922,13 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
     {
         //string stt = null;
         //ad_cart_active(cart_active_now,lt_carts_active_now);
-        if(friend && friend_type==type_friend.active && !atack_auto_comb)
+        if (friend && friend_type == type_friend.active && !atack_auto_comb)
             ad_cart_active(cart_active_now, lt_carts_active_now_ui);
         else
             ad_cart_active(cart_active_now, lt_carts_active_now);
     }
 
-    public void ad_cart_active(string name,List<string> lt_carts_ad)
+    public void ad_cart_active(string name, List<string> lt_carts_ad)
     {
         //func.test_message = "error ad cart 895";
         par_cart.type_cart tp_now = par_cart.type_cart.bases;
@@ -2172,7 +2954,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 tp_now_ = GameObject.Find(str).GetComponent<par_cart>().type;
                 i++;
             }
-                
+
             else if (tp_prov == tp_now_)
             {
                 i++;
@@ -2186,7 +2968,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
             if (lt_carts_ad.Count - 1 == col)
                 y_[x_] = i;
-            col++;    
+            col++;
         }
 
         //int y_e = (i - 1) % 4;
@@ -2195,32 +2977,14 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         int x_now_ = 0;
         //Debug.Log("add " + -0.25f * ((y_e) / 2.0f)+"  "+(gm==null));
         foreach (Transform tr in gameObject.transform.Find("carts active"))
-        {/*
-            if (i == 0)
-            {
-                tr.localPosition = new Vector3(0, 0, 0);
-                i += 3;
-                i1 += 3;
-                y_e = (i1 - 1) % 4;
-            }
-            else
-            {
-                if (i / 4 + 1 <= i1 / 4)
-                    tr.localPosition = new Vector3(i / 4 * 0.28f, -0.75f + (i % 4) * 0.5f, 0);
-                else
-                    tr.localPosition = new Vector3(i / 4 * 0.28f, -0.25f * y_e + (i % 4) * 0.5f, 0);
-            }
-            i++;
-            */
-            //if (i == 4)
-            //x_sm++;
+        {
 
             if (i == y_[x_now_])
             {
                 i = 0;
                 x_now_++;
             }
-            tr.localPosition = new Vector3(x_now_ * 0.28f, -0.25f * (y_[x_now_]-1) + i * 0.5f, 0);
+            tr.localPosition = new Vector3(x_now_ * 0.28f, -0.25f * (y_[x_now_] - 1) + i * 0.5f, 0);
 
             i++;
         }
@@ -2228,7 +2992,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         gameObject.GetComponent<Animator>().SetBool("perehod", true);
         selected_anim = false;
         cart_active_now = null;
-        if ((!friend || friend_type==type_friend.auto || atack_auto_comb) && !nps)
+        if ((!friend || friend_type == type_friend.auto || atack_auto_comb) && !nps)
         {
             atack_mob(cel);
         }
@@ -2448,13 +3212,17 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         //func.hod_next_mob = true;
 
     }
-    public bool proverka_atack(List<string> lt_carts_now,bool final,bool activate)
+    public void rem_sila(string cart)
+    {
+        par_lt_sila.Remove(cart);
+    }
+    public bool proverka_atack(List<string> lt_carts_now, bool final, bool activate)
     {
         bool bl = false;
 
         string st_start = null;
         st_start = lt_carts_now[0];
-        
+
 
         par_cart.cart_combinations.comb_cart now = null;
         List<string> lt_carts_active_now_base = new List<string>();
@@ -2463,7 +3231,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         par_cart.type_cart cart0 = GameObject.Find(st_start).GetComponent<par_cart>().type;
         if (cart0 == par_cart.type_cart.sp_cuznec)
         {
-            if(lt_carts_now.Count==2 || (lt_carts_now.Count == 3 && lt_carts_now[1]== lt_carts_now[2]))
+            if (lt_carts_now.Count == 2 || (lt_carts_now.Count == 3 && lt_carts_now[1] == lt_carts_now[2]))
             {
                 return true;
             }
@@ -2502,14 +3270,18 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             {
                 now = ct;
                 bool bl1 = true;
-                if (now.next.Count > 0)
+                Debug.Log("prow at " + now.next.Count + " " + lt_carts_active_now_base.Count);
+                if (now.next.Count > 0 && lt_carts_active_now_base.Count > 1)
                     for (int i = 1; i < lt_carts_active_now_base.Count; i++)
                     {
+
                         if (now.next.ContainsKey(lt_carts_active_now_base[i]))
                             now = now.next[lt_carts_active_now_base[i]];
                         else bl1 = false;
                     }
-                if (now != null && bl1 )
+                else if (now.next.Count == 0 && lt_carts_active_now_base.Count > 1)
+                    bl1 = false;
+                if (now != null && bl1)
                 //(lt_carts_active_now_base.Count == 0 || now.next.ContainsKey(lt_carts_active_now_base[lt_carts_active_now_base.Count-1])
                 {
                     bl = true;
@@ -2521,7 +3293,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
 
         }
-        Debug.Log(bl + " bl two ");
+        //Debug.Log(bl + " bl two ");
         if (!final)
             return bl;
         else if (bl)
@@ -2529,7 +3301,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             foreach (string cart_sila in par_lt_sila)
             {
                 //Debug.Log(cart_sila + " del " + lt_carts_sila.Count);
-                
+
 
 
                 if (lt_carts_sila.Contains(cart_sila))
@@ -2537,7 +3309,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                     lt_carts_sila.Remove(cart_sila);
                     lt_carts_sila_base.Add(cart_sila);
                 }
-                    
+
                 else
                 {
                     par_cart.type_cart tp1 = par_cart.type_cart.bases;
@@ -2552,7 +3324,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                                 lt_carts_sila_base.Add(cart_sila);
                                 break;
                             }
-                    }
+                        }
                         //tp1 = GameObject.Find("tp1").GetComponent<par_cart>().type;
                     }
                     catch (System.Exception)
@@ -2561,37 +3333,37 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
                     }
                 }
-                
+
             }
             if (lt_carts_sila.Count != 0)
             {
-                
+
                 bl = false;
             }
-            else
+            else if(activate)
             {
                 foreach (string st in lt_carts_sila_base)
                 {
-                    par_lt_sila.Remove(st);
+                    rem_sila(st);
                 }
             }
 
         }
-        Debug.Log(bl+" "+ lt_carts_sila.Count);
+        Debug.Log(bl + " " + lt_carts_sila.Count);
         return bl;
     }
     public int max_sila(object cart)
     {
         int col = 0;
         string cart_st = cart.ToString();//либо тип enum либо тип string
-       
+
         foreach (string cart_sila in par_lt_sila)
         {
             //Debug.Log(cart_sila + " del " + lt_carts_sila.Count);
 
 
 
-            if (cart_st==cart_sila)
+            if (cart_st == cart_sila)
             {
                 col++;
             }
@@ -2711,6 +3483,9 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         else
         {
             mb = this;
+
+            Dictionary<par_cart_art, int> lt_art_rem_q = new Dictionary<par_cart_art, int>();
+            List<par_cart_art> lt_art_rem = new List<par_cart_art>();
             //mb.gameObject.GetComponent<Animator>().SetBool("selected", false);
             // mb.gameObject.GetComponent<Animator>().SetBool("select_now", false);
 
@@ -2733,7 +3508,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             bool bl_att_hod = true;
             Queue<par_cart_art> art_att_hod = new Queue<par_cart_art>();
 
-            bool bl_art_boss_berserk = false;
+            //bool bl_art_boss_berserk = false;
             par_cart_art bl_art_boss_dungalorg = null;
             //if (data.data_now.cl_carts_speed >= 4)
             //{
@@ -2751,7 +3526,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 else if (baf.type == par_baf.type_baf.rage)
                 {
                     //Debug.Log("pow baf true "+ baf.power);
-                    pow_baf ++;
+                    pow_baf++;
                     //break;
                 }
             }
@@ -2759,36 +3534,15 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             Dictionary<string, int> lt_art_base = new Dictionary<string, int>();
 
             int par_cart_shaman = 0;
-            Dictionary<par_cart.type_cart, bool> dic_el = new Dictionary<par_cart.type_cart, bool>();
-            dic_el.Add(par_cart.type_cart.blood, lt_carts_active_now.ConvertAll(new System.Converter<string,par_cart.type_cart>(n =>
-            {
-                return GameObject.Find(n).GetComponent<par_cart>().type;
-            })).Contains(par_cart.type_cart.blood));
+            HashSet<par_cart.type_cart> hs_carts = new HashSet<par_cart.type_cart>();
 
-            dic_el.Add(par_cart.type_cart.poition, lt_carts_active_now.ConvertAll(new System.Converter<string, par_cart.type_cart>(n =>
+            foreach (string stt in lt_carts_active_now)
             {
-                return GameObject.Find(n).GetComponent<par_cart>().type;
-            })).Contains(par_cart.type_cart.poition));
+                par_cart.type_cart tp_cart = func.baza[stt].GetComponent<par_cart>().type;
+                hs_carts.Add(tp_cart);
 
-            dic_el.Add(par_cart.type_cart.rock, lt_carts_active_now.ConvertAll(new System.Converter<string, par_cart.type_cart>(n =>
-            {
-                return GameObject.Find(n).GetComponent<par_cart>().type;
-            })).Contains(par_cart.type_cart.rock));
+            }
 
-            dic_el.Add(par_cart.type_cart.fire, lt_carts_active_now.ConvertAll(new System.Converter<string, par_cart.type_cart>(n =>
-            {
-                return GameObject.Find(n).GetComponent<par_cart>().type;
-            })).Contains(par_cart.type_cart.fire));
-
-            dic_el.Add(par_cart.type_cart.energy, lt_carts_active_now.ConvertAll(new System.Converter<string, par_cart.type_cart>(n =>
-            {
-                return GameObject.Find(n).GetComponent<par_cart>().type;
-            })).Contains(par_cart.type_cart.energy));
-
-            dic_el.Add(par_cart.type_cart.ice, lt_carts_active_now.ConvertAll(new System.Converter<string, par_cart.type_cart>(n =>
-            {
-                return GameObject.Find(n).GetComponent<par_cart>().type;
-            })).Contains(par_cart.type_cart.ice));
 
             foreach (par_cart_art cart in mb.lt_carts_art)
             {
@@ -2817,49 +3571,56 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 {
                     bl_art = true;
                 }
-                
-                
-                else if (cart.name == "cart mini spirit blood" && dic_el[par_cart.type_cart.blood])
+                else if (cart.perez_now == 0)
                 {
-                    //par_cart_shaman.Add(cart);
-                    par_cart_shaman++;
+                    //if (par_cart_shaman == 0)
+                    //{
+                        if (cart.name == "cart mini spirit blood" && hs_carts.Contains(par_cart.type_cart.blood))
+                        {
+                            //par_cart_shaman.Add(cart);
+                            par_cart_shaman++;
+                            lt_art_rem.Add(cart);
+                        }
+                        else if (cart.name == "cart mini spirit rock" && hs_carts.Contains(par_cart.type_cart.rock))
+                        {
+                            par_cart_shaman++;
+                            lt_art_rem.Add(cart);
+                            //cart_shaman.Add(cart);
+                        }
+                        else if (cart.name == "cart mini spirit ice" && hs_carts.Contains(par_cart.type_cart.ice))
+                        {
+                            par_cart_shaman++;
+                            lt_art_rem.Add(cart);
+                            //cart_shaman.Add(cart);
+                        }
+                        else if (cart.name == "cart mini spirit energy" && hs_carts.Contains(par_cart.type_cart.energy))
+                        {
+                            par_cart_shaman++;
+                            lt_art_rem.Add(cart);
+                            //cart_shaman.Add(cart);
+                        }
+                        else if (cart.name == "cart mini spirit fire" && hs_carts.Contains(par_cart.type_cart.fire))
+                        {
+                            par_cart_shaman++;
+                            lt_art_rem.Add(cart);
+                            //cart_shaman.Add(cart);
+                        }
+                        else if (cart.name == "cart mini spirit poition" && hs_carts.Contains(par_cart.type_cart.poition))
+                        {
+                            par_cart_shaman++;
+                            lt_art_rem.Add(cart);
+                            //cart_shaman.Add(cart);
+                        }
+                    //}
+
+                    else if (cart.name == "cart mini spirit")
+                    {
+                        par_cart_shaman++;
+                        lt_art_rem.Add(cart);
+                        //cart_shaman.Add(cart);
+                    }
                 }
-                else if (cart.name == "cart mini spirit rock" && dic_el[par_cart.type_cart.rock])
-                {
-                    par_cart_shaman++;
-                    //cart_shaman.Add(cart);
-                }
-                else if (cart.name == "cart mini spirit ice" && dic_el[par_cart.type_cart.ice])
-                {
-                    par_cart_shaman++;
-                    //cart_shaman.Add(cart);
-                }
-                else if (cart.name == "cart mini spirit energy" && dic_el[par_cart.type_cart.energy])
-                {
-                    par_cart_shaman++;
-                    //cart_shaman.Add(cart);
-                }
-                else if (cart.name == "cart mini spirit fire" && dic_el[par_cart.type_cart.fire])
-                {
-                    par_cart_shaman++;
-                    //cart_shaman.Add(cart);
-                }
-                else if (cart.name == "cart mini spirit poition" && dic_el[par_cart.type_cart.poition])
-                {
-                    par_cart_shaman++;
-                    //cart_shaman.Add(cart);
-                }
-                else if (cart.name == "cart mini spirit" && (
-                    dic_el[par_cart.type_cart.poition] ||
-                    dic_el[par_cart.type_cart.fire] ||
-                    dic_el[par_cart.type_cart.rock] ||
-                    dic_el[par_cart.type_cart.blood] ||
-                    dic_el[par_cart.type_cart.ice] ||
-                    dic_el[par_cart.type_cart.energy]))
-                {
-                    par_cart_shaman++;
-                    //cart_shaman.Add(cart);
-                }
+
 
                 if (bl_art)
                 {
@@ -2872,7 +3633,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
 
 
-                        lt_art_base.Add(cart.name,1);
+                        lt_art_base.Add(cart.name, 1);
                     }
                 }
 
@@ -2885,6 +3646,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 //if()
 
                 par_cart.type_cart cart_type = GameObject.Find(st_cart).GetComponent<par_cart>().type;
+                /*
                 if (par_cart_shaman > 0)
                 {
                     if (cart_type == par_cart.type_cart.blood)
@@ -2917,13 +3679,13 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                         cart_type = par_cart.type_cart.spirit_poition;
                         st_cart = "cart spirit poition";
                     }
-                    pw = pw * 4 * par_cart_shaman;
+                    //pw = pw * 4 * par_cart_shaman;
                 }
-
+                */
                 bool cart_spetial = GameObject.Find(st_cart).GetComponent<par_cart>().spetial;
                 par_cart.type_cart cart_type1 = par_cart.type_cart.bases;
 
-                
+
 
                 if (lt_carts_active_now_base.Count == 0)
                     lt_carts_active_now_base.Add(st_cart);
@@ -2931,7 +3693,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 {
                     par_cart pr_cart1 = GameObject.Find(lt_carts_active_now_base[lt_carts_active_now_base.Count - 1]).GetComponent<par_cart>();
                     cart_type1 = pr_cart1.type;
-                    if (cart_type != cart_type1)
+                    if (cart_type != cart_type1 || cart_type == par_cart.type_cart.sp_cuznec)
                     {
                         lt_carts_active_now_base.Add(st_cart);
                     }
@@ -2945,118 +3707,90 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 int pow_base = pw;
                 //int pow_seal = 0;
 
-                if (cart_type == par_cart.type_cart.fire)
-                {
-                    List<GameObject> lt_t = func.way_find_lt_in_list(func.lt_lovyshka, "run fire", x, y, 3);
-                    dop_pow += lt_t.Count;
-                }
-                else if (cart_type == par_cart.type_cart.poition)
-                {
-                    List<GameObject> lt_t = func.way_find_lt_in_list(func.lt_lovyshka, "run poition", x, y, 3);
-                    dop_pow += lt_t.Count;
-                }
-                else if (cart_type == par_cart.type_cart.ice)
-                {
-                    List<GameObject> lt_t = func.way_find_lt_in_list(func.lt_lovyshka, "run ice", x, y, 3);
-                    dop_pow += lt_t.Count;
-                }
-                else if (cart_type == par_cart.type_cart.energy)
-                {
-                    List<GameObject> lt_t = func.way_find_lt_in_list(func.lt_lovyshka, "run energy", x, y, 3);
-                    dop_pow += lt_t.Count;
-                }
-                else if (cart_type == par_cart.type_cart.blood)
-                {
-                    List<GameObject> lt_t = func.way_find_lt_in_list(func.lt_lovyshka, "run blood", x, y, 3);
-                    dop_pow += lt_t.Count;
-                }
-                else if (cart_type == par_cart.type_cart.rock)
-                {
-                    List<GameObject> lt_t = func.way_find_lt_in_list(func.lt_lovyshka, "run rock", x, y, 3);
-                    dop_pow += lt_t.Count;
-                }
                 dop_pow += pow_baf;
 
                 List<par_cart_art> bl_cart_art_pow = new List<par_cart_art>();
                 if (mb.lt_carts_active_now[0] != "cart cuznec")
                     foreach (par_cart_art cart in mb.lt_carts_art)
                     {
-                        /*
-                        if (cart.type == par_cart.type_cart.art_boss_shaman &&
-                        (cart_type == par_cart.type_cart.rock || cart_type == par_cart.type_cart.blood || cart_type == par_cart.type_cart.fire || cart_type == par_cart.type_cart.poition || cart_type == par_cart.type_cart.ice || cart_type == par_cart.type_cart.energy))
-                        {
-                            dop_pow += 1;
-                            //mb.activate_art(cart, x_cl, y_cl);
-                        }
-                        */
-                        if (cart.name == "cart potoc poition" && cart_type == par_cart.type_cart.poition)
+                        if (cart.name == "cart potoc poition" && (cart_type == par_cart.type_cart.poition || cart_type == par_cart.type_cart.spirit_poition))
                         {
                             int pow_art = 0;
                             foreach (string st in lt_carts)
                             {
                                 par_cart cart_now = GameObject.Find(st).GetComponent<par_cart>();
-                                if (cart_now.type == par_cart.type_cart.poition)
+                                if (cart_now.type == par_cart.type_cart.poition || cart_now.type == par_cart.type_cart.spirit_poition)
                                     pow_art += cart_now.lvl;
                             }
-                            dop_pow += (pow_art / 4);
+                            dop_pow += (pow_art / 6);
                         }
-                        else if (cart.name == "cart potoc fire" && cart_type == par_cart.type_cart.fire)
+                        else if (cart.name == "cart potoc fire" && (cart_type == par_cart.type_cart.fire || cart_type == par_cart.type_cart.spirit_fire))
                         {
                             int pow_art = 0;
                             foreach (string st in lt_carts)
                             {
                                 par_cart cart_now = GameObject.Find(st).GetComponent<par_cart>();
-                                if (cart_now.type == par_cart.type_cart.fire)
+                                if (cart_now.type == par_cart.type_cart.fire || cart_now.type == par_cart.type_cart.spirit_fire)
                                     pow_art += cart_now.lvl;
                             }
-                            dop_pow += (pow_art / 4);
+                            dop_pow += (pow_art / 6);
                         }
-                        else if (cart.name == "cart potoc rock" && cart_type == par_cart.type_cart.rock)
+                        else if (cart.name == "cart potoc rock" && (cart_type == par_cart.type_cart.rock || cart_type == par_cart.type_cart.spirit_rock))
                         {
                             int pow_art = 0;
                             foreach (string st in lt_carts)
                             {
                                 par_cart cart_now = GameObject.Find(st).GetComponent<par_cart>();
-                                if (cart_now.type == par_cart.type_cart.rock)
+                                if (cart_now.type == par_cart.type_cart.rock || cart_now.type == par_cart.type_cart.spirit_rock)
                                     pow_art += cart_now.lvl;
                             }
-                            dop_pow += (pow_art / 4);
+                            dop_pow += (pow_art / 6);
                         }
-                        else if (cart.name == "cart potoc blood" && cart_type == par_cart.type_cart.blood)
+                        else if (cart.name == "cart potoc blood" && (cart_type == par_cart.type_cart.blood || cart_type == par_cart.type_cart.spirit_blood))
                         {
                             int pow_art = 0;
                             foreach (string st in lt_carts)
                             {
                                 par_cart cart_now = GameObject.Find(st).GetComponent<par_cart>();
-                                if (cart_now.type == par_cart.type_cart.blood)
+                                if (cart_now.type == par_cart.type_cart.blood || cart_now.type == par_cart.type_cart.spirit_blood)
                                     pow_art += cart_now.lvl;
                             }
-                            dop_pow += (pow_art / 4);
+                            dop_pow += (pow_art / 6);
                         }
-                        else if (cart.name == "cart potoc energy" && cart_type == par_cart.type_cart.energy)
+                        else if (cart.name == "cart potoc energy" && (cart_type == par_cart.type_cart.energy || cart_type == par_cart.type_cart.spirit_energy))
                         {
                             int pow_art = 0;
                             foreach (string st in lt_carts)
                             {
                                 par_cart cart_now = GameObject.Find(st).GetComponent<par_cart>();
-                                if (cart_now.type == par_cart.type_cart.energy)
+                                if (cart_now.type == par_cart.type_cart.energy || cart_now.type == par_cart.type_cart.spirit_energy)
                                     pow_art += cart_now.lvl;
                             }
-                            dop_pow += (pow_art / 4);
+                            dop_pow += (pow_art / 6);
                         }
-                        else if (cart.name == "cart potoc ice" && cart_type == par_cart.type_cart.ice)
+                        else if (cart.name == "cart potoc ice" && (cart_type == par_cart.type_cart.ice || cart_type == par_cart.type_cart.spirit_ice))
                         {
                             int pow_art = 0;
                             foreach (string st in lt_carts)
                             {
                                 par_cart cart_now = GameObject.Find(st).GetComponent<par_cart>();
-                                if (cart_now.type == par_cart.type_cart.poition)
+                                if (cart_now.type == par_cart.type_cart.ice || cart_now.type == par_cart.type_cart.spirit_ice)
                                     pow_art += cart_now.lvl;
                             }
-                            dop_pow += (pow_art / 4);
+                            dop_pow += (pow_art / 6);
                         }
 
-
+                        else if (cart.name == "cart derlorg potoc" && cart_type == par_cart.type_cart.derlorg)
+                        {
+                            int pow_art = 0;
+                            foreach (string st in lt_carts)
+                            {
+                                par_cart cart_now = GameObject.Find(st).GetComponent<par_cart>();
+                                if (cart_now.type == par_cart.type_cart.derlorg)
+                                    pow_art += cart_now.lvl;
+                            }
+                            dop_pow += (pow_art / 6);
+                        }
 
 
 
@@ -3064,291 +3798,160 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
                         if (cart.name == "cart poition st" && cart_type == par_cart.type_cart.poition)
                         {
-                            foreach (par_cart_art cart_ in mb.lt_carts_art)
+                            if (lt_art_base.ContainsKey(cart.name))
                             {
-                                if (cart.perez_now > 1)
-                                    cart.perez_now--;
-                                if (cart.perez_now < 0)
-                                    cart.perez_now = 0;
+                                lt_art_base[cart.name]++;
+                            }
+                            else
+                            {
+                                lt_art_base.Add(cart.name, 1);
                             }
 
                         }
                         else if (cart.name == "cart fire st" && cart_type == par_cart.type_cart.fire)
                         {
-                            foreach (par_cart_art cart_ in mb.lt_carts_art)
+                            if (lt_art_base.ContainsKey(cart.name))
                             {
-                                if (cart.perez_now > 1)
-                                    cart.perez_now--;
-                                if (cart.perez_now < 0)
-                                    cart.perez_now = 0;
+                                lt_art_base[cart.name]++;
                             }
+                            else
+                            {
+                                lt_art_base.Add(cart.name, 1);
+                            }
+
                         }
                         else if (cart.name == "cart rock st" && cart_type == par_cart.type_cart.rock)
                         {
-                            foreach (par_cart_art cart_ in mb.lt_carts_art)
+                            if (lt_art_base.ContainsKey(cart.name))
                             {
-                                if (cart.perez_now > 1)
-                                    cart.perez_now--;
-                                if (cart.perez_now < 0)
-                                    cart.perez_now = 0;
+                                lt_art_base[cart.name]++;
                             }
+                            else
+                            {
+                                lt_art_base.Add(cart.name, 1);
+                            }
+
                         }
                         else if (cart.name == "cart blood st" && cart_type == par_cart.type_cart.blood)
                         {
-                            foreach (par_cart_art cart_ in mb.lt_carts_art)
+                            if (lt_art_base.ContainsKey(cart.name))
                             {
-                                if (cart.perez_now > 1)
-                                    cart.perez_now--;
-                                if (cart.perez_now < 0)
-                                    cart.perez_now = 0;
+                                lt_art_base[cart.name]++;
                             }
+                            else
+                            {
+                                lt_art_base.Add(cart.name, 1);
+                            }
+
                         }
                         else if (cart.name == "cart energy st" && cart_type == par_cart.type_cart.energy)
                         {
-                            foreach (par_cart_art cart_ in mb.lt_carts_art)
+                            if (lt_art_base.ContainsKey(cart.name))
                             {
-                                if (cart.perez_now > 1)
-                                    cart.perez_now--;
-                                if (cart.perez_now < 0)
-                                    cart.perez_now = 0;
+                                lt_art_base[cart.name]++;
                             }
+                            else
+                            {
+                                lt_art_base.Add(cart.name, 1);
+                            }
+
                         }
                         else if (cart.name == "cart ice st" && cart_type == par_cart.type_cart.ice)
                         {
-                            foreach (par_cart_art cart_ in mb.lt_carts_art)
+                            if (lt_art_base.ContainsKey(cart.name))
                             {
-                                if (cart.perez_now > 1)
-                                    cart.perez_now--;
-                                if (cart.perez_now < 0)
-                                    cart.perez_now = 0;
+                                lt_art_base[cart.name]++;
                             }
+                            else
+                            {
+                                lt_art_base.Add(cart.name, 1);
+                            }
+
                         }
 
 
-                        else if (cart.name == "cart mast" || cart.name == "cart derlorg st") {
-                            foreach (par_cart_art cart_ in mb.lt_carts_art)
+                        else if (cart.name == "cart mast" || cart.name == "cart derlorg st")
+                        {
+                            if (lt_art_base.ContainsKey(cart.name))
                             {
-                                if (cart_spetial)
-                                {
-                                    if (cart.perez_now > 1)
-                                        cart.perez_now -= 2;
-                                    if (cart.perez_now < 0)
-                                        cart.perez_now = 0;
-                                }
-                                else
-                                {
-                                    if (cart.perez_now > 1)
-                                        cart.perez_now--;
-                                    if (cart.perez_now < 0)
-                                        cart.perez_now = 0;
-                                }
+                                lt_art_base[cart.name]++;
+                            }
+                            else
+                            {
+                                lt_art_base.Add(cart.name, 1);
+                            }
+                            if (func.baza[st_cart_1].GetComponent<par_cart>().spetial)
+                                lt_art_base[cart.name]++;
+
+                        }
+
+
+                        /*
+                        else if (cart.name == "cart mast poition" && cart_type == par_cart.type_cart.poition)
+                        {
+                            if (!lt_art_base.ContainsKey(cart.name))
+                            {
+                                lt_art_base.Add(cart.name, 1);
                             }
 
-                        } 
+                        }
+                        else if (cart.name == "cart mast fire" && cart_type == par_cart.type_cart.fire)
+                        {
+                            if (!lt_art_base.ContainsKey(cart.name))
+                            {
+                                lt_art_base.Add(cart.name, 1);
+                            }
+
+                        }
+                        else if (cart.name == "cart mast rock" && cart_type == par_cart.type_cart.rock)
+                        {
+                            if (!lt_art_base.ContainsKey(cart.name))
+                            {
+                                lt_art_base.Add(cart.name, 1);
+                            }
+
+                        }
+                        else if (cart.name == "cart mast blood" && cart_type == par_cart.type_cart.blood)
+                        {
+                            if (!lt_art_base.ContainsKey(cart.name))
+                            {
+                                lt_art_base.Add(cart.name, 1);
+                            }
+
+                        }
+                        else if (cart.name == "cart mast energy" && cart_type == par_cart.type_cart.energy)
+                        {
+                            if (!lt_art_base.ContainsKey(cart.name))
+                            {
+                                lt_art_base.Add(cart.name, 1);
+                            }
+
+                        }
+                        else if (cart.name == "cart mast ice" && cart_type == par_cart.type_cart.ice)
+                        {
+                            if (!lt_art_base.ContainsKey(cart.name))
+                            {
+                                lt_art_base.Add(cart.name, 1);
+                            }
+
+                        }
+                        */
 
 
                         else if (cart.q > 0)
                         {
                             if (bl_att_hod)
                             {
-                                /*
-                                if (cart.type == par_cart.type_cart.art_speed_rock && cart_type == par_cart.type_cart.rock)
-                                {
-                                    //mb.activate_art(cart, mb.x, mb.y);
-                                    art_att_hod.Enqueue(cart);
-                                }
-                                
-                                //else if (cart.name == "cart speed rock 1" && mb.lt_carts_active_now[0] == "cart rock 1")
-                                //mb.activate_art(cart, mb.x, mb.y);
 
-                                if (cart.type == par_cart.type_cart.art_speed_fire && cart_type == par_cart.type_cart.fire)
-                                {
-                                    //mb.activate_art(cart, mb.x, mb.y);
-                                    art_att_hod.Enqueue(cart);
-                                }
-                                //else if (cart.name == "cart speed fire 1" && mb.lt_carts_active_now[0] == "cart fire 1")
-                                //mb.activate_art(cart, mb.x, mb.y);
-
-                                if (cart.type == par_cart.type_cart.art_speed_energy && cart_type == par_cart.type_cart.energy)
-                                {
-                                    //mb.activate_art(cart, mb.x, mb.y);
-                                    art_att_hod.Enqueue(cart);
-                                }
-                                //else if (cart.name == "cart speed energy 1" && mb.lt_carts_active_now[0] == "cart energy 1")
-                                //mb.activate_art(cart, mb.x, mb.y);
-
-                                if (cart.type == par_cart.type_cart.art_speed_blood && cart_type == par_cart.type_cart.blood)
-                                {
-                                    //mb.activate_art(cart, mb.x, mb.y);
-                                    art_att_hod.Enqueue(cart);
-                                }
-                                //else if (cart.name == "cart speed blood 1" && mb.lt_carts_active_now[0] == "cart blood 1")
-                                //mb.activate_art(cart, mb.x, mb.y);
-
-                                if (cart.type == par_cart.type_cart.art_speed_ice && cart_type == par_cart.type_cart.ice)
-                                {
-                                    //mb.activate_art(cart, mb.x, mb.y);
-                                    art_att_hod.Enqueue(cart);
-                                }
-                                //else if (cart.name == "cart speed ice 1" && mb.lt_carts_active_now[0] == "cart ice 1")
-                                //mb.activate_art(cart, mb.x, mb.y);
-
-                                if (cart.type == par_cart.type_cart.art_speed_poition && cart_type == par_cart.type_cart.poition)
-                                {
-                                    //mb.activate_art(cart, mb.x, mb.y);
-                                    art_att_hod.Enqueue(cart);
-                                }
-                                //else if (cart.name == "cart speed poition 1" && mb.lt_carts_active_now[0] == "cart poition 1")
-                                //mb.activate_art(cart, mb.x, mb.y);
-
-                                else if (cart.name == "cart speed")
-                                {
-                                    //mb.activate_art(cart, mb.x, mb.y);
-                                    //art_att_hod.Enqueue(cart);
-                                }
-                                */
-                                //lt.Add(cart.type);
                             }
                         }
                         else if (cart.perez_now == 0)
                         {
-
-
-                            /*
-                            else if (cart.name == "cart act rock 1" && cart_type == par_cart.type_cart.poition)
-                            {
-                                dop_pow *= 2;
-                                mb.activate_art(cart, x_cl, y_cl);
-                            }
-
-
-                            else if (cart.name == "cart act fire 1" && st_cart == "cart fire 1")
-                            {
-                                dop_pow *= 2;
-                                mb.activate_art(cart, x_cl, y_cl);
-                            }
-
-                            else if (cart.name == "cart act energy" && st_cart == "cart energy")
-                            {
-                                dop_pow *= 2;
-                                mb.activate_art(cart, x_cl, y_cl);
-                            }
-                            else if (cart.name == "cart act energy 1" && st_cart == "cart energy 1")
-                            {
-                                dop_pow *= 2;
-                                mb.activate_art(cart, x_cl, y_cl);
-                            }
-
-                            else if (cart.name == "cart act blood" && st_cart == "cart blood")
-                            {
-                                dop_pow *= 2;
-                                mb.activate_art(cart, x_cl, y_cl);
-                            }
-                            else if (cart.name == "cart act blood 1" && st_cart == "cart blood 1")
-                            {
-                                dop_pow *= 2;
-                                mb.activate_art(cart, x_cl, y_cl);
-                            }
-
-                            else if (cart.name == "cart act ice" && st_cart == "cart ice")
-                            {
-                                dop_pow *= 2;
-                                mb.activate_art(cart, x_cl, y_cl);
-                            }
-                            else if (cart.name == "cart act ice 1" && st_cart == "cart ice 1")
-                            {
-                                dop_pow *= 2;
-                                mb.activate_art(cart, x_cl, y_cl);
-                            }
-
-                            else if (cart.name == "cart act poition" && st_cart == "cart poition")
-                            {
-                                dop_pow *= 2;
-                                mb.activate_art(cart, x_cl, y_cl);
-                            }
-
-                            else if (cart.name == "cart act poition 1" && st_cart == "cart poition 1")
-                            {
-                                dop_pow *= 2;
-                                mb.activate_art(cart, x_cl, y_cl);
-                            }
-                            */
-                            /*
-                            if (cart.name == "cart berserk")
-                            {
-                                dop_pow += ((mb.hp_max - mb.hp) / 5 + 1) * pow_base;
-                                mb.activate_art(cart, x_cl, y_cl);
-                            }
-                            */
-                            /*
-                            if (cart.name == "cart power")
-                            {
-                                dop_pow += pow_base;
-
-                                bl_cart_art_pow.Add(cart);
-                                //mb.activate_art(cart, x_cl, y_cl);
-                            }
-                            */
-/*
-                            else if (cart.name == "cart berserk boss")
-                            {
-                                bl_art_boss_berserk = true;
-                                //dop_pow *= 4;
-                                //mb.activate_art(cart, x_cl, y_cl);
-                            }
-*/
                             if (cart.name == "cart dungalorg heard")
                             {
                                 bl_art_boss_dungalorg = cart;
                                 //dop_pow *= 4;
                                 //mb.activate_art(cart, x_cl, y_cl);
-                            }
-
-
-
-
-                            //else if (pw == cart.lvl)
-                            else
-                            {
-                                //int pow_lvl = cart.lvl - pw;
-
-                                //if (pow_lvl >= 0)
-                                //{
-                                /*
-                                int pow_lvl = (int)Mathf.Pow(2, cart.lvl) - 1;
-                                if (cart.type == par_cart.type_cart.art_rock_act && cart_type == par_cart.type_cart.rock)
-                                {
-                                    dop_pow += pow_base * pow_lvl;
-                                    mb.activate_art(cart, x_cl, y_cl);
-                                }
-                                else if (cart.type == par_cart.type_cart.art_fire_act && cart_type == par_cart.type_cart.fire)
-                                {
-                                    dop_pow += pow_base * pow_lvl;
-                                    mb.activate_art(cart, x_cl, y_cl);
-                                }
-                                else if (cart.type == par_cart.type_cart.art_blood_act && cart_type == par_cart.type_cart.blood)
-                                {
-                                    dop_pow += pow_base * pow_lvl;
-                                    mb.activate_art(cart, x_cl, y_cl);
-                                }
-                                else if (cart.type == par_cart.type_cart.art_energy_act && cart_type == par_cart.type_cart.energy)
-                                {
-                                    dop_pow += pow_base * pow_lvl;
-                                    mb.activate_art(cart, x_cl, y_cl);
-                                }
-                                else if (cart.type == par_cart.type_cart.art_ice_act && cart_type == par_cart.type_cart.ice)
-                                {
-                                    dop_pow += pow_base * pow_lvl;
-                                    mb.activate_art(cart, x_cl, y_cl);
-                                }
-                                else if (cart.type == par_cart.type_cart.art_poition_act && cart_type == par_cart.type_cart.poition)
-                                {
-                                    dop_pow += pow_base * pow_lvl;
-                                    mb.activate_art(cart, x_cl, y_cl);
-                                }
-                                */
-                                //}
-
                             }
                         }
                         if (cart.type == par_cart.type_cart.art_pow_rock && cart_type == par_cart.type_cart.rock)
@@ -3387,6 +3990,18 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                             //mb.add_baf(par_baf.type_baf.bar, -1, 1);
 
                         }
+                        else if (cart.type == par_cart.type_cart.art_pow_bomb && cart_type == par_cart.type_cart.sp_bomb)
+                        {
+                            dop_pow += cart.lvl;
+                            //mb.add_baf(par_baf.type_baf.bar, -1, 1);
+
+                        }
+                        else if (cart.type == par_cart.type_cart.art_dych_pow && cart_type == par_cart.type_cart.sp_dych)
+                        {
+                            dop_pow += cart.lvl;
+                            //mb.add_baf(par_baf.type_baf.bar, -1, 1);
+
+                        }
                         //mb.activate_art(cart, mb.x, mb.y);
 
                         else if (cart.type == par_cart.type_cart.art_bar_pow && cart_type == par_cart.type_cart.sp_barier)
@@ -3395,7 +4010,12 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                             //mb.add_baf(par_baf.type_baf.bar, -1, 1);
 
                         }
+                        else if (cart.type == par_cart.type_cart.art_pow || cart.type == par_cart.type_cart.art_seal_pow)
+                        {
+                            dop_pow++;
+                            //mb.add_baf(par_baf.type_baf.bar, -1, 1);
 
+                        }
                         else if (cart.name == "cart berserk st")
                         {
                             dop_pow += ((mb.hp_max - mb.hp) / 5);
@@ -3409,27 +4029,6 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                     {
                         activate_art(art_pow, x_cl, y_cl);
                     }
-                }
-                if (art_att_hod.Count != 0)
-                {
-
-                    /*
-                    par_cart_art art1 = null;
-                    par_cart_art art2 = null;
-                    foreach (par_cart_art art_now in art_att_hod)
-                    {
-                        if (art_now.name == "cart speed" && art2==null)
-                            art2 = art_now;
-                        else if (art1 == null)
-                            art1 = art_now;
-                    }
-                    if(art2!=null)
-                        mb.activate_art(art2, mb.x, mb.y);
-                    else
-                        mb.activate_art(art1, mb.x, mb.y);
-
-                    */
-                    //bl_att_hod = false;
                 }
 
                 foreach (GameObject gm_ch in mb.childs)
@@ -3481,60 +4080,60 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
                         }
                     }
-                    if (cart_type == par_cart.type_cart.rock && data.data_now.cl_cart_rock < 100)
+                    if (cart_type == par_cart.type_cart.rock && data.data_now.cl_cart_rock < 200)
                     {
                         data.data_now.cl_cart_rock++;
-                        if (data.data_now.cl_cart_rock == 100)
+                        if (data.data_now.cl_cart_rock == 200)
                         {
                             data.data_now.lt_players.Add(data.players.rock);
                             data.give_achive("сила камня");
 
                         }
                     }
-                    if (cart_type == par_cart.type_cart.blood && data.data_now.cl_cart_blood < 100)
+                    if (cart_type == par_cart.type_cart.blood && data.data_now.cl_cart_blood < 200)
                     {
                         data.data_now.cl_cart_blood++;
-                        if (data.data_now.cl_cart_blood == 100)
+                        if (data.data_now.cl_cart_blood == 200)
                         {
                             data.data_now.lt_players.Add(data.players.blood);
                             data.give_achive("сила крови");
 
                         }
                     }
-                    if (cart_type == par_cart.type_cart.fire && data.data_now.cl_cart_fire < 100)
+                    if (cart_type == par_cart.type_cart.fire && data.data_now.cl_cart_fire < 200)
                     {
                         data.data_now.cl_cart_fire++;
-                        if (data.data_now.cl_cart_fire == 100)
+                        if (data.data_now.cl_cart_fire == 200)
                         {
                             data.data_now.lt_players.Add(data.players.fire);
                             data.give_achive("сила огня");
 
                         }
                     }
-                    if (cart_type == par_cart.type_cart.energy && data.data_now.cl_cart_energy < 100)
+                    if (cart_type == par_cart.type_cart.energy && data.data_now.cl_cart_energy < 200)
                     {
                         data.data_now.cl_cart_energy++;
-                        if (data.data_now.cl_cart_energy == 100)
+                        if (data.data_now.cl_cart_energy == 200)
                         {
                             data.data_now.lt_players.Add(data.players.energy);
                             data.give_achive("сила электричества");
                             //data.data_now.lt_players.Add(data.players.energy);
                         }
                     }
-                    if (cart_type == par_cart.type_cart.ice && data.data_now.cl_cart_ice < 100)
+                    if (cart_type == par_cart.type_cart.ice && data.data_now.cl_cart_ice < 200)
                     {
                         data.data_now.cl_cart_ice++;
-                        if (data.data_now.cl_cart_ice == 100)
+                        if (data.data_now.cl_cart_ice == 200)
                         {
                             data.data_now.lt_players.Add(data.players.ice);
                             data.give_achive("сила льда");
 
                         }
                     }
-                    if (cart_type == par_cart.type_cart.poition && data.data_now.cl_cart_poition < 100)
+                    if (cart_type == par_cart.type_cart.poition && data.data_now.cl_cart_poition < 200)
                     {
                         data.data_now.cl_cart_poition++;
-                        if (data.data_now.cl_cart_poition == 100)
+                        if (data.data_now.cl_cart_poition == 200)
                         {
                             data.data_now.lt_players.Add(data.players.poition);
                             data.give_achive("сила яда");
@@ -3545,72 +4144,66 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
                     if (data.data_now.pl_name_now == "berserk player")
                     {
-                        //dop_pow *=2;
-                        //mb.damage(1, "none");
+                        dop_pow *=2;
+                        mb.damage(1, "none");
                     }
                     else if (cart_type == par_cart.type_cart.damage && data.data_now.pl_name_now == "atack player")
                     {
                         //dop_pow *=2;
-                        dop_pow += pow_base;
+                        dop_pow ++;
                     }
 
                     else if (cart_type == par_cart.type_cart.sp_barier && data.data_now.pl_name_now == "barier player")
                     {
-                        dop_pow += pow_base;
+                        dop_pow++;
                     }
                     else if (cart_type == par_cart.type_cart.rock && data.data_now.pl_name_now == "rock player")
                     {
-                        dop_pow += pow_base;
+                        dop_pow++;
                     }
                     else if (cart_type == par_cart.type_cart.fire && data.data_now.pl_name_now == "fire player")
                     {
-                        dop_pow += pow_base;
+                        dop_pow++;
                     }
                     else if (cart_type == par_cart.type_cart.blood && data.data_now.pl_name_now == "blood player")
                     {
-                        dop_pow += pow_base;
+                        dop_pow++;
                     }
                     else if (cart_type == par_cart.type_cart.energy && data.data_now.pl_name_now == "energy player")
                     {
-                        dop_pow += pow_base;
+                        dop_pow++;
                     }
                     else if (cart_type == par_cart.type_cart.ice && data.data_now.pl_name_now == "ice player")
                     {
-                        dop_pow += pow_base;
+                        dop_pow++;
                     }
                     else if (cart_type == par_cart.type_cart.poition && data.data_now.pl_name_now == "poition player")
                     {
-                        dop_pow += pow_base;
+                        dop_pow++;
                     }
 
 
 
-                    else if (data.data_now.pl_name_now == "derlorg player")
+                    
+                    else if (cart_type == par_cart.type_cart.derlorg && data.data_now.pl_name_now == "derlorg player")
                     {
-                        int i_ = 0;
-                        foreach (string st_d in mb.lt_carts)
-                        {
-                            if (st_d == "cart derlorg")
-                            {
-                                i_++;
-
-                            }
-                        }
-                        dop_pow += i_ / 4;
+                        dop_pow++;
                     }
+                    
                 }
 
 
 
 
-                if (cart_type != par_cart.type_cart.derlorg)
+                if ((cart_type == par_cart.type_cart.derlorg) &&  (lt_carts_active_now_base[0]=="cart derlorg"))
                 {
-                    pow_rez += dop_pow;
+                    pow_rez_seal += dop_pow;
+                    
                 }
 
                 else
                 {
-                    pow_rez_seal += dop_pow;
+                    pow_rez += dop_pow;
                 }
             }
 
@@ -3618,7 +4211,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             string cart_speed_base = null;
             foreach (string cart_speed in par_lt_speed)
             {
-                //Debug.Log(cart_sila + " del " + lt_carts_sila.Count);
+                Debug.Log(cart_speed + " del ");
 
 
 
@@ -3626,12 +4219,15 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 {
                     lt_carts_speed.Remove(cart_speed);
                     cart_speed_base = cart_speed;
+                    Debug.Log("speed cart(0) " + cart_speed_base);
+                    break;
                 }
 
                 else
                 {
                     par_cart.type_cart tp1 = par_cart.type_cart.bases;
                     bool bl_type = false;
+                    bool bl_break = false;
                     try
                     {
                         foreach (string st_s in lt_carts_speed)
@@ -3640,9 +4236,13 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                             {
                                 lt_carts_speed.Remove(st_s);
                                 cart_speed_base = cart_speed;
+                                Debug.Log("speed cart(0) " + cart_speed_base);
+                                bl_break = true;
                                 break;
                             }
                         }
+                        if (bl_break)
+                            break;
                         //tp1 = GameObject.Find("tp1").GetComponent<par_cart>().type;
                     }
                     catch (System.Exception)
@@ -3653,17 +4253,17 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 }
                 if (cart_speed_base != null)
                 {
-
+                    Debug.Log("speed cart " + cart_speed_base);
                 }
             }
             if (cart_speed_base != null)
             {
                 bl_att_hod = false;
                 par_lt_speed.Remove(cart_speed_base);
-                
+
             }
-            
-            
+
+
 
 
             bool bl_d = false;
@@ -3706,116 +4306,28 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
                 }
             }
-
-            /*
-            if (pow_rez >= 8 && gameObject.name == data.data_now.pl_name_now)
-                data.give_achive("большой потенциал");
-            */
             bool bl_att = false;
+            bool bl_spirit = lt_carts_active_now_base.Contains("cart spirit(boss)")
+                || lt_carts_active_now_base.Contains("cart spirit fire")
+                || lt_carts_active_now_base.Contains("cart spirit blood")
+                || lt_carts_active_now_base.Contains("cart spirit ice")
+                || lt_carts_active_now_base.Contains("cart spirit rock")
+                || lt_carts_active_now_base.Contains("cart spirit energy")
+                || lt_carts_active_now_base.Contains("cart spirit poition");
 
-            if (lt_carts_active_now_base[0] == "cart crystall")
+            if (lt_carts_active_now_base[0] == "cart dungalorg(sleep)" && lt_carts_active_now_base.Count == 1)
             {
-                if (func.nature[x_cl, y_cl] == null)
-                {
-
-                    mb.effect_now = func.create_effect(lt_carts_active_now_base[0], x_cl, y_cl, mb.gameObject, false, pow_rez, lt_carts_active_now_base);
-
-
-                    List<string> lt = new List<string>();
-                    foreach (par_cart_art cart in mb.lt_carts_art)
-                    {
-                        /*
-                        if (cart.name == "cart mast" || cart.name == "cart derlorg st")
-                        {
-                            //foreach (par_cart_art cart1 in lt_carts_art)
-                            //{
-                            foreach (par_cart_art cart1 in mb.lt_carts_art)
-                            {
-                                if (cart1.perez_now > 1)
-                                    cart1.perez_now -= 2;
-                                if (cart1.perez_now < 0)
-                                    cart1.perez_now = 0;
-                            }
-                            //}
-                        }
-                        */
-                        if (cart.perez_now == 0)
-                        {
-                            /*
-                            else if (!lt.Contains(cart.name))
-                            {
-                                if (cart.name == "cart speed")
-                                    mb.activate_art(cart, mb.x, mb.y);
-                                lt.Add(cart.name);
-                            }
-
-                            */
-
-
-                        }
-                    }
-                    //mb.effect_now.GetComponent<par_effect>().st_par.Push("crystall");
-                    //Debug.Log(effect_now ==null);
-                    //mb.effect_now.GetComponent<par_effect>().parent = ;
-                    mb.effect_activate = lt_carts_active_now_base[0];
-
-
-                    //mb.lt_carts_active_now.RemoveAt(0);
-                    
-
-                    bl_att = true;
-                    //anim.col_anim++;
-                    //func.next_hod();
-                }
-
-            }
-            else if (lt_carts_active_now_base[0] == "cart dungalorg(sleep)" && lt_carts_active_now_base.Count == 1)
-            {
-
-                //func.mob[x, y].GetComponent<par_mob>().add_baf(par_baf.type_baf.bar, -1, 1);
-
-                //string cart_create = null;
-                //string carts_cr = mb.lt_carts_active_now[0];
-
-
-
-                // mb.gameObject.GetComponent<Animator>().SetBool("atack", true);
                 if (mb_click != null)
                 {
                     for (int i = 0; i < pow_rez; i++)
                     {
                         mb_click.spawn_cart("cart dungalorg", gameObject.transform.Find("carts active").gameObject);
                     }
-                    /*
-                    foreach (par_cart_art cart in mb.lt_carts_art)
-                    {
-
-                        if (cart.name == "cart mast" || cart.name == "cart derlorg st")
-                        {
-                            //foreach (par_cart_art cart1 in lt_carts_art)
-                            //{
-                            foreach (par_cart_art cart1 in mb.lt_carts_art)
-                            {
-                                if (cart1.perez_now > 1)
-                                    cart1.perez_now--;
-                                if (cart1.perez_now < 0)
-                                    cart1.perez_now = 0;
-                            }
-                            //}
-                        }
-
-                    }
-                    */
                 }
-
-
-
-
-
-                //mb.lt_carts_active_now.RemoveAt(0);
                 bl_att = true;
-                func.nums_mob_wolk.Add(num);
-                speed_hod = true;
+                bl_att_hod = false;
+                //func.nums_mob_wolk.Add(num);
+                //speed_hod = true;
                 //bl_att_hod = false;
                 //anim.col_anim++;
                 //func.next_hod();
@@ -3824,38 +4336,13 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             else if (lt_carts_active_now_base[0] == "cart dungalorg(sleep) 1" && lt_carts_active_now_base.Count == 1)
             {
                 Debug.Log(pow_rez + " rez pow");
-                //func.mob[x, y].GetComponent<par_mob>().add_baf(par_baf.type_baf.bar, -1, 1);
-
-                //string cart_create = null;
-                //string carts_cr = mb.lt_carts_active_now[0];
-
-
-
-                // mb.gameObject.GetComponent<Animator>().SetBool("atack", true);
                 if (mb_click != null)
                 {
                     for (int i = 0; i < pow_rez; i++)
                     {
                         mb_click.spawn_cart("cart dungalorg 1", gameObject.transform.Find("carts active").gameObject);
                     }
-                    /*
-                    foreach (par_cart_art cart in mb.lt_carts_art)
-                    {
-                        if (cart.name == "cart mast" || cart.name == "cart derlorg st")
-                        {
-                            //foreach (par_cart_art cart1 in lt_carts_art)
-                            //{
-                            foreach (par_cart_art cart1 in mb.lt_carts_art)
-                            {
-                                if (cart1.perez_now > 1)
-                                    cart1.perez_now -= 2;
-                                if (cart1.perez_now < 0)
-                                    cart1.perez_now = 0;
-                            }
-                            //}
-                        }
 
-                    }*/
                 }
 
 
@@ -3864,636 +4351,12 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
                 //mb.lt_carts_active_now.RemoveAt(0);
                 bl_att = true;
-                func.nums_mob_wolk.Add(num);
-                speed_hod = true;
-                //bl_att_hod = false;
-                //anim.col_anim++;
-                //func.next_hod();
+                bl_att_hod = false;
+                //func.nums_mob_wolk.Add(num);
+                //speed_hod = true;
 
             }
-            else if (lt_carts_active_now_base.Count == 1)
-            {
-                bool bl_first = false;
-                //par_cart
-                foreach (par_cart.cart_combinations.comb_cart ct in par_cart.cart_combinations.lt_comb)
-                {
-                    if (ct.name == lt_carts_active_now_base[0])
-                    {
-                        if (ct.next.Count == 0)
-                            bl_first = true;
-
-                        //now1 = ct;
-                        //break;
-                    }
-
-
-                }
-                if (bl_first)
-                {
-                    int pw = GameObject.Find(lt_carts_active_now_base[0]).GetComponent<par_cart>().lvl;
-                    /*
-                    if (mb.lt_carts_active_now[0] == "cart barier" || mb.lt_carts_active_now[0] == "cart barier 1")
-                    {
-                        if (mb_click != null)
-                        {
-                            //if (data.data_now.pl_name_now == "barier player")
-                            //dop_pow_mn *= 2;
-                            mb_click.add_baf(par_baf.type_baf.bar, -1, pow_rez * 3);
-
-                        }
-                    }
-                    */
-                    int dop_pow_rez = 1;
-                    if (bl_art_boss_berserk)
-                        dop_pow_rez = 4;
-
-                    string bl_dych = null;
-                    par_cart cart_bl_dych = null;
-                    foreach (par_cart_art cart in mb.lt_carts_art)
-                    {
-                        /*
-                        if (cart.q > 0)
-                        {
-                            par_cart.type_cart type_el = GameObject.Find(lt_carts_active_now_base[0]).GetComponent<par_cart>().type;
-                            if (cart.name == "cart shaman boss" && func.object_bool(x_cl, y_cl))
-                            {
-                                if (type_el == par_cart.type_cart.fire)
-                                    bl_dych = "spawn dych fire";
-                                if (type_el == par_cart.type_cart.poition)
-                                    bl_dych = "spawn dych poition";
-                                if (type_el == par_cart.type_cart.ice)
-                                    bl_dych = "spawn dych ice";
-                                if (type_el == par_cart.type_cart.energy)
-                                    bl_dych = "spawn dych energy";
-                                if (type_el == par_cart.type_cart.blood)
-                                    bl_dych = "spawn dych blood";
-                                if (type_el == par_cart.type_cart.rock)
-                                    bl_dych = "spawn dych rock";
-                                //dop_pow *= 4;
-                                //bl_dych = type_el;
-                                cart_bl_dych = cart;
-
-                                Stack<object> st = new Stack<object>();
-                                st.Push(1);
-                                st.Push("par -q");
-
-                                mb.activate_art(cart, x_cl, y_cl, st);
-                                break;
-                            }
-
-                        }
-                        */
-                    }
-                    //bool bl_art_potoc = false;
-                    if (bl_dych == null)
-                    {
-                        int pow_res_bool = pow_rez;
-                        par_cart.type_cart type_cart0 = GameObject.Find(lt_carts_active_now_base[0]).GetComponent<par_cart>().type;
-                        if (type_cart0 == par_cart.type_cart.derlorg)
-                            pow_res_bool = pow_rez_seal;
-                        mb.effect_now = func.create_effect(lt_carts_active_now_base[0], x_cl, y_cl, mb.gameObject, false, pow_res_bool * dop_pow_rez, lt_carts_active_now_base);
-
-                        Debug.Log(type_cart0);
-                        //bl_art_potoc = (type_cart0 == par_cart.type_cart.damage || type_cart0 == par_cart.type_cart.sp_barier || type_cart0 == par_cart.type_cart.derlorg);
-                    }
-                    else
-                    {
-                        mb.effect_now = func.create_effect(bl_dych, x_cl, y_cl, mb.gameObject, false, pow_rez * dop_pow_rez, lt_carts_active_now_base);
-
-
-                        //mb.activate_art(cart_bl_dych, x_cl, y_cl);
-                    }
-
-                    //Debug.Log(effect_now ==null);
-                    //mb.effect_now.GetComponent<par_effect>().parent = ;
-                    mb.effect_activate = lt_carts_active_now_base[0];
-
-
-
-
-                    //Debug.Log("aaaaaaaccccccttt 0 " + num + " ");
-
-                    //mb.lt_carts_active_now.RemoveAt(0);
-
-                    //anim.col_anim++;
-                    bl_att = true;
-                }
-
-                //func.next_hod();
-            }
-            else if (lt_carts_active_now_base[0] == "cart damage" || lt_carts_active_now_base[0] == "cart damage 1")
-            {
-                //Debug.Log("cart atack is activated");
-                string nm = null;
-                string cart1 = lt_carts_active_now_base[1];
-                //par_baf.type_baf type_bf = par_baf.type_baf.bar;
-                nm = func.get_name_effect(lt_carts_active_now_base, null);
-                /*
-                if (cart1 == "cart rock" || cart1 == "cart rock 1")
-                {
-                    nm = "atack rock";
-                    //type_bf = par_baf.type_baf.bar_rock;
-                }
-
-                else if (cart1 == "cart fire" || cart1 == "cart fire 1")
-                {
-                    nm = "atack fire";
-                    //type_bf = par_baf.type_baf.bar_fire;
-                }
-
-                else if (cart1 == "cart energy" || cart1 == "cart energy 1")
-                {
-                    //type_bf = par_baf.type_baf.bar_energy;
-                    nm = "atack energy";
-                }
-
-                else if (cart1 == "cart blood" || cart1 == "cart blood 1")
-                {
-                    //type_bf = par_baf.type_baf.bar_blood;
-                    nm = "atack blood";
-                }
-                else if (cart1 == "cart ice" || cart1 == "cart ice 1")
-                {
-                    //type_bf = par_baf.type_baf.bar_ice;
-                    nm = "atack ice";
-                }
-                else if (cart1 == "cart poition" || cart1 == "cart poition 1")
-                {
-                    //type_bf = par_baf.type_baf.bar_poition;
-                    nm = "atack poition";
-                }
-                */
-                //par_baf.type_baf type = GameObject.Find(cart1).GetComponent<par_cart>().type
-                int lv = GameObject.Find(cart1).GetComponent<par_cart>().lvl;
-                //int lv1 = GameObject.Find(cart1).GetComponent<par_cart>().lvl;
-
-                int dop_pow_rez = 1;
-                if (bl_art_boss_berserk)
-                    dop_pow_rez = 4;
-                mb.effect_now = func.create_effect(nm, x_cl, y_cl, mb.gameObject, false, pow_rez * dop_pow_rez, lt_carts_active_now_base);
-                //Debug.Log(effect_now ==null);
-                //mb.effect_now.GetComponent<par_effect>().parent = ;
-                mb.effect_activate = nm;
-
-                //mb.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                //Debug.Log("aaaaaaaccccccttt 0 " + num + " ");
-
-                List<par_cart.type_cart> lt = new List<par_cart.type_cart>();
-                //mb.lt_carts_active_now.RemoveAt(0);
-                //mb.lt_carts_active_now.RemoveAt(0);
-
-                bl_att = true;
-                //anim.col_anim++;
-                //func.next_hod();
-            }
-            else if (lt_carts_active_now_base[0] == "cart barier" || lt_carts_active_now_base[0] == "cart barier 1")
-            {
-                string nm = null;
-                string cart1 = lt_carts_active_now_base[1];
-                //par_baf.type_baf type_bf = par_baf.type_baf.bar;
-                /*
-                if (cart1 == "cart rock" || cart1 == "cart rock 1")
-                {
-                    nm = "barier rock";
-                    //type_bf = par_baf.type_baf.bar_rock;
-                }
-
-                else if (cart1 == "cart fire" || cart1 == "cart fire 1")
-                {
-                    nm = "barier fire";
-                    //type_bf = par_baf.type_baf.bar_fire;
-                }
-
-                else if (cart1 == "cart energy" || cart1 == "cart energy 1")
-                {
-                    //type_bf = par_baf.type_baf.bar_energy;
-                    nm = "barier energy";
-                }
-
-                else if (cart1 == "cart blood" || cart1 == "cart blood 1")
-                {
-                    //type_bf = par_baf.type_baf.bar_blood;
-                    nm = "barier blood";
-                }
-                else if (cart1 == "cart ice" || cart1 == "cart ice 1")
-                {
-                    //type_bf = par_baf.type_baf.bar_ice;
-                    nm = "barier ice";
-                }
-                else if (cart1 == "cart poition" || cart1 == "cart poition 1")
-                {
-                    //type_bf = par_baf.type_baf.bar_poition;
-                    nm = "barier poition";
-                }
-                */
-
-                nm = func.get_name_effect(lt_carts_active_now_base, null);
-                //par_baf.type_baf type = GameObject.Find(cart1).GetComponent<par_cart>().type
-                int lv = GameObject.Find(cart1).GetComponent<par_cart>().lvl;
-                //int lv1 = GameObject.Find(cart1).GetComponent<par_cart>().lvl;
-
-                int dop_pow_rez = 1;
-                if (bl_art_boss_berserk)
-                    dop_pow_rez = 4;
-                mb.effect_now = func.create_effect(nm, x_cl, y_cl, mb.gameObject, false, pow_rez * dop_pow_rez, lt_carts_active_now_base);
-                /*
-                if (mb_click != null)
-                {
-
-                    int pw = GameObject.Find(mb.lt_carts_active_now[0]).GetComponent<par_cart>().lvl;
-                    int pw1 = GameObject.Find(mb.lt_carts_active_now[1]).GetComponent<par_cart>().lvl;
-
-
-
-
-                    //func.mob[x, y].GetComponent<par_mob>().add_baf(par_baf.type_baf.bar, -1, 1);
-                    if (pow_rez >= 8 && gameObject.name == data.data_now.pl_name_now)
-                        data.give_achive("большой потенциал");
-                    pow_rez *= 3;
-                    if (mb.lt_carts_active_now[1] == "cart rock" || mb.lt_carts_active_now[1] == "cart rock 1")
-                        mb_click.add_baf(par_baf.type_baf.bar_rock, -1, pow_rez);
-                    else if (mb.lt_carts_active_now[1] == "cart blood" || mb.lt_carts_active_now[1] == "cart blood 1")
-                        mb_click.add_baf(par_baf.type_baf.bar_blood, -1, pow_rez);
-                    else if (mb.lt_carts_active_now[1] == "cart fire" || mb.lt_carts_active_now[1] == "cart fire 1")
-                        mb_click.add_baf(par_baf.type_baf.bar_fire, -1, pow_rez);
-                    else if (mb.lt_carts_active_now[1] == "cart energy" || mb.lt_carts_active_now[1] == "cart energy 1")
-                        mb_click.add_baf(par_baf.type_baf.bar_energy, -1, pow_rez);
-                    else if (mb.lt_carts_active_now[1] == "cart ice" || mb.lt_carts_active_now[1] == "cart ice 1")
-                        mb_click.add_baf(par_baf.type_baf.bar_ice, -1, pow_rez);
-                    else if (mb.lt_carts_active_now[1] == "cart poition" || mb.lt_carts_active_now[1] == "cart poition 1")
-                        mb_click.add_baf(par_baf.type_baf.bar_poition, -1, pow_rez);
-
-                }
-                */
-
-
-
-                /*
-                List<par_cart.type_cart> lt = new List<par_cart.type_cart>();
-                foreach (par_cart_art cart in mb.lt_carts_art)
-                {
-
-                    if (cart.perez_now == 0 || cart.q > 0)
-                    {
-
-                        if (cart.name == "cart berserk boss")
-                        {
-                            //dop_pow *= 4;
-                            Stack<object> st = new Stack<object>();
-                            st.Push(pow_rez);
-                            st.Push("par_cart berserk boss");
-                            mb.activate_art(cart, x_cl, y_cl, st);
-                            //Debug.Break();
-                        }
-                        else if (!lt.Contains(cart.type))
-                        {
-                            par_cart.type_cart cart_type_now = GameObject.Find(mb.lt_carts_active_now[1]).GetComponent<par_cart>().type;
-
-                            if (cart.type == par_cart.type_cart.art_speed_rock && cart_type_now == par_cart.type_cart.rock)
-                                mb.activate_art(cart, mb.x, mb.y);
-                            //else if (cart.name == "cart speed rock 1" && mb.lt_carts_active_now[0] == "cart rock 1")
-                            //mb.activate_art(cart, mb.x, mb.y);
-
-                            if (cart.type == par_cart.type_cart.art_speed_fire && cart_type_now == par_cart.type_cart.fire)
-                                mb.activate_art(cart, mb.x, mb.y);
-                            //else if (cart.name == "cart speed fire 1" && mb.lt_carts_active_now[0] == "cart fire 1")
-                            //mb.activate_art(cart, mb.x, mb.y);
-
-                            if (cart.type == par_cart.type_cart.art_speed_energy && cart_type_now == par_cart.type_cart.energy)
-                                mb.activate_art(cart, mb.x, mb.y);
-                            //else if (cart.name == "cart speed energy 1" && mb.lt_carts_active_now[0] == "cart energy 1")
-                            //mb.activate_art(cart, mb.x, mb.y);
-
-                            if (cart.type == par_cart.type_cart.art_speed_blood && cart_type_now == par_cart.type_cart.blood)
-                                mb.activate_art(cart, mb.x, mb.y);
-                            //else if (cart.name == "cart speed blood 1" && mb.lt_carts_active_now[0] == "cart blood 1")
-                            //mb.activate_art(cart, mb.x, mb.y);
-
-                            if (cart.type == par_cart.type_cart.art_speed_ice && cart_type_now == par_cart.type_cart.ice)
-                                mb.activate_art(cart, mb.x, mb.y);
-                            //else if (cart.name == "cart speed ice 1" && mb.lt_carts_active_now[0] == "cart ice 1")
-                            //mb.activate_art(cart, mb.x, mb.y);
-
-                            if (cart.type == par_cart.type_cart.art_speed_poition && cart_type_now == par_cart.type_cart.poition)
-                                mb.activate_art(cart, mb.x, mb.y);
-                            //else if (cart.name == "cart speed poition 1" && mb.lt_carts_active_now[0] == "cart poition 1")
-                            //mb.activate_art(cart, mb.x, mb.y);
-
-                            else if (cart.name == "cart speed")
-                                mb.activate_art(cart, mb.x, mb.y);
-                            lt.Add(cart.type);
-                        }
-
-
-                    }
-                }
-                foreach (par_cart_art cart in mb.lt_carts_art)
-                {
-                    bool bl1 = (cart.name == "cart rock st" && mb.lt_carts_active_now[1] == "cart rock") ||
-                        (cart.name == "cart rock st" && mb.lt_carts_active_now[1] == "cart rock 1") ||
-
-                        (cart.name == "cart blood st" && mb.lt_carts_active_now[1] == "cart blood") ||
-                        (cart.name == "cart blood st" && mb.lt_carts_active_now[1] == "cart blood 1") ||
-
-                        (cart.name == "cart fire st" && mb.lt_carts_active_now[1] == "cart fire") ||
-                        (cart.name == "cart fire st" && mb.lt_carts_active_now[1] == "cart fire 1") ||
-
-                        (cart.name == "cart ice st" && mb.lt_carts_active_now[1] == "cart ice") ||
-                        (cart.name == "cart ice st" && mb.lt_carts_active_now[1] == "cart ice 1") ||
-
-                        (cart.name == "cart energy st" && mb.lt_carts_active_now[1] == "cart energy") ||
-                        (cart.name == "cart energy st" && mb.lt_carts_active_now[1] == "cart energy 1") ||
-
-                        (cart.name == "cart poition st" && mb.lt_carts_active_now[1] == "cart poition") ||
-                        (cart.name == "cart poition st" && mb.lt_carts_active_now[1] == "cart poition 1") ||
-
-                        (cart.name == "cart bar st")
-
-
-                        ;
-                    if (cart.perez_now == 0)
-                    {
-
-                    }
-                    if (cart.name == "cart mast" || cart.name == "cart derlorg st")
-                    {
-                        foreach (par_cart_art cart11 in mb.lt_carts_art)
-                        {
-                            if (cart11.perez_now > 1)
-                                cart11.perez_now -= 3;
-                            if (cart11.perez_now < 0)
-                                cart11.perez_now = 0;
-                        }
-                    }
-                    else if (bl1)
-                    {
-                        //foreach (par_cart_art cart1 in lt_carts_art)
-                        //{
-                        foreach (par_cart_art cart11 in mb.lt_carts_art)
-                        {
-                            if (cart11.perez_now > 1)
-                                cart11.perez_now--;
-                        }
-                    }
-                }
-                */
-                //mb.lt_carts_active_now.RemoveAt(0);
-                //mb.lt_carts_active_now.RemoveAt(0);
-                bl_att = true;
-                //anim.col_anim++;
-                //func.next_hod();
-            }
-
-            else if (lt_carts_active_now_base[0] == "cart derlorg" || lt_carts_active_now_base[0] == "cart derlorg 1")
-            {
-                //Debug.Log("cart atack is activated");
-                string nm = null;
-                string cart1 = lt_carts_active_now_base[1];
-                //par_baf.type_baf type_bf = par_baf.type_baf.bar;
-                nm = func.get_name_effect(lt_carts_active_now_base, null);
-
-                //par_baf.type_baf type = GameObject.Find(cart1).GetComponent<par_cart>().type
-                int lv = GameObject.Find(cart1).GetComponent<par_cart>().lvl;
-                //int lv1 = GameObject.Find(cart1).GetComponent<par_cart>().lvl;
-
-                int dop_pow_rez = 1;
-                if (bl_art_boss_berserk)
-                    dop_pow_rez = 4;
-                mb.effect_now = func.create_effect(nm, x_cl, y_cl, mb.gameObject, false, pow_rez_seal * dop_pow_rez, lt_carts_active_now_base);
-                mb.effect_now.GetComponent<par_effect>().st_par.Push((pow_rez * dop_pow_rez).ToString());
-                mb.effect_now.GetComponent<par_effect>().st_par.Push("par pow");
-                //Debug.Log(effect_now ==null);
-                //mb.effect_now.GetComponent<par_effect>().parent = ;
-                mb.effect_activate = nm;
-
-                //mb.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                //Debug.Log("aaaaaaaccccccttt 0 " + num + " ");
-                /*
-                List<par_cart.type_cart> lt = new List<par_cart.type_cart>();
-                foreach (par_cart_art cart in mb.lt_carts_art)
-                {
-
-                    if (cart.perez_now == 0 || cart.q > 0)
-                    {
-                        if (cart.name == "cart berserk boss")
-                        {
-                            //dop_pow *= 4;
-                            Stack<object> st = new Stack<object>();
-                            st.Push(pow_rez);
-                            st.Push("par pow berserk boss");
-                            st.Push(pow_rez_seal);
-                            st.Push("par_cart berserk boss");
-                            mb.activate_art(cart, x_cl, y_cl, st);
-                            //Debug.Break();
-                        }
-
-
-                        /*
-                        if (cart.name == "cart att bar")
-                        {
-                            mb.add_baf(type_bf, -1, lv + 1);
-
-                        }
-                        //mb.activate_art(cart, mb.x, mb.y);
-
-                        else if (cart.name == "cart bar att")
-                        {
-                            int pow_bar = 0;
-
-                            foreach (par_baf bf in mb.lt_bafs)
-                            {
-                                if (bf.type == type_bf)
-                                {
-                                    pow_bar += bf.power;
-
-                                }
-                                //mb.activate_art(cart, mb.x, mb.y);
-                            }
-                            if (pow_bar > 0)
-                            {
-                                create_effect(nm, x_cl, y_cl, mb.gameObject, false, pow_bar);
-                            }
-                        }
-                        
-                        else if (!lt.Contains(cart.type))
-                        {
-                            par_cart.type_cart cart_type_now = GameObject.Find(mb.lt_carts_active_now[1]).GetComponent<par_cart>().type;
-
-                            if (cart.type == par_cart.type_cart.art_speed_rock && cart_type_now == par_cart.type_cart.rock)
-                                mb.activate_art(cart, mb.x, mb.y);
-                            //else if (cart.name == "cart speed rock 1" && mb.lt_carts_active_now[0] == "cart rock 1")
-                            //mb.activate_art(cart, mb.x, mb.y);
-
-                            if (cart.type == par_cart.type_cart.art_speed_fire && cart_type_now == par_cart.type_cart.fire)
-                                mb.activate_art(cart, mb.x, mb.y);
-                            //else if (cart.name == "cart speed fire 1" && mb.lt_carts_active_now[0] == "cart fire 1")
-                            //mb.activate_art(cart, mb.x, mb.y);
-
-                            if (cart.type == par_cart.type_cart.art_speed_energy && cart_type_now == par_cart.type_cart.energy)
-                                mb.activate_art(cart, mb.x, mb.y);
-                            //else if (cart.name == "cart speed energy 1" && mb.lt_carts_active_now[0] == "cart energy 1")
-                            //mb.activate_art(cart, mb.x, mb.y);
-
-                            if (cart.type == par_cart.type_cart.art_speed_blood && cart_type_now == par_cart.type_cart.blood)
-                                mb.activate_art(cart, mb.x, mb.y);
-                            //else if (cart.name == "cart speed blood 1" && mb.lt_carts_active_now[0] == "cart blood 1")
-                            //mb.activate_art(cart, mb.x, mb.y);
-
-                            if (cart.type == par_cart.type_cart.art_speed_ice && cart_type_now == par_cart.type_cart.ice)
-                                mb.activate_art(cart, mb.x, mb.y);
-                            //else if (cart.name == "cart speed ice 1" && mb.lt_carts_active_now[0] == "cart ice 1")
-                            //mb.activate_art(cart, mb.x, mb.y);
-
-                            if (cart.type == par_cart.type_cart.art_speed_poition && cart_type_now == par_cart.type_cart.poition)
-                                mb.activate_art(cart, mb.x, mb.y);
-                            //else if (cart.name == "cart speed poition 1" && mb.lt_carts_active_now[0] == "cart poition 1")
-                            //mb.activate_art(cart, mb.x, mb.y);
-
-                            else if (cart.name == "cart speed")
-                                mb.activate_art(cart, mb.x, mb.y);
-                            lt.Add(cart.type);
-                        }
-
-
-                    }
-                }
-                */
-                /*
-                foreach (par_cart_art cart in mb.lt_carts_art)
-                {
-                    bool bl1 = (cart.name == "cart rock st" && mb.lt_carts_active_now[1] == "cart rock") ||
-                        (cart.name == "cart rock st" && mb.lt_carts_active_now[1] == "cart rock 1") ||
-
-                        (cart.name == "cart blood st" && mb.lt_carts_active_now[1] == "cart blood") ||
-                        (cart.name == "cart blood st" && mb.lt_carts_active_now[1] == "cart blood 1") ||
-
-                        (cart.name == "cart fire st" && mb.lt_carts_active_now[1] == "cart fire") ||
-                        (cart.name == "cart fire st" && mb.lt_carts_active_now[1] == "cart fire 1") ||
-
-                        (cart.name == "cart ice st" && mb.lt_carts_active_now[1] == "cart ice") ||
-                        (cart.name == "cart ice st" && mb.lt_carts_active_now[1] == "cart ice 1") ||
-
-                        (cart.name == "cart energy st" && mb.lt_carts_active_now[1] == "cart energy") ||
-                        (cart.name == "cart energy st" && mb.lt_carts_active_now[1] == "cart energy 1") ||
-
-                        (cart.name == "cart poition st" && mb.lt_carts_active_now[1] == "cart poition") ||
-                        (cart.name == "cart poition st" && mb.lt_carts_active_now[1] == "cart poition 1") ||
-
-                        (cart.name == "cart att st")
-                        ;
-
-                    if (cart.name == "cart mast" || cart.name == "cart derlorg st")
-                    {
-                        //foreach (par_cart_art cart1 in lt_carts_art)
-                        //{
-                        par_cart.type_cart cart_type_now = GameObject.Find(mb.lt_carts_active_now[1]).GetComponent<par_cart>().type;
-                        foreach (par_cart_art cart11 in mb.lt_carts_art)
-                        {
-
-                            if (cart_type_now == par_cart.type_cart.sp_barier || cart_type_now == par_cart.type_cart.sp_crystall)
-                            {
-
-                                if (cart11.perez_now > 1)
-                                    cart11.perez_now -= 3;
-                                if (cart11.perez_now < 1)
-                                    cart11.perez_now = 0;
-                            }
-                            else
-                            {
-
-                                if (cart11.perez_now > 1)
-                                    cart11.perez_now -= 2;
-                                if (cart11.perez_now < 1)
-                                    cart11.perez_now = 0;
-                            }
-                        }
-                    }
-                    else if (bl1)
-                    {
-                        //foreach (par_cart_art cart1 in lt_carts_art)
-                        //{
-                        foreach (par_cart_art cart11 in mb.lt_carts_art)
-                        {
-                            if (cart11.perez_now > 1)
-                                cart11.perez_now--;
-                        }
-                    }
-                }
-                */
-                //mb.lt_carts_active_now.RemoveAt(0);
-                //mb.lt_carts_active_now.RemoveAt(0);
-                bl_att = true;
-                //anim.col_anim++;
-                //func.next_hod();
-            }
-            else if (lt_carts_active_now_base[0] == "cart dungalorg(sleep)" && lt_carts_active_now_base[1] == "cart derlorg" && bl_art_boss_dungalorg != null)
-            {
-                mb.activate_art(bl_art_boss_dungalorg, x_cl, y_cl);
-                //int lv = GameObject.Find(mb.lt_carts_active_now[1]).GetComponent<par_cart>().lvl;
-                /*
-                bool bl_create = false;
-                foreach (par_cart_art cart in mb.lt_carts_art)
-                {
-                    if(cart.type==par_cart.type_cart.art_cuzna && cart.q >= lv)
-                    {
-                        cart.q-= lv;
-                        mb.activate_art(cart,x_cl,y_cl);
-                        bl_create = true;
-                        break;
-                    }
-                        
-                }
-                */
-                //func.mob[x, y].GetComponent<par_mob>().add_baf(par_baf.type_baf.bar, -1, 1);
-                string cart_create = null;
-                string carts_cr = lt_carts_active_now_base[1];
-
-                cart_create = "cart dungalorg(sleep) 1";
-                // mb.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                if (cart_create != null)
-                {
-                    spawn_cart(cart_create, gameObject.transform.Find("carts active").gameObject);
-
-
-                }
-
-                /*
-                List<string> lt = new List<string>();
-                foreach (par_cart_art cart in mb.lt_carts_art)
-                {
-
-                    
-                    if (cart.name == "cart mast" || cart.name == "cart derlorg st")
-                    {
-                        //foreach (par_cart_art cart1 in lt_carts_art)
-                        //{
-                        foreach (par_cart_art cart11 in mb.lt_carts_art)
-                        {
-                            if (cart11.perez_now > 1)
-                                cart11.perez_now -= 2;
-                            if (cart11.perez_now < 1)
-                                cart11.perez_now = 0;
-                        }
-                    }
-                    else if (!lt.Contains(cart.name) && cart.perez_now == 0)
-                    {
-                        if (cart.name == "cart speed")
-                            mb.activate_art(cart, mb.x, mb.y);
-                        lt.Add(cart.name);
-                    }
-                }
-                */
-
-
-                //mb.lt_carts_active_now.RemoveAt(0);
-                //mb.lt_carts_active_now.RemoveAt(0);
-                bl_att = true;
-                //mb.lt_carts_active_now.RemoveAt(0);
-                //anim.col_anim++;
-                //func.next_hod();
-
-            }
-            else if (lt_carts_active_now_base[0] == "cart cuznec" && lt_carts_active_now.Count == 2)
+            else if ((lt_carts_active_now_base[0] == "cart cuznec" || lt_carts_active_now_base[0] == "cart cuznec 1") && lt_carts_active_now.Count == 2)
             {
                 int lv = GameObject.Find(lt_carts_active_now_base[1]).GetComponent<par_cart>().lvl;
                 par_cart.type_cart cart0 = GameObject.Find(lt_carts_active_now_base[1]).GetComponent<par_cart>().type;
@@ -4516,95 +4379,382 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                     string cart_create = null;
                     string carts_cr = lt_carts_active_now[1];
 
+                    if (lt_carts_active_now_base[0] == "cart cuznec" || lt_carts_active_now_base[0] == "cart cuznec 1")
+                    {
+                        if (carts_cr == "cart cuznec")
+                            cart_create = "cart cuznec 1";
 
-                    if (carts_cr == "cart damage")
-                        cart_create = "cart damage 1";
-                    if (carts_cr == "cart barier")
-                        cart_create = "cart barier 1";
-                    if (carts_cr == "cart sp atack")
-                        cart_create = "cart sp atack 1";
-                    if (carts_cr == "cart sp barier")
-                        cart_create = "cart sp barier 1";
+                        if (carts_cr == "cart damage")
+                            cart_create = "cart damage 1";
+                        if (carts_cr == "cart barier")
+                            cart_create = "cart barier 1";
 
-                    if (carts_cr == "cart att pow")
-                        cart_create = "cart att pow 1";
-                    if (carts_cr == "cart bar pow")
-                        cart_create = "cart bar pow 1";
-
-                    if (carts_cr == "cart crystall")
-                        cart_create = "cart crystall 1";
-                    if (carts_cr == "cart sp crystall")
-                        cart_create = "cart sp crystall 1";
+                        if (carts_cr == "cart bomb")
+                            cart_create = "cart bomb 1";
 
 
-                    if (carts_cr == "cart fire")
-                        cart_create = "cart fire 1";
-                    else if (carts_cr == "cart rock")
-                        cart_create = "cart rock 1";
-                    else if (carts_cr == "cart blood")
-                        cart_create = "cart blood 1";
-                    else if (carts_cr == "cart poition")
-                        cart_create = "cart poition 1";
-                    else if (carts_cr == "cart ice")
-                        cart_create = "cart ice 1";
-                    else if (carts_cr == "cart energy")
-                        cart_create = "cart energy 1";
+                        if (carts_cr == "cart fire")
+                            cart_create = "cart fire 1";
+                        else if (carts_cr == "cart rock")
+                            cart_create = "cart rock 1";
+                        else if (carts_cr == "cart blood")
+                            cart_create = "cart blood 1";
+                        else if (carts_cr == "cart poition")
+                            cart_create = "cart poition 1";
+                        else if (carts_cr == "cart ice")
+                            cart_create = "cart ice 1";
+                        else if (carts_cr == "cart energy")
+                            cart_create = "cart energy 1";
+
+                        else if (carts_cr == "cart sp atack")
+                            cart_create = "cart sp atack 1";
+
+                        else if (carts_cr == "cart sp barier")
+                            cart_create = "cart sp barier 1";
+                        else if (carts_cr == "cart sp bomb")
+                            cart_create = "cart sp bomb 1";
+                        else if (carts_cr == "cart sp dych")
+                            cart_create = "cart sp dych 1";
+
+                        else if (carts_cr == "cart sp fire")
+                            cart_create = "cart sp fire 1";
+                        else if (carts_cr == "cart sp rock")
+                            cart_create = "cart sp rock 1";
+                        else if (carts_cr == "cart sp blood")
+                            cart_create = "cart sp blood 1";
+                        else if (carts_cr == "cart sp poition")
+                            cart_create = "cart sp poition 1";
+                        else if (carts_cr == "cart sp ice")
+                            cart_create = "cart sp ice 1";
+                        else if (carts_cr == "cart sp energy")
+                            cart_create = "cart sp energy 1";
+
+
+                        if (carts_cr == "cart act att")
+                            cart_create = "cart act att 1";
+
+                        if (carts_cr == "cart act bar")
+                            cart_create = "cart act bar 1";
+                        if (carts_cr == "cart act bomb")
+                            cart_create = "cart act bomb 1";
+                        if (carts_cr == "cart act dych")
+                            cart_create = "cart act dych 1";
+
+                        else if (carts_cr == "cart act fire")
+                            cart_create = "cart act fire 1";
+                        else if (carts_cr == "cart act rock")
+                            cart_create = "cart act rock 1";
+                        else if (carts_cr == "cart act blood")
+                            cart_create = "cart act blood 1";
+                        else if (carts_cr == "cart act poition")
+                            cart_create = "cart act poition 1";
+                        else if (carts_cr == "cart act ice")
+                            cart_create = "cart act ice 1";
+                        else if (carts_cr == "cart act energy")
+                            cart_create = "cart act energy 1";
+
+                        if (carts_cr == "cart speed att")
+                            cart_create = "cart speed att 1";
+
+                        if (carts_cr == "cart speed bar")
+                            cart_create = "cart speed bar 1";
+                        if (carts_cr == "cart speed bomb")
+                            cart_create = "cart speed bomb 1";
+                        if (carts_cr == "cart speed dych")
+                            cart_create = "cart speed dych 1";
+
+                        if (carts_cr == "cart speed fire")
+                            cart_create = "cart speed fire 1";
+                        else if (carts_cr == "cart speed rock")
+                            cart_create = "cart speed rock 1";
+                        else if (carts_cr == "cart speed blood")
+                            cart_create = "cart speed blood 1";
+                        else if (carts_cr == "cart speed poition")
+                            cart_create = "cart speed poition 1";
+                        else if (carts_cr == "cart speed ice")
+                            cart_create = "cart speed ice 1";
+                        else if (carts_cr == "cart speed energy")
+                            cart_create = "cart speed energy 1";
 
 
 
-                    else if (carts_cr == "cart sp fire")
-                        cart_create = "cart sp fire 1";
-                    else if (carts_cr == "cart sp rock")
-                        cart_create = "cart sp rock 1";
-                    else if (carts_cr == "cart sp blood")
-                        cart_create = "cart sp blood 1";
-                    else if (carts_cr == "cart sp poition")
-                        cart_create = "cart sp poition 1";
-                    else if (carts_cr == "cart sp ice")
-                        cart_create = "cart sp ice 1";
-                    else if (carts_cr == "cart sp energy")
-                        cart_create = "cart sp energy 1";
+                        if (carts_cr == "cart att pow")
+                            cart_create = "cart att pow 1";
+
+                        if (carts_cr == "cart bar pow")
+                            cart_create = "cart bar pow 1";
+                        if (carts_cr == "cart bomb pow")
+                            cart_create = "cart bomb pow 1";
+                        if (carts_cr == "cart dych pow")
+                            cart_create = "cart dych pow 1";
+
+                        else if (carts_cr == "cart fire pow")
+                            cart_create = "cart fire pow 1";
+                        else if (carts_cr == "cart poition pow")
+                            cart_create = "cart poition pow 1";
+                        else if (carts_cr == "cart blood pow")
+                            cart_create = "cart blood pow 1";
+                        else if (carts_cr == "cart rock pow")
+                            cart_create = "cart rock pow 1";
+                        else if (carts_cr == "cart ice pow")
+                            cart_create = "cart ice pow 1";
+                        else if (carts_cr == "cart energy pow")
+                            cart_create = "cart energy pow 1";
+
+                        if (carts_cr == "cart att cuzna")
+                            cart_create = "cart att cuzna 1";
+
+                        if (carts_cr == "cart bar cuzna")
+                            cart_create = "cart bar cuzna 1";
+                        if (carts_cr == "cart bomb cuzna")
+                            cart_create = "cart bomb cuzna 1";
+                        if (carts_cr == "cart dych cuzna")
+                            cart_create = "cart dych cuzna 1";
+
+                        else if (carts_cr == "cart fire cuzna")
+                            cart_create = "cart fire cuzna 1";
+                        else if (carts_cr == "cart poition cuzna")
+                            cart_create = "cart poition cuzna 1";
+                        else if (carts_cr == "cart blood cuzna")
+                            cart_create = "cart blood cuzna 1";
+                        else if (carts_cr == "cart rock cuzna")
+                            cart_create = "cart rock cuzna 1";
+                        else if (carts_cr == "cart ice cuzna")
+                            cart_create = "cart ice cuzna 1";
+                        else if (carts_cr == "cart energy cuzna")
+                            cart_create = "cart energy cuzna 1";
 
 
-                    else if (carts_cr == "cart act fire")
-                        cart_create = "cart act fire 1";
-                    else if (carts_cr == "cart act rock")
-                        cart_create = "cart act rock 1";
-                    else if (carts_cr == "cart act blood")
-                        cart_create = "cart act blood 1";
-                    else if (carts_cr == "cart act poition")
-                        cart_create = "cart act poition 1";
-                    else if (carts_cr == "cart act ice")
-                        cart_create = "cart act ice 1";
-                    else if (carts_cr == "cart act energy")
-                        cart_create = "cart act energy 1";
+                        if (carts_cr == "cart att bomb")
+                            cart_create = "cart att bomb 1";
 
-                    if (carts_cr == "cart speed fire")
-                        cart_create = "cart speed fire 1";
-                    else if (carts_cr == "cart speed rock")
-                        cart_create = "cart speed rock 1";
-                    else if (carts_cr == "cart speed blood")
-                        cart_create = "cart speed blood 1";
-                    else if (carts_cr == "cart speed poition")
-                        cart_create = "cart speed poition 1";
-                    else if (carts_cr == "cart speed ice")
-                        cart_create = "cart speed ice 1";
-                    else if (carts_cr == "cart speed energy")
-                        cart_create = "cart speed energy 1";
+                        if (carts_cr == "cart bar bomb")
+                            cart_create = "cart bar bomb 1";
+                        if (carts_cr == "cart bomb bomb")
+                            cart_create = "cart bomb bomb 1";
+                        if (carts_cr == "cart dych bomb")
+                            cart_create = "cart dych bomb 1";
+
+                        else if (carts_cr == "cart fire bomb")
+                            cart_create = "cart fire bomb 1";
+                        else if (carts_cr == "cart poition bomb")
+                            cart_create = "cart poition bomb 1";
+                        else if (carts_cr == "cart blood bomb")
+                            cart_create = "cart blood bomb 1";
+                        else if (carts_cr == "cart rock bomb")
+                            cart_create = "cart rock bomb 1";
+                        else if (carts_cr == "cart ice bomb")
+                            cart_create = "cart ice bomb 1";
+                        else if (carts_cr == "cart energy bomb")
+                            cart_create = "cart energy bomb 1";
+
+                    }
+                    if (lt_carts_active_now_base[0] == "cart cuznec 1" && cart_create == null)
+                    {
+                        if (carts_cr == "cart damage 1")
+                            cart_create = "cart damage 2";
+
+                        if (carts_cr == "cart barier 1")
+                            cart_create = "cart barier 2";
+                        if (carts_cr == "cart bomb 1")
+                            cart_create = "cart bomb 2";
+                        if (carts_cr == "cart dych 1")
+                            cart_create = "cart dych 2";
+
+                        if (carts_cr == "cart fire 1")
+                            cart_create = "cart fire 2";
+                        else if (carts_cr == "cart rock 1")
+                            cart_create = "cart rock 2";
+                        else if (carts_cr == "cart blood 1")
+                            cart_create = "cart blood 2";
+                        else if (carts_cr == "cart poition 1")
+                            cart_create = "cart poition 2";
+                        else if (carts_cr == "cart ice 1")
+                            cart_create = "cart ice 2";
+                        else if (carts_cr == "cart energy 1")
+                            cart_create = "cart energy 2";
 
 
-                    else if (carts_cr == "cart fire pow")
-                        cart_create = "cart fire pow 1";
-                    else if (carts_cr == "cart poition pow")
-                        cart_create = "cart poition pow 1";
-                    else if (carts_cr == "cart blood pow")
-                        cart_create = "cart blood pow 1";
-                    else if (carts_cr == "cart rock pow")
-                        cart_create = "cart rock pow 1";
-                    else if (carts_cr == "cart ice pow")
-                        cart_create = "cart ice pow 1";
-                    else if (carts_cr == "cart energy pow")
-                        cart_create = "cart energy pow 1";
+
+                        else if (carts_cr == "cart sp atack 1")
+                            cart_create = "cart sp atack 2";
+
+                        else if (carts_cr == "cart sp barier 1")
+                            cart_create = "cart sp barier 2";
+                        else if (carts_cr == "cart sp bomb 1")
+                            cart_create = "cart sp bomb 2";
+                        else if (carts_cr == "cart sp dych 1")
+                            cart_create = "cart sp dych 2";
+
+                        else if (carts_cr == "cart sp fire 1")
+                            cart_create = "cart sp fire 2";
+                        else if (carts_cr == "cart sp rock 1")
+                            cart_create = "cart sp rock 2";
+                        else if (carts_cr == "cart sp blood 1")
+                            cart_create = "cart sp blood 2";
+                        else if (carts_cr == "cart sp poition 1")
+                            cart_create = "cart sp poition 2";
+                        else if (carts_cr == "cart sp ice 1")
+                            cart_create = "cart sp ice 2";
+                        else if (carts_cr == "cart sp energy 1")
+                            cart_create = "cart sp energy 2";
+
+
+                        if (carts_cr == "cart act att 1")
+                            cart_create = "cart act att 2";
+
+                        if (carts_cr == "cart act bar 1")
+                            cart_create = "cart act bar 2";
+                        if (carts_cr == "cart act bomb 1")
+                            cart_create = "cart act bomb 2";
+                        if (carts_cr == "cart act dych 1")
+                            cart_create = "cart act dych 2";
+
+                        else if (carts_cr == "cart act fire 1")
+                            cart_create = "cart act fire 2";
+                        else if (carts_cr == "cart act rock 1")
+                            cart_create = "cart act rock 2";
+                        else if (carts_cr == "cart act blood 1")
+                            cart_create = "cart act blood 2";
+                        else if (carts_cr == "cart act poition 1")
+                            cart_create = "cart act poition 2";
+                        else if (carts_cr == "cart act ice 1")
+                            cart_create = "cart act ice 2";
+                        else if (carts_cr == "cart act energy 1")
+                            cart_create = "cart act energy 2";
+
+                        if (carts_cr == "cart speed att 1")
+                            cart_create = "cart speed att 2";
+
+                        if (carts_cr == "cart speed bar 1")
+                            cart_create = "cart speed bar 2";
+                        if (carts_cr == "cart speed bomb 1")
+                            cart_create = "cart speed bomb 2";
+                        if (carts_cr == "cart speed dych 1")
+                            cart_create = "cart speed dych 2";
+
+                        if (carts_cr == "cart speed fire 1")
+                            cart_create = "cart speed fire 2";
+                        else if (carts_cr == "cart speed rock 1")
+                            cart_create = "cart speed rock 2";
+                        else if (carts_cr == "cart speed blood 1")
+                            cart_create = "cart speed blood 2";
+                        else if (carts_cr == "cart speed poition 1")
+                            cart_create = "cart speed poition 2";
+                        else if (carts_cr == "cart speed ice 1")
+                            cart_create = "cart speed ice 2";
+                        else if (carts_cr == "cart speed energy 1")
+                            cart_create = "cart speed energy 2";
+
+
+
+                        if (carts_cr == "cart att pow 1")
+                            cart_create = "cart att pow 2";
+
+                        if (carts_cr == "cart bar pow 1")
+                            cart_create = "cart bar pow 2";
+                        if (carts_cr == "cart bomb pow 1")
+                            cart_create = "cart bomb pow 2";
+                        if (carts_cr == "cart dych pow 1")
+                            cart_create = "cart dych pow 2";
+
+                        else if (carts_cr == "cart fire pow 1")
+                            cart_create = "cart fire pow 2";
+                        else if (carts_cr == "cart poition pow 1")
+                            cart_create = "cart poition pow 2";
+                        else if (carts_cr == "cart blood pow 1")
+                            cart_create = "cart blood pow 2";
+                        else if (carts_cr == "cart rock pow 1")
+                            cart_create = "cart rock pow 2";
+                        else if (carts_cr == "cart ice pow 1")
+                            cart_create = "cart ice pow 2";
+                        else if (carts_cr == "cart energy pow 1")
+                            cart_create = "cart energy pow 2";
+
+                        if (carts_cr == "cart att cuzna 1")
+                            cart_create = "cart att cuzna 2";
+
+                        if (carts_cr == "cart bar cuzna 1")
+                            cart_create = "cart bar cuzna 2";
+                        if (carts_cr == "cart bomb cuzna 1")
+                            cart_create = "cart bomb cuzna 2";
+                        if (carts_cr == "cart dych cuzna 1")
+                            cart_create = "cart dych cuzna 2";
+
+                        else if (carts_cr == "cart fire cuzna 1")
+                            cart_create = "cart fire cuzna 2";
+                        else if (carts_cr == "cart poition cuzna 1")
+                            cart_create = "cart poition cuzna 2";
+                        else if (carts_cr == "cart blood cuzna 1")
+                            cart_create = "cart blood cuzna 2";
+                        else if (carts_cr == "cart rock cuzna 1")
+                            cart_create = "cart rock cuzna 2";
+                        else if (carts_cr == "cart ice cuzna 1")
+                            cart_create = "cart ice cuzna 2";
+                        else if (carts_cr == "cart energy cuzna 1")
+                            cart_create = "cart energy cuzna 2";
+
+
+                        if (carts_cr == "cart att bomb 1")
+                            cart_create = "cart att bomb 2";
+
+                        if (carts_cr == "cart bar bomb 1")
+                            cart_create = "cart bar bomb 2";
+                        if (carts_cr == "cart bomb bomb 1")
+                            cart_create = "cart bomb bomb 2";
+                        if (carts_cr == "cart dych bomb 1")
+                            cart_create = "cart dych bomb 2";
+
+                        else if (carts_cr == "cart fire bomb 1")
+                            cart_create = "cart fire bomb 2";
+                        else if (carts_cr == "cart poition bomb 1")
+                            cart_create = "cart poition bomb 2";
+                        else if (carts_cr == "cart blood bomb 1")
+                            cart_create = "cart blood bomb 2";
+                        else if (carts_cr == "cart rock bomb 1")
+                            cart_create = "cart rock bomb 2";
+                        else if (carts_cr == "cart ice bomb 1")
+                            cart_create = "cart ice bomb 2";
+                        else if (carts_cr == "cart energy bomb 1")
+                            cart_create = "cart energy bomb 2";
+
+                        else if (carts_cr == "cart fire heart")
+                            cart_create = "cart spirit fire heart";
+                        else if (carts_cr == "cart poition heart")
+                            cart_create = "cart spirit poition heart";
+                        else if (carts_cr == "cart blood heart")
+                            cart_create = "cart spirit blood heart";
+                        else if (carts_cr == "cart rock heart")
+                            cart_create = "cart spirit rock heart";
+                        else if (carts_cr == "cart ice heart")
+                            cart_create = "cart spirit ice heart";
+                        else if (carts_cr == "cart energy heart")
+                            cart_create = "cart spirit energy heart";
+
+                        else if (carts_cr == "cart mini mast fire")
+                            cart_create = "cart mast fire";
+                        else if (carts_cr == "cart mini mast poition")
+                            cart_create = "cart mast poition";
+                        else if (carts_cr == "cart mini mast blood")
+                            cart_create = "cart mast blood";
+                        else if (carts_cr == "cart mini mast rock")
+                            cart_create = "cart mast rock";
+                        else if (carts_cr == "cart mini mast ice")
+                            cart_create = "cart mast ice";
+                        else if (carts_cr == "cart mini mast energy")
+                            cart_create = "cart mast energy";
+
+                        else if (carts_cr == "cart berserk")
+                            cart_create = "cart rage";
+                        else if (carts_cr == "cart dop hill")
+                            cart_create = "cart berserk boss";
+
+                        else if (carts_cr == "cart mini spirit")
+                            cart_create = "cart spirit";
+                        else if (carts_cr == "cart mini shaman")
+                            cart_create = "cart shaman boss";
+                    }
+
 
 
                     // mb.gameObject.GetComponent<Animator>().SetBool("atack", true);
@@ -4618,7 +4768,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                                 if (cart.type == par_cart.type_cart.art_ice_cuzna && cart0 == par_cart.type_cart.ice)
                                 {
                                     //cart.q --;
-                                    mb.activate_art(cart,-1,-1, lt_carts_active_now_base[0]);
+                                    mb.activate_art(cart, -1, -1, lt_carts_active_now_base[0]);
                                     bl_el_cuzna = true;
                                     //break;
                                 }
@@ -4657,132 +4807,45 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                                     bl_el_cuzna = true;
                                     //break;
                                 }
+                                else if (cart.type == par_cart.type_cart.art_att_cuzna && cart0 == par_cart.type_cart.damage)
+                                {
+                                    //cart.q --;
+                                    mb.activate_art(cart, -1, -1, lt_carts_active_now_base[0]);
+                                    bl_el_cuzna = true;
+                                    //break;
+                                }
+                                else if (cart.type == par_cart.type_cart.art_bar_cuzna && cart0 == par_cart.type_cart.sp_barier)
+                                {
+                                    //cart.q --;
+                                    mb.activate_art(cart, -1, -1, lt_carts_active_now_base[0]);
+                                    bl_el_cuzna = true;
+                                    //break;
+                                }
+                                else if (cart.type == par_cart.type_cart.art_dych_cuzna && cart0 == par_cart.type_cart.sp_dych)
+                                {
+                                    //cart.q --;
+                                    mb.activate_art(cart, -1, -1, lt_carts_active_now_base[0]);
+                                    bl_el_cuzna = true;
+                                    //break;
+                                }
+                                else if (cart.type == par_cart.type_cart.art_bomb_cuzna && cart0 == par_cart.type_cart.sp_bomb)
+                                {
+                                    //cart.q --;
+                                    mb.activate_art(cart, -1, -1, lt_carts_active_now_base[0]);
+                                    bl_el_cuzna = true;
+                                    //break;
+                                }
                             }
 
                         }
 
                         spawn_cart(cart_create, gameObject.transform.Find("carts active").gameObject);
-
-                        /*
-                        List<par_cart.type_cart> lt = new List<par_cart.type_cart>();
-                        foreach (par_cart_art cart in mb.lt_carts_art)
-                        {
-
-                            if (cart.perez_now == 0 || cart.q > 0)
-                            {
-                                if (!lt.Contains(cart.type))
-                                {
-                                    par_cart.type_cart cart_type_now = GameObject.Find(mb.lt_carts_active_now[1]).GetComponent<par_cart>().type;
-
-                                    if (cart.type == par_cart.type_cart.art_speed_rock && cart_type_now == par_cart.type_cart.rock)
-                                        mb.activate_art(cart, mb.x, mb.y);
-                                    //else if (cart.name == "cart speed rock 1" && mb.lt_carts_active_now[0] == "cart rock 1")
-                                    //mb.activate_art(cart, mb.x, mb.y);
-
-                                    if (cart.type == par_cart.type_cart.art_speed_fire && cart_type_now == par_cart.type_cart.fire)
-                                        mb.activate_art(cart, mb.x, mb.y);
-                                    //else if (cart.name == "cart speed fire 1" && mb.lt_carts_active_now[0] == "cart fire 1")
-                                    //mb.activate_art(cart, mb.x, mb.y);
-
-                                    if (cart.type == par_cart.type_cart.art_speed_energy && cart_type_now == par_cart.type_cart.energy)
-                                        mb.activate_art(cart, mb.x, mb.y);
-                                    //else if (cart.name == "cart speed energy 1" && mb.lt_carts_active_now[0] == "cart energy 1")
-                                    //mb.activate_art(cart, mb.x, mb.y);
-
-                                    if (cart.type == par_cart.type_cart.art_speed_blood && cart_type_now == par_cart.type_cart.blood)
-                                        mb.activate_art(cart, mb.x, mb.y);
-                                    //else if (cart.name == "cart speed blood 1" && mb.lt_carts_active_now[0] == "cart blood 1")
-                                    //mb.activate_art(cart, mb.x, mb.y);
-
-                                    if (cart.type == par_cart.type_cart.art_speed_ice && cart_type_now == par_cart.type_cart.ice)
-                                        mb.activate_art(cart, mb.x, mb.y);
-                                    //else if (cart.name == "cart speed ice 1" && mb.lt_carts_active_now[0] == "cart ice 1")
-                                    //mb.activate_art(cart, mb.x, mb.y);
-
-                                    if (cart.type == par_cart.type_cart.art_speed_poition && cart_type_now == par_cart.type_cart.poition)
-                                        mb.activate_art(cart, mb.x, mb.y);
-                                    //else if (cart.name == "cart speed poition 1" && mb.lt_carts_active_now[0] == "cart poition 1")
-                                    //mb.activate_art(cart, mb.x, mb.y);
-
-                                    else if (cart.name == "cart speed")
-                                        mb.activate_art(cart, mb.x, mb.y);
-                                    lt.Add(cart.type);
-                                }
-
-
-                            }
-                        }
-                        foreach (par_cart_art cart in mb.lt_carts_art)
-                        {
-                            bool bl1 = (cart.name == "cart rock st" && mb.lt_carts_active_now[1] == "cart rock") ||
-                                (cart.name == "cart rock st" && mb.lt_carts_active_now[1] == "cart rock 1") ||
-
-                                (cart.name == "cart blood st" && mb.lt_carts_active_now[1] == "cart blood") ||
-                                (cart.name == "cart blood st" && mb.lt_carts_active_now[1] == "cart blood 1") ||
-
-                                (cart.name == "cart fire st" && mb.lt_carts_active_now[1] == "cart fire") ||
-                                (cart.name == "cart fire st" && mb.lt_carts_active_now[1] == "cart fire 1") ||
-
-                                (cart.name == "cart ice st" && mb.lt_carts_active_now[1] == "cart ice") ||
-                                (cart.name == "cart ice st" && mb.lt_carts_active_now[1] == "cart ice 1") ||
-
-                                (cart.name == "cart energy st" && mb.lt_carts_active_now[1] == "cart energy") ||
-                                (cart.name == "cart energy st" && mb.lt_carts_active_now[1] == "cart energy 1") ||
-
-                                (cart.name == "cart poition st" && mb.lt_carts_active_now[1] == "cart poition") ||
-                                (cart.name == "cart poition st" && mb.lt_carts_active_now[1] == "cart poition 1");
-
-                            if (cart.perez_now == 0)
-                            {
-
-                            }
-                            if (cart.name == "cart mast" || cart.name == "cart derlorg st")
-                            {
-                                par_cart.type_cart cart_type_now = GameObject.Find(mb.lt_carts_active_now[1]).GetComponent<par_cart>().type;
-                                foreach (par_cart_art cart1 in mb.lt_carts_art)
-                                {
-                                    if (cart_type_now == par_cart.type_cart.sp_barier || cart_type_now == par_cart.type_cart.sp_crystall)
-                                    {
-                                        if (cart1.perez_now > 1)
-                                            cart1.perez_now -= 3;
-                                        if (cart1.perez_now < 0)
-                                            cart1.perez_now = 0;
-                                    }
-                                    else
-                                    {
-                                        if (cart1.perez_now > 1)
-                                            cart1.perez_now -= 2;
-                                        if (cart1.perez_now < 0)
-                                            cart1.perez_now = 0;
-                                    }
-                                }
-                            }
-                            else if (bl1)
-                            {
-                                //foreach (par_cart_art cart1 in lt_carts_art)
-                                //{
-                                foreach (par_cart_art cart11 in mb.lt_carts_art)
-                                {
-                                    if (cart11.perez_now > 1)
-                                        cart11.perez_now--;
-                                }
-                            }
-                        }
-                        */
-
                     }
                     bl_att = true;
                 }
-                //mb.lt_carts_active_now.RemoveAt(0);
-                //mb.lt_carts_active_now.RemoveAt(0);
-                
-                //mb.lt_carts_active_now.RemoveAt(0);
-                //anim.col_anim++;
-                //func.next_hod();
-
             }
 
-            else if (lt_carts_active_now_base[0] == "cart cuznec" && lt_carts_active_now.Count == 3 && lt_carts_active_now[1] == lt_carts_active_now[2])
+            else if ((lt_carts_active_now_base[0] == "cart cuznec" || lt_carts_active_now_base[0] == "cart cuznec 1") && lt_carts_active_now.Count == 3 && lt_carts_active_now[1] == lt_carts_active_now[2])
             {
 
                 //func.mob[x, y].GetComponent<par_mob>().add_baf(par_baf.type_baf.bar, -1, 1);
@@ -4792,96 +4855,383 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 par_cart.type_cart cart0 = GameObject.Find(lt_carts_active_now[1]).GetComponent<par_cart>().type;
 
                 bool bl_el_cuzna = false;
-                
-
-                if (carts_cr == "cart damage")
-                    cart_create = "cart damage 1";
-                if (carts_cr == "cart barier")
-                    cart_create = "cart barier 1";
-                if (carts_cr == "cart sp atack")
-                    cart_create = "cart sp atack 1";
-                if (carts_cr == "cart sp barier")
-                    cart_create = "cart sp barier 1";
-
-                if (carts_cr == "cart att pow")
-                    cart_create = "cart att pow 1";
-                if (carts_cr == "cart bar pow")
-                    cart_create = "cart bar pow 1";
-
-                if (carts_cr == "cart crystall")
-                    cart_create = "cart crystall 1";
-                if (carts_cr == "cart sp crystall")
-                    cart_create = "cart sp crystall 1";
 
 
-                if (carts_cr == "cart fire")
-                    cart_create = "cart fire 1";
-                else if (carts_cr == "cart rock")
-                    cart_create = "cart rock 1";
-                else if (carts_cr == "cart blood")
-                    cart_create = "cart blood 1";
-                else if (carts_cr == "cart poition")
-                    cart_create = "cart poition 1";
-                else if (carts_cr == "cart ice")
-                    cart_create = "cart ice 1";
-                else if (carts_cr == "cart energy")
-                    cart_create = "cart energy 1";
+                if (lt_carts_active_now_base[0] == "cart cuznec" || lt_carts_active_now_base[0] == "cart cuznec 1")
+                {
+                    if (carts_cr == "cart cuznec")
+                        cart_create = "cart cuznec 1";
+
+                    if (carts_cr == "cart damage")
+                        cart_create = "cart damage 1";
+                    if (carts_cr == "cart barier")
+                        cart_create = "cart barier 1";
+
+                    if (carts_cr == "cart bomb")
+                        cart_create = "cart bomb 1";
+
+
+                    if (carts_cr == "cart fire")
+                        cart_create = "cart fire 1";
+                    else if (carts_cr == "cart rock")
+                        cart_create = "cart rock 1";
+                    else if (carts_cr == "cart blood")
+                        cart_create = "cart blood 1";
+                    else if (carts_cr == "cart poition")
+                        cart_create = "cart poition 1";
+                    else if (carts_cr == "cart ice")
+                        cart_create = "cart ice 1";
+                    else if (carts_cr == "cart energy")
+                        cart_create = "cart energy 1";
+
+                    else if (carts_cr == "cart sp atack")
+                        cart_create = "cart sp atack 1";
+
+                    else if (carts_cr == "cart sp barier")
+                        cart_create = "cart sp barier 1";
+                    else if (carts_cr == "cart sp bomb")
+                        cart_create = "cart sp bomb 1";
+                    else if (carts_cr == "cart sp dych")
+                        cart_create = "cart sp dych 1";
+
+                    else if (carts_cr == "cart sp fire")
+                        cart_create = "cart sp fire 1";
+                    else if (carts_cr == "cart sp rock")
+                        cart_create = "cart sp rock 1";
+                    else if (carts_cr == "cart sp blood")
+                        cart_create = "cart sp blood 1";
+                    else if (carts_cr == "cart sp poition")
+                        cart_create = "cart sp poition 1";
+                    else if (carts_cr == "cart sp ice")
+                        cart_create = "cart sp ice 1";
+                    else if (carts_cr == "cart sp energy")
+                        cart_create = "cart sp energy 1";
+
+
+                    if (carts_cr == "cart act att")
+                        cart_create = "cart act att 1";
+
+                    if (carts_cr == "cart act bar")
+                        cart_create = "cart act bar 1";
+                    if (carts_cr == "cart act bomb")
+                        cart_create = "cart act bomb 1";
+                    if (carts_cr == "cart act dych")
+                        cart_create = "cart act dych 1";
+
+                    else if (carts_cr == "cart act fire")
+                        cart_create = "cart act fire 1";
+                    else if (carts_cr == "cart act rock")
+                        cart_create = "cart act rock 1";
+                    else if (carts_cr == "cart act blood")
+                        cart_create = "cart act blood 1";
+                    else if (carts_cr == "cart act poition")
+                        cart_create = "cart act poition 1";
+                    else if (carts_cr == "cart act ice")
+                        cart_create = "cart act ice 1";
+                    else if (carts_cr == "cart act energy")
+                        cart_create = "cart act energy 1";
+
+                    if (carts_cr == "cart speed att")
+                        cart_create = "cart speed att 1";
+
+                    if (carts_cr == "cart speed bar")
+                        cart_create = "cart speed bar 1";
+                    if (carts_cr == "cart speed bomb")
+                        cart_create = "cart speed bomb 1";
+                    if (carts_cr == "cart speed dych")
+                        cart_create = "cart speed dych 1";
+
+                    if (carts_cr == "cart speed fire")
+                        cart_create = "cart speed fire 1";
+                    else if (carts_cr == "cart speed rock")
+                        cart_create = "cart speed rock 1";
+                    else if (carts_cr == "cart speed blood")
+                        cart_create = "cart speed blood 1";
+                    else if (carts_cr == "cart speed poition")
+                        cart_create = "cart speed poition 1";
+                    else if (carts_cr == "cart speed ice")
+                        cart_create = "cart speed ice 1";
+                    else if (carts_cr == "cart speed energy")
+                        cart_create = "cart speed energy 1";
 
 
 
-                else if (carts_cr == "cart sp fire")
-                    cart_create = "cart sp fire 1";
-                else if (carts_cr == "cart sp rock")
-                    cart_create = "cart sp rock 1";
-                else if (carts_cr == "cart sp blood")
-                    cart_create = "cart sp blood 1";
-                else if (carts_cr == "cart sp poition")
-                    cart_create = "cart sp poition 1";
-                else if (carts_cr == "cart sp ice")
-                    cart_create = "cart sp ice 1";
-                else if (carts_cr == "cart sp energy")
-                    cart_create = "cart sp energy 1";
+                    if (carts_cr == "cart att pow")
+                        cart_create = "cart att pow 1";
+
+                    if (carts_cr == "cart bar pow")
+                        cart_create = "cart bar pow 1";
+                    if (carts_cr == "cart bomb pow")
+                        cart_create = "cart bomb pow 1";
+                    if (carts_cr == "cart dych pow")
+                        cart_create = "cart dych pow 1";
+
+                    else if (carts_cr == "cart fire pow")
+                        cart_create = "cart fire pow 1";
+                    else if (carts_cr == "cart poition pow")
+                        cart_create = "cart poition pow 1";
+                    else if (carts_cr == "cart blood pow")
+                        cart_create = "cart blood pow 1";
+                    else if (carts_cr == "cart rock pow")
+                        cart_create = "cart rock pow 1";
+                    else if (carts_cr == "cart ice pow")
+                        cart_create = "cart ice pow 1";
+                    else if (carts_cr == "cart energy pow")
+                        cart_create = "cart energy pow 1";
+
+                    if (carts_cr == "cart att cuzna")
+                        cart_create = "cart att cuzna 1";
+
+                    if (carts_cr == "cart bar cuzna")
+                        cart_create = "cart bar cuzna 1";
+                    if (carts_cr == "cart bomb cuzna")
+                        cart_create = "cart bomb cuzna 1";
+                    if (carts_cr == "cart dych cuzna")
+                        cart_create = "cart dych cuzna 1";
+
+                    else if (carts_cr == "cart fire cuzna")
+                        cart_create = "cart fire cuzna 1";
+                    else if (carts_cr == "cart poition cuzna")
+                        cart_create = "cart poition cuzna 1";
+                    else if (carts_cr == "cart blood cuzna")
+                        cart_create = "cart blood cuzna 1";
+                    else if (carts_cr == "cart rock cuzna")
+                        cart_create = "cart rock cuzna 1";
+                    else if (carts_cr == "cart ice cuzna")
+                        cart_create = "cart ice cuzna 1";
+                    else if (carts_cr == "cart energy cuzna")
+                        cart_create = "cart energy cuzna 1";
 
 
-                else if (carts_cr == "cart act fire")
-                    cart_create = "cart act fire 1";
-                else if (carts_cr == "cart act rock")
-                    cart_create = "cart act rock 1";
-                else if (carts_cr == "cart act blood")
-                    cart_create = "cart act blood 1";
-                else if (carts_cr == "cart act poition")
-                    cart_create = "cart act poition 1";
-                else if (carts_cr == "cart act ice")
-                    cart_create = "cart act ice 1";
-                else if (carts_cr == "cart act energy")
-                    cart_create = "cart act energy 1";
+                    if (carts_cr == "cart att bomb")
+                        cart_create = "cart att bomb 1";
 
-                if (carts_cr == "cart speed fire")
-                    cart_create = "cart speed fire 1";
-                else if (carts_cr == "cart speed rock")
-                    cart_create = "cart speed rock 1";
-                else if (carts_cr == "cart speed blood")
-                    cart_create = "cart speed blood 1";
-                else if (carts_cr == "cart speed poition")
-                    cart_create = "cart speed poition 1";
-                else if (carts_cr == "cart speed ice")
-                    cart_create = "cart speed ice 1";
-                else if (carts_cr == "cart speed energy")
-                    cart_create = "cart speed energy 1";
+                    if (carts_cr == "cart bar bomb")
+                        cart_create = "cart bar bomb 1";
+                    if (carts_cr == "cart bomb bomb")
+                        cart_create = "cart bomb bomb 1";
+                    if (carts_cr == "cart dych bomb")
+                        cart_create = "cart dych bomb 1";
+
+                    else if (carts_cr == "cart fire bomb")
+                        cart_create = "cart fire bomb 1";
+                    else if (carts_cr == "cart poition bomb")
+                        cart_create = "cart poition bomb 1";
+                    else if (carts_cr == "cart blood bomb")
+                        cart_create = "cart blood bomb 1";
+                    else if (carts_cr == "cart rock bomb")
+                        cart_create = "cart rock bomb 1";
+                    else if (carts_cr == "cart ice bomb")
+                        cart_create = "cart ice bomb 1";
+                    else if (carts_cr == "cart energy bomb")
+                        cart_create = "cart energy bomb 1";
+
+                }
+                if (lt_carts_active_now_base[0] == "cart cuznec 1" && cart_create == null)
+                {
+                    if (carts_cr == "cart damage 1")
+                        cart_create = "cart damage 2";
+
+                    if (carts_cr == "cart barier 1")
+                        cart_create = "cart barier 2";
+                    if (carts_cr == "cart bomb 1")
+                        cart_create = "cart bomb 2";
+                    if (carts_cr == "cart dych 1")
+                        cart_create = "cart dych 2";
+
+                    if (carts_cr == "cart fire 1")
+                        cart_create = "cart fire 2";
+                    else if (carts_cr == "cart rock 1")
+                        cart_create = "cart rock 2";
+                    else if (carts_cr == "cart blood 1")
+                        cart_create = "cart blood 2";
+                    else if (carts_cr == "cart poition 1")
+                        cart_create = "cart poition 2";
+                    else if (carts_cr == "cart ice 1")
+                        cart_create = "cart ice 2";
+                    else if (carts_cr == "cart energy 1")
+                        cart_create = "cart energy 2";
 
 
-                else if (carts_cr == "cart fire pow")
-                    cart_create = "cart fire pow 1";
-                else if (carts_cr == "cart poition pow")
-                    cart_create = "cart poition pow 1";
-                else if (carts_cr == "cart blood pow")
-                    cart_create = "cart blood pow 1";
-                else if (carts_cr == "cart rock pow")
-                    cart_create = "cart rock pow 1";
-                else if (carts_cr == "cart ice pow")
-                    cart_create = "cart ice pow 1";
-                else if (carts_cr == "cart energy pow")
-                    cart_create = "cart energy pow 1";
+
+                    else if (carts_cr == "cart sp atack 1")
+                        cart_create = "cart sp atack 2";
+
+                    else if (carts_cr == "cart sp barier 1")
+                        cart_create = "cart sp barier 2";
+                    else if (carts_cr == "cart sp bomb 1")
+                        cart_create = "cart sp bomb 2";
+                    else if (carts_cr == "cart sp dych 1")
+                        cart_create = "cart sp dych 2";
+
+                    else if (carts_cr == "cart sp fire 1")
+                        cart_create = "cart sp fire 2";
+                    else if (carts_cr == "cart sp rock 1")
+                        cart_create = "cart sp rock 2";
+                    else if (carts_cr == "cart sp blood 1")
+                        cart_create = "cart sp blood 2";
+                    else if (carts_cr == "cart sp poition 1")
+                        cart_create = "cart sp poition 2";
+                    else if (carts_cr == "cart sp ice 1")
+                        cart_create = "cart sp ice 2";
+                    else if (carts_cr == "cart sp energy 1")
+                        cart_create = "cart sp energy 2";
+
+
+                    if (carts_cr == "cart act att 1")
+                        cart_create = "cart act att 2";
+
+                    if (carts_cr == "cart act bar 1")
+                        cart_create = "cart act bar 2";
+                    if (carts_cr == "cart act bomb 1")
+                        cart_create = "cart act bomb 2";
+                    if (carts_cr == "cart act dych 1")
+                        cart_create = "cart act dych 2";
+
+                    else if (carts_cr == "cart act fire 1")
+                        cart_create = "cart act fire 2";
+                    else if (carts_cr == "cart act rock 1")
+                        cart_create = "cart act rock 2";
+                    else if (carts_cr == "cart act blood 1")
+                        cart_create = "cart act blood 2";
+                    else if (carts_cr == "cart act poition 1")
+                        cart_create = "cart act poition 2";
+                    else if (carts_cr == "cart act ice 1")
+                        cart_create = "cart act ice 2";
+                    else if (carts_cr == "cart act energy 1")
+                        cart_create = "cart act energy 2";
+
+                    if (carts_cr == "cart speed att 1")
+                        cart_create = "cart speed att 2";
+
+                    if (carts_cr == "cart speed bar 1")
+                        cart_create = "cart speed bar 2";
+                    if (carts_cr == "cart speed bomb 1")
+                        cart_create = "cart speed bomb 2";
+                    if (carts_cr == "cart speed dych 1")
+                        cart_create = "cart speed dych 2";
+
+                    if (carts_cr == "cart speed fire 1")
+                        cart_create = "cart speed fire 2";
+                    else if (carts_cr == "cart speed rock 1")
+                        cart_create = "cart speed rock 2";
+                    else if (carts_cr == "cart speed blood 1")
+                        cart_create = "cart speed blood 2";
+                    else if (carts_cr == "cart speed poition 1")
+                        cart_create = "cart speed poition 2";
+                    else if (carts_cr == "cart speed ice 1")
+                        cart_create = "cart speed ice 2";
+                    else if (carts_cr == "cart speed energy 1")
+                        cart_create = "cart speed energy 2";
+
+
+
+                    if (carts_cr == "cart att pow 1")
+                        cart_create = "cart att pow 2";
+
+                    if (carts_cr == "cart bar pow 1")
+                        cart_create = "cart bar pow 2";
+                    if (carts_cr == "cart bomb pow 1")
+                        cart_create = "cart bomb pow 2";
+                    if (carts_cr == "cart dych pow 1")
+                        cart_create = "cart dych pow 2";
+
+                    else if (carts_cr == "cart fire pow 1")
+                        cart_create = "cart fire pow 2";
+                    else if (carts_cr == "cart poition pow 1")
+                        cart_create = "cart poition pow 2";
+                    else if (carts_cr == "cart blood pow 1")
+                        cart_create = "cart blood pow 2";
+                    else if (carts_cr == "cart rock pow 1")
+                        cart_create = "cart rock pow 2";
+                    else if (carts_cr == "cart ice pow 1")
+                        cart_create = "cart ice pow 2";
+                    else if (carts_cr == "cart energy pow 1")
+                        cart_create = "cart energy pow 2";
+
+                    if (carts_cr == "cart att cuzna 1")
+                        cart_create = "cart att cuzna 2";
+
+                    if (carts_cr == "cart bar cuzna 1")
+                        cart_create = "cart bar cuzna 2";
+                    if (carts_cr == "cart bomb cuzna 1")
+                        cart_create = "cart bomb cuzna 2";
+                    if (carts_cr == "cart dych cuzna 1")
+                        cart_create = "cart dych cuzna 2";
+
+                    else if (carts_cr == "cart fire cuzna 1")
+                        cart_create = "cart fire cuzna 2";
+                    else if (carts_cr == "cart poition cuzna 1")
+                        cart_create = "cart poition cuzna 2";
+                    else if (carts_cr == "cart blood cuzna 1")
+                        cart_create = "cart blood cuzna 2";
+                    else if (carts_cr == "cart rock cuzna 1")
+                        cart_create = "cart rock cuzna 2";
+                    else if (carts_cr == "cart ice cuzna 1")
+                        cart_create = "cart ice cuzna 2";
+                    else if (carts_cr == "cart energy cuzna 1")
+                        cart_create = "cart energy cuzna 2";
+
+
+                    if (carts_cr == "cart att bomb 1")
+                        cart_create = "cart att bomb 2";
+
+                    if (carts_cr == "cart bar bomb 1")
+                        cart_create = "cart bar bomb 2";
+                    if (carts_cr == "cart bomb bomb 1")
+                        cart_create = "cart bomb bomb 2";
+                    if (carts_cr == "cart dych bomb 1")
+                        cart_create = "cart dych bomb 2";
+
+                    else if (carts_cr == "cart fire bomb 1")
+                        cart_create = "cart fire bomb 2";
+                    else if (carts_cr == "cart poition bomb 1")
+                        cart_create = "cart poition bomb 2";
+                    else if (carts_cr == "cart blood bomb 1")
+                        cart_create = "cart blood bomb 2";
+                    else if (carts_cr == "cart rock bomb 1")
+                        cart_create = "cart rock bomb 2";
+                    else if (carts_cr == "cart ice bomb 1")
+                        cart_create = "cart ice bomb 2";
+                    else if (carts_cr == "cart energy bomb 1")
+                        cart_create = "cart energy bomb 2";
+
+                    else if (carts_cr == "cart fire heart")
+                        cart_create = "cart spirit fire heart";
+                    else if (carts_cr == "cart poition heart")
+                        cart_create = "cart spirit poition heart";
+                    else if (carts_cr == "cart blood heart")
+                        cart_create = "cart spirit blood heart";
+                    else if (carts_cr == "cart rock heart")
+                        cart_create = "cart spirit rock heart";
+                    else if (carts_cr == "cart ice heart")
+                        cart_create = "cart spirit ice heart";
+                    else if (carts_cr == "cart energy heart")
+                        cart_create = "cart spirit energy heart";
+
+                    else if (carts_cr == "cart mini mast fire")
+                        cart_create = "cart mast fire";
+                    else if (carts_cr == "cart mini mast poition")
+                        cart_create = "cart mast poition";
+                    else if (carts_cr == "cart mini mast blood")
+                        cart_create = "cart mast blood";
+                    else if (carts_cr == "cart mini mast rock")
+                        cart_create = "cart mast rock";
+                    else if (carts_cr == "cart mini mast ice")
+                        cart_create = "cart mast ice";
+                    else if (carts_cr == "cart mini mast energy")
+                        cart_create = "cart mast energy";
+
+                    else if (carts_cr == "cart berserk")
+                        cart_create = "cart rage";
+                    else if (carts_cr == "cart dop hill")
+                        cart_create = "cart berserk boss";
+
+                    else if (carts_cr == "cart mini spirit")
+                        cart_create = "cart spirit";
+                    else if (carts_cr == "cart mini shaman")
+                        cart_create = "cart shaman boss";
+                }
 
 
                 // mb.gameObject.GetComponent<Animator>().SetBool("atack", true);
@@ -4934,14 +5284,42 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                                 bl_el_cuzna = true;
                                 //break;
                             }
+                            else if (cart.type == par_cart.type_cart.art_att_cuzna && cart0 == par_cart.type_cart.damage)
+                            {
+                                //cart.q --;
+                                mb.activate_art(cart, -1, -1, lt_carts_active_now_base[0]);
+                                bl_el_cuzna = true;
+                                //break;
+                            }
+                            else if (cart.type == par_cart.type_cart.art_bar_cuzna && cart0 == par_cart.type_cart.sp_barier)
+                            {
+                                //cart.q --;
+                                mb.activate_art(cart, -1, -1, lt_carts_active_now_base[0]);
+                                bl_el_cuzna = true;
+                                //break;
+                            }
+                            else if (cart.type == par_cart.type_cart.art_dych_cuzna && cart0 == par_cart.type_cart.sp_dych)
+                            {
+                                //cart.q --;
+                                mb.activate_art(cart, -1, -1, lt_carts_active_now_base[0]);
+                                bl_el_cuzna = true;
+                                //break;
+                            }
+                            else if (cart.type == par_cart.type_cart.art_bomb_cuzna && cart0 == par_cart.type_cart.sp_bomb)
+                            {
+                                //cart.q --;
+                                mb.activate_art(cart, -1, -1, lt_carts_active_now_base[0]);
+                                bl_el_cuzna = true;
+                                //break;
+                            }
                         }
 
                     }
 
-                    if (data.data_now.col_carts_cuzna < 50)
+                    if (data.data_now.col_carts_cuzna < 20)
                     {
                         data.data_now.col_carts_cuzna++;
-                        if (data.data_now.col_carts_cuzna == 50)
+                        if (data.data_now.col_carts_cuzna == 20)
                         {
                             //data.data_now.lt_players.Add(data.players.blood);
                             data.give_achive("Кузнец");
@@ -4951,175 +5329,154 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
 
                     spawn_cart(cart_create, gameObject.transform.Find("carts active").gameObject);
-
-                    /*
-                    List<par_cart.type_cart> lt = new List<par_cart.type_cart>();
-                    foreach (par_cart_art cart in mb.lt_carts_art)
-                    {
-
-                        if (cart.perez_now == 0 || cart.q > 0)
-                        {
-                            if (!lt.Contains(cart.type))
-                            {
-                                par_cart.type_cart cart_type_now = GameObject.Find(mb.lt_carts_active_now[1]).GetComponent<par_cart>().type;
-
-                                if (cart.type == par_cart.type_cart.art_speed_rock && cart_type_now == par_cart.type_cart.rock)
-                                    mb.activate_art(cart, mb.x, mb.y);
-                                //else if (cart.name == "cart speed rock 1" && mb.lt_carts_active_now[0] == "cart rock 1")
-                                //mb.activate_art(cart, mb.x, mb.y);
-
-                                if (cart.type == par_cart.type_cart.art_speed_fire && cart_type_now == par_cart.type_cart.fire)
-                                    mb.activate_art(cart, mb.x, mb.y);
-                                //else if (cart.name == "cart speed fire 1" && mb.lt_carts_active_now[0] == "cart fire 1")
-                                //mb.activate_art(cart, mb.x, mb.y);
-
-                                if (cart.type == par_cart.type_cart.art_speed_energy && cart_type_now == par_cart.type_cart.energy)
-                                    mb.activate_art(cart, mb.x, mb.y);
-                                //else if (cart.name == "cart speed energy 1" && mb.lt_carts_active_now[0] == "cart energy 1")
-                                //mb.activate_art(cart, mb.x, mb.y);
-
-                                if (cart.type == par_cart.type_cart.art_speed_blood && cart_type_now == par_cart.type_cart.blood)
-                                    mb.activate_art(cart, mb.x, mb.y);
-                                //else if (cart.name == "cart speed blood 1" && mb.lt_carts_active_now[0] == "cart blood 1")
-                                //mb.activate_art(cart, mb.x, mb.y);
-
-                                if (cart.type == par_cart.type_cart.art_speed_ice && cart_type_now == par_cart.type_cart.ice)
-                                    mb.activate_art(cart, mb.x, mb.y);
-                                //else if (cart.name == "cart speed ice 1" && mb.lt_carts_active_now[0] == "cart ice 1")
-                                //mb.activate_art(cart, mb.x, mb.y);
-
-                                if (cart.type == par_cart.type_cart.art_speed_poition && cart_type_now == par_cart.type_cart.poition)
-                                    mb.activate_art(cart, mb.x, mb.y);
-                                //else if (cart.name == "cart speed poition 1" && mb.lt_carts_active_now[0] == "cart poition 1")
-                                //mb.activate_art(cart, mb.x, mb.y);
-
-                                else if (cart.name == "cart speed")
-                                    mb.activate_art(cart, mb.x, mb.y);
-                                lt.Add(cart.type);
-                            }
-
-
-                        }
-                    }
-                    foreach (par_cart_art cart in mb.lt_carts_art)
-                    {
-                        bool bl1 = (cart.name == "cart rock st" && mb.lt_carts_active_now[1] == "cart rock") ||
-                            (cart.name == "cart rock st" && mb.lt_carts_active_now[1] == "cart rock 1") ||
-
-                            (cart.name == "cart blood st" && mb.lt_carts_active_now[1] == "cart blood") ||
-                            (cart.name == "cart blood st" && mb.lt_carts_active_now[1] == "cart blood 1") ||
-
-                            (cart.name == "cart fire st" && mb.lt_carts_active_now[1] == "cart fire") ||
-                            (cart.name == "cart fire st" && mb.lt_carts_active_now[1] == "cart fire 1") ||
-
-                            (cart.name == "cart ice st" && mb.lt_carts_active_now[1] == "cart ice") ||
-                            (cart.name == "cart ice st" && mb.lt_carts_active_now[1] == "cart ice 1") ||
-
-                            (cart.name == "cart energy st" && mb.lt_carts_active_now[1] == "cart energy") ||
-                            (cart.name == "cart energy st" && mb.lt_carts_active_now[1] == "cart energy 1") ||
-
-                            (cart.name == "cart poition st" && mb.lt_carts_active_now[1] == "cart poition") ||
-                            (cart.name == "cart poition st" && mb.lt_carts_active_now[1] == "cart poition 1");
-
-                        if (cart.perez_now == 0)
-                        {
-
-                        }
-                        if (cart.name == "cart mast" || cart.name == "cart derlorg st")
-                        {
-                            par_cart.type_cart cart_type_now = GameObject.Find(mb.lt_carts_active_now[1]).GetComponent<par_cart>().type;
-                            foreach (par_cart_art cart1 in mb.lt_carts_art)
-                            {
-                                if (cart_type_now == par_cart.type_cart.sp_barier || cart_type_now == par_cart.type_cart.sp_crystall)
-                                {
-                                    if (cart1.perez_now > 1)
-                                        cart1.perez_now -= 6;
-                                    if (cart1.perez_now < 0)
-                                        cart1.perez_now = 0;
-                                }
-                                else
-                                {
-                                    if (cart1.perez_now > 1)
-                                        cart1.perez_now -= 4;
-                                    if (cart1.perez_now < 0)
-                                        cart1.perez_now = 0;
-                                }
-                            }
-                        }
-                        else if (bl1)
-                        {
-                            //foreach (par_cart_art cart1 in lt_carts_art)
-                            //{
-                            foreach (par_cart_art cart11 in mb.lt_carts_art)
-                            {
-                                if (cart11.perez_now > 1)
-                                    cart11.perez_now -= 2;
-                                if (cart11.perez_now < 0)
-                                    cart11.perez_now = 0;
-                            }
-                        }
-                    }
-                    */
                     bl_att = true;
                 }
-                //mb.lt_carts_active_now.RemoveAt(0);
-                //mb.lt_carts_active_now.RemoveAt(0);
-                //mb.lt_carts_active_now.RemoveAt(0);
-                
-                //anim.col_anim++;
-                //func.next_hod();
+
+
+            }
+            else if (par_cart_shaman > 0 && !bl_spirit)
+            {
+
+
+                mb.effect_now = func.create_effect("spirit base", x_cl, y_cl, mb.gameObject, false, pow_rez, lt_carts_active_now_base);
+                bl_att = true;
+            }
+            else if ((lt_carts_active_now_base[0] == "cart dych" || lt_carts_active_now_base[0] == "cart dych 1" || lt_carts_active_now_base[0] == "cart dych 2") && lt_carts_active_now_base.Count >1)
+            {
+
+                //List<string> lt_st = new List<string>(lt_carts_active_now_base);
+                //lt_st.Re
+                mb.effect_now = func.create_effect("spawn dych", x_cl, y_cl, mb.gameObject, false, pow_rez-1, lt_carts_active_now_base);
+                mb.effect_now.transform.Find("empty").gameObject.GetComponent<SpriteRenderer>().color = anim_color.static_colors[func.baza[lt_carts_active_now_base[1]].GetComponent<par_cart>().type];
+                bl_att = true;
+            }
+            else if ((lt_carts_active_now_base[0] == "cart bomb"|| lt_carts_active_now_base[0] == "cart bomb 1" || lt_carts_active_now_base[0] == "cart bomb 2") && lt_carts_active_now_base.Count > 1)
+            {
+
+                if (func.nature[x_cl, y_cl]==null)
+                {
+                    mb.effect_now = func.create_effect(lt_carts_active_now_base[0], x_cl, y_cl, mb.gameObject, false, pow_rez-1, lt_carts_active_now_base);
+                    mb.effect_activate = lt_carts_active_now_base[0];
+                    mb.effect_now.GetComponent<SpriteRenderer>().color = anim_color.static_colors[func.baza[lt_carts_active_now_base[1]].GetComponent<par_cart>().type];
+                    bl_att = true;
+
+                    //mb.effect_now = func.create_effect(lt_carts_active_now_base[0], x_cl, y_cl, mb.gameObject, false, pow_rez, lt_carts_active_now_base);
+                    //mb.effect_activate = lt_carts_active_now_base[0];
+
+
+                    //mb.lt_carts_active_now.RemoveAt(0);
+
+
+                    //bl_att = true;
+                }
 
             }
 
-            else if (lt_carts_active_now_base[0] == "cart spirit(boss)")
+            else if (lt_carts_active_now_base.Count == 1 && !bl_spirit)
             {
-                Debug.Log("tuman");
-                par_cart cart1 = GameObject.Find(lt_carts_active_now_base[1]).GetComponent<par_cart>();
-                string ef = null;
-                if (cart1.type == par_cart.type_cart.blood)
+                //bool bl_first = true;
+                par_cart.type_cart tpp = GameObject.Find(lt_carts_active_now_base[0]).GetComponent<par_cart>().type;
+                //bool bl_sp=(lt_carts_active_now_base[0] == "cart dych" || lt_carts_active_now_base[0] == "cart dych 1" || lt_carts_active_now_base[0] == "cart dych 2")||
+                //par_cart
+                /*
+                foreach (par_cart.cart_combinations.comb_cart ct in par_cart.cart_combinations.lt_comb)
                 {
-                    ef = "cart spirit blood";
-                }
-                else if (cart1.type == par_cart.type_cart.ice)
-                {
-                    ef = "cart spirit ice";
-                }
-                else if (cart1.type == par_cart.type_cart.fire)
-                {
-                    ef = "cart spirit fire";
-                }
-                else if (cart1.type == par_cart.type_cart.poition)
-                {
-                    ef = "cart spirit poition";
-                }
-                else if (cart1.type == par_cart.type_cart.rock)
-                {
-                    ef = "cart spirit rock";
-                }
-                else if (cart1.type == par_cart.type_cart.energy)
-                {
-                    ef = "cart spirit energy";
-                }
+                    if (ct.name == lt_carts_active_now_base[0])
+                    {
+                        if (ct.next.Count == 0)
+                            bl_first = true;
+
+                        //now1 = ct;
+                        //break;
+                    }
 
 
-                mb.effect_now = func.create_effect(ef, x_cl, y_cl, mb.gameObject, false, pow_rez*2, lt_carts_active_now_base);
+                }
+                */
+                if (tpp!=par_cart.type_cart.sp_cuznec && tpp != par_cart.type_cart.sp_bomb && tpp != par_cart.type_cart.sp_dych && tpp != par_cart.type_cart.shaman_boss)
+                {
+                    int pw = GameObject.Find(lt_carts_active_now_base[0]).GetComponent<par_cart>().lvl;
+
+                    int dop_pow_rez = 1;
+
+                    string bl_dych = null;
+                    par_cart cart_bl_dych = null;
+                    //bool bl_art_potoc = false;
+                    if (bl_dych == null)
+                    {
+                        int pow_res_bool = pow_rez;
+                        par_cart.type_cart type_cart0 = GameObject.Find(lt_carts_active_now_base[0]).GetComponent<par_cart>().type;
+                        if (type_cart0 == par_cart.type_cart.derlorg)
+                            pow_res_bool = pow_rez_seal;
+                        mb.effect_now = func.create_effect(lt_carts_active_now_base[0], x_cl, y_cl, mb.gameObject, false, pow_res_bool * dop_pow_rez, lt_carts_active_now_base);
+
+                        Debug.Log(type_cart0);
+                        //bl_art_potoc = (type_cart0 == par_cart.type_cart.damage || type_cart0 == par_cart.type_cart.sp_barier || type_cart0 == par_cart.type_cart.derlorg);
+                    }
+                    else
+                    {
+                        mb.effect_now = func.create_effect(bl_dych, x_cl, y_cl, mb.gameObject, false, pow_rez * dop_pow_rez, lt_carts_active_now_base);
 
 
-                List<par_cart.type_cart> lt = new List<par_cart.type_cart>();
-                
-                
-                //mb.effect_now = func.create_effect(ef, x_cl, y_cl, mb.gameObject, false, pow_rez, mb.lt_carts_active_now);
-                //mb.lt_carts_active_now.RemoveAt(0);
-                //mb.lt_carts_active_now.RemoveAt(0);
+                        //mb.activate_art(cart_bl_dych, x_cl, y_cl);
+                    }
+
+                    //Debug.Log(effect_now ==null);
+                    //mb.effect_now.GetComponent<par_effect>().parent = ;
+                    mb.effect_activate = lt_carts_active_now_base[0];
+                    bl_att = true;
+                }
+
+                //func.next_hod();
+            }
+
+
+            else if (lt_carts_active_now_base[0] == "cart derlorg" || lt_carts_active_now_base[0] == "cart derlorg 1" || lt_carts_active_now_base[0] == "cart derlorg 2")
+            {
+                //Debug.Log("cart atack is activated");
+                string nm = null;
+                string cart1 = lt_carts_active_now_base[1];
+                //par_baf.type_baf type_bf = par_baf.type_baf.bar;
+                List<string> lt_ = new List<string>(lt_carts_active_now_base);
+                lt_.RemoveAt(0);
+                //nm = func.get_name_effect(lt_, null);
+
+                //par_baf.type_baf type = GameObject.Find(cart1).GetComponent<par_cart>().type
+                int lv = GameObject.Find(cart1).GetComponent<par_cart>().lvl;
+                //int lv1 = GameObject.Find(cart1).GetComponent<par_cart>().lvl;
+                mb.effect_now = func.create_effect(lt_carts_active_now_base[0], x_cl, y_cl, mb.gameObject, false, pow_rez_seal, lt_carts_active_now_base);
+                mb.effect_now.GetComponent<par_effect>().st_par.Push((pow_rez).ToString());
+                mb.effect_now.GetComponent<par_effect>().st_par.Push("par pow");
+                //Debug.Log(effect_now ==null);
+                //mb.effect_now.GetComponent<par_effect>().parent = ;
+                mb.effect_activate = lt_carts_active_now_base[0];
+                bl_att = true;
+                //anim.col_anim++;
+                //func.next_hod();
+            }
+
+
+            else if (bl_spirit)
+            {
+                //Debug.Log("tuman");
+                //par_cart cart1 = GameObject.Find(lt_carts_active_now_base[1]).GetComponent<par_cart>();
+
+
+                mb.effect_now = func.create_effect("spirit base", x_cl, y_cl, mb.gameObject, false, pow_rez + par_cart_shaman, lt_carts_active_now_base);
                 bl_att = true;
                 //func.next_hod();
+            }
+            else if (lt_carts_active_now_base.Count > 1)
+            {
+                mb.effect_now = func.create_effect(func.get_name_effect(lt_carts_active_now_base, null), x_cl, y_cl, mb.gameObject, false, pow_rez, lt_carts_active_now_base);
+                bl_att = true;
             }
             if (bl_att)
             {
                 int pow_crystall = 0;
                 foreach (string art in lt_art_base.Keys)
                 {
-                    
+
                     if (art == "cart poition touch")
                     {
                         //bl_art = true;
@@ -5145,56 +5502,494 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                     {
                         func.create_effect("cart ice", x_cl, y_cl, mb.gameObject, false, lt_art_base[art], new List<string> { "cart ice" });
                     }
-                    
+
+                    else if (art == "cart mast" || art == "cart derlorg st")
+                    {
+                        foreach (par_cart_art cart_ in mb.lt_carts_art)
+                        {
+                            if (cart_.tp_perez == par_cart_art.type_perez.standart)
+                                cart_.perez_now -= lt_art_base[art];
+                            if (cart_.perez_now < 0)
+                                cart_.perez_now = 0;
+
+
+                        }
+
+                    }
+
+                    else if (art == "cart fire st")
+                    {
+                        foreach (par_cart_art cart_ in mb.lt_carts_art)
+                        {
+                            if (cart_.tp_perez == par_cart_art.type_perez.standart)
+                                cart_.perez_now -= lt_art_base[art];
+                            if (cart_.perez_now < 0)
+                                cart_.perez_now = 0;
+
+
+                        }
+                    }
+                    else if (art == "cart rock st")
+                    {
+                        foreach (par_cart_art cart_ in mb.lt_carts_art)
+                        {
+                            if (cart_.tp_perez == par_cart_art.type_perez.standart)
+                                cart_.perez_now -= lt_art_base[art];
+                            if (cart_.perez_now < 0)
+                                cart_.perez_now = 0;
+
+
+                        }
+
+                    }
+                    else if (art == "cart blood st")
+                    {
+                        foreach (par_cart_art cart_ in mb.lt_carts_art)
+                        {
+                            if (cart_.tp_perez == par_cart_art.type_perez.standart)
+                                cart_.perez_now -= lt_art_base[art];
+                            if (cart_.perez_now < 0)
+                                cart_.perez_now = 0;
+
+
+                        }
+
+                    }
+                    else if (art == "cart energy st")
+                    {
+                        foreach (par_cart_art cart_ in mb.lt_carts_art)
+                        {
+                            if (cart_.tp_perez == par_cart_art.type_perez.standart)
+                                cart_.perez_now -= lt_art_base[art];
+                            if (cart_.perez_now < 0)
+                                cart_.perez_now = 0;
+
+
+                        }
+
+                    }
+                    else if (art == "cart ice st")
+                    {
+                        foreach (par_cart_art cart_ in mb.lt_carts_art)
+                        {
+                            if (cart_.tp_perez == par_cart_art.type_perez.standart)
+                                cart_.perez_now -= lt_art_base[art];
+                            if (cart_.perez_now < 0)
+                                cart_.perez_now = 0;
+
+
+                        }
+
+                    }
+                    else if (art == "cart poition st")
+                    {
+                        foreach (par_cart_art cart_ in mb.lt_carts_art)
+                        {
+                            if (cart_.tp_perez == par_cart_art.type_perez.standart)
+                                cart_.perez_now -= lt_art_base[art];
+                            if (cart_.perez_now < 0)
+                                cart_.perez_now = 0;
+
+
+                        }
+
+                    }
                 }
+                foreach (par_cart_art art in lt_art_rem)
+                {
+                    //if (art.name=="cart mini spirit poition" || art.name == "cart mini spirit fire" || art.name == "cart mini spirit rock" || art.name == "cart mini spirit blood" || art.name == "cart mini spirit energy" || art.name == "cart mini spirit ice")
+                    //{
+                        activate_art(art, x, y);
+                    //}
+                    //if(art.name=="cart mini shaman"|| art.name == "cart shaman boss")
+                        //activate_art(art,x_cl,y_cl);
+                    //else
+                        //activate_art(art);
+                }
+
+
+                List<par_cart_art> art_first = new List<par_cart_art>();
                 foreach (par_cart_art art in lt_carts_art)
                 {
                     if (art.perez_now == 0)
                     {
-                        if (art.type == par_cart.type_cart.art_blood_crystall && (lt_carts_active_now_base.Contains("cart blood") || lt_carts_active_now_base.Contains("cart blood 1") || lt_carts_active_now_base.Contains("cart blood 2") || lt_carts_active_now_base.Contains("cart spirit blood")))
+                        if (art.type == par_cart.type_cart.art_blood_bomb && (lt_carts_active_now_base.Contains("cart blood") || lt_carts_active_now_base.Contains("cart blood 1") || lt_carts_active_now_base.Contains("cart blood 2") || lt_carts_active_now_base.Contains("cart spirit blood")))
                         {
                             pow_crystall += art.lvl;
-                            activate_art(art,x_cl,y_cl);
+                            //lt_effect_now.Add(func.create_effect(eff.name_in_lt, x_cl - 1, y_cl, gameObject, false, pow_crystall, lt_carts_active_now_base));
+
+                            activate_art(art, x_cl, y_cl);
                         }
-                            
-                        else if (art.type == par_cart.type_cart.art_rock_crystall && (lt_carts_active_now_base.Contains("cart rock") || lt_carts_active_now_base.Contains("cart rock 1") || lt_carts_active_now_base.Contains("cart rock 2") || lt_carts_active_now_base.Contains("cart spirit rock")))
+
+                        else if (art.type == par_cart.type_cart.art_rock_bomb && (lt_carts_active_now_base.Contains("cart rock") || lt_carts_active_now_base.Contains("cart rock 1") || lt_carts_active_now_base.Contains("cart rock 2") || lt_carts_active_now_base.Contains("cart spirit rock")))
                         {
                             pow_crystall += art.lvl;
                             activate_art(art, x_cl, y_cl);
                         }
-                        else if (art.type == par_cart.type_cart.art_energy_crystall && (lt_carts_active_now_base.Contains("cart energy") || lt_carts_active_now_base.Contains("cart energy 1") || lt_carts_active_now_base.Contains("cart energy 2") || lt_carts_active_now_base.Contains("cart spirit energy")))
+                        else if (art.type == par_cart.type_cart.art_energy_bomb && (lt_carts_active_now_base.Contains("cart energy") || lt_carts_active_now_base.Contains("cart energy 1") || lt_carts_active_now_base.Contains("cart energy 2") || lt_carts_active_now_base.Contains("cart spirit energy")))
                         {
                             pow_crystall += art.lvl;
                             activate_art(art, x_cl, y_cl);
                         }
-                        else if (art.type == par_cart.type_cart.art_ice_crystall && (lt_carts_active_now_base.Contains("cart ice") || lt_carts_active_now_base.Contains("cart ice 1") || lt_carts_active_now_base.Contains("cart ice 2") || lt_carts_active_now_base.Contains("cart spirit ice")))
+                        else if (art.type == par_cart.type_cart.art_ice_bomb && (lt_carts_active_now_base.Contains("cart ice") || lt_carts_active_now_base.Contains("cart ice 1") || lt_carts_active_now_base.Contains("cart ice 2") || lt_carts_active_now_base.Contains("cart spirit ice")))
                         {
                             pow_crystall += art.lvl;
                             activate_art(art, x_cl, y_cl);
                         }
-                        else if (art.type == par_cart.type_cart.art_poition_crystall && (lt_carts_active_now_base.Contains("cart poition") || lt_carts_active_now_base.Contains("cart poition 1") || lt_carts_active_now_base.Contains("cart poition 2") || lt_carts_active_now_base.Contains("cart spirit poition")))
+                        else if (art.type == par_cart.type_cart.art_poition_bomb && (lt_carts_active_now_base.Contains("cart poition") || lt_carts_active_now_base.Contains("cart poition 1") || lt_carts_active_now_base.Contains("cart poition 2") || lt_carts_active_now_base.Contains("cart spirit poition")))
                         {
                             pow_crystall += art.lvl;
                             activate_art(art, x_cl, y_cl);
                         }
-                        else if (art.type == par_cart.type_cart.art_fire_crystall && (lt_carts_active_now_base.Contains("cart fire") || lt_carts_active_now_base.Contains("cart fire 1") || lt_carts_active_now_base.Contains("cart fire 2") || lt_carts_active_now_base.Contains("cart spirit fire")))
+                        else if (art.type == par_cart.type_cart.art_fire_bomb && (lt_carts_active_now_base.Contains("cart fire") || lt_carts_active_now_base.Contains("cart fire 1") || lt_carts_active_now_base.Contains("cart fire 2") || lt_carts_active_now_base.Contains("cart spirit fire")))
                         {
                             pow_crystall += art.lvl;
                             activate_art(art, x_cl, y_cl);
+                        }
+
+                        else if (art.type == par_cart.type_cart.art_att_bomb && (lt_carts_active_now_base.Contains("cart damage") || lt_carts_active_now_base.Contains("cart damage 1") || lt_carts_active_now_base.Contains("cart damage 2") ))
+                        {
+                            pow_crystall += art.lvl;
+                            activate_art(art, x_cl, y_cl);
+                        }
+
+                        else if (art.type == par_cart.type_cart.art_bar_bomb && (lt_carts_active_now_base.Contains("cart barier") || lt_carts_active_now_base.Contains("cart barier 1") || lt_carts_active_now_base.Contains("cart barier 2")))
+                        {
+                            pow_crystall += art.lvl;
+                            activate_art(art, x_cl, y_cl);
+                        }
+                        else if (art.type == par_cart.type_cart.art_dych_bomb && (lt_carts_active_now_base.Contains("cart dych") || lt_carts_active_now_base.Contains("cart dych 1") || lt_carts_active_now_base.Contains("cart dych 2")))
+                        {
+                            pow_crystall += art.lvl;
+                            activate_art(art, x_cl, y_cl);
+                        }
+                        else if (art.type == par_cart.type_cart.art_bomb_bomb && (lt_carts_active_now_base.Contains("cart bomb") || lt_carts_active_now_base.Contains("cart bomb 1") || lt_carts_active_now_base.Contains("cart bomb 2")))
+                        {
+                            pow_crystall += art.lvl;
+                            activate_art(art, x_cl, y_cl);
+                        }
+
+
+
+
+                        else if (art.type == par_cart.type_cart.art_seal_blood  &&(lt_carts_active_now_base.Contains("cart blood") || lt_carts_active_now_base.Contains("cart blood 1") || lt_carts_active_now_base.Contains("cart blood 2") || lt_carts_active_now_base.Contains("cart spirit blood")))
+                        {
+                            //pow_crystall += art.lvl;
+                            List<string> l = new List<string>();
+                            //if()
+                            l.Add("cart derlorg");
+                            l.AddRange(lt_carts_active_now_base);
+                            GameObject gm_s = func.create_effect("cart derlorg", x_cl, y_cl, mb.gameObject, false, 4, l);
+                            lt_effect_now.Add(gm_s);
+                            gm_s.GetComponent<par_effect>().st_par.Push((pow_rez).ToString());
+                            gm_s.GetComponent<par_effect>().st_par.Push("par pow");
+                            activate_art(art, x_cl, y_cl);
+                        }
+
+                        else if (art.type == par_cart.type_cart.art_seal_rock  && (lt_carts_active_now_base.Contains("cart rock") || lt_carts_active_now_base.Contains("cart rock 1") || lt_carts_active_now_base.Contains("cart rock 2") || lt_carts_active_now_base.Contains("cart spirit rock")))
+                        {
+                            List<string> l = new List<string>();
+                            //if()
+                            l.Add("cart derlorg");
+                            l.AddRange(lt_carts_active_now_base);
+                            GameObject gm_s = func.create_effect("cart derlorg", x_cl, y_cl, mb.gameObject, false, 4, l);
+                            lt_effect_now.Add(gm_s);
+                            gm_s.GetComponent<par_effect>().st_par.Push((pow_rez).ToString());
+                            gm_s.GetComponent<par_effect>().st_par.Push("par pow");
+                            activate_art(art, x_cl, y_cl);
+                        }
+                        else if (art.type == par_cart.type_cart.art_seal_energy  && (lt_carts_active_now_base.Contains("cart energy") || lt_carts_active_now_base.Contains("cart energy 1") || lt_carts_active_now_base.Contains("cart energy 2") || lt_carts_active_now_base.Contains("cart spirit energy")))
+                        {
+                            List<string> l = new List<string>();
+                            //if()
+                            l.Add("cart derlorg");
+                            l.AddRange(lt_carts_active_now_base);
+                            GameObject gm_s = func.create_effect("cart derlorg", x_cl, y_cl, mb.gameObject, false, 4, l);
+                            lt_effect_now.Add(gm_s);
+                            gm_s.GetComponent<par_effect>().st_par.Push((pow_rez).ToString());
+                            gm_s.GetComponent<par_effect>().st_par.Push("par pow");
+                            activate_art(art, x_cl, y_cl);
+                        }
+                        else if (art.type == par_cart.type_cart.art_seal_ice  && (lt_carts_active_now_base.Contains("cart ice") || lt_carts_active_now_base.Contains("cart ice 1") || lt_carts_active_now_base.Contains("cart ice 2") || lt_carts_active_now_base.Contains("cart spirit ice")))
+                        {
+                            List<string> l = new List<string>();
+                            //if()
+                            l.Add("cart derlorg");
+                            l.AddRange(lt_carts_active_now_base);
+                            GameObject gm_s = func.create_effect("cart derlorg", x_cl, y_cl, mb.gameObject, false, 4, l);
+                            lt_effect_now.Add(gm_s);
+                            gm_s.GetComponent<par_effect>().st_par.Push((pow_rez).ToString());
+                            gm_s.GetComponent<par_effect>().st_par.Push("par pow");
+                            activate_art(art, x_cl, y_cl);
+                        }
+                        else if (art.type == par_cart.type_cart.art_seal_poition && (lt_carts_active_now_base.Contains("cart poition") || lt_carts_active_now_base.Contains("cart poition 1") || lt_carts_active_now_base.Contains("cart poition 2") || lt_carts_active_now_base.Contains("cart spirit poition")))
+                        {
+                            List<string> l = new List<string>();
+                            //if()
+                            l.Add("cart derlorg");
+                            l.AddRange(lt_carts_active_now_base);
+                            GameObject gm_s = func.create_effect("cart derlorg", x_cl, y_cl, mb.gameObject, false, 4, l);
+                            lt_effect_now.Add(gm_s);
+                            gm_s.GetComponent<par_effect>().st_par.Push((pow_rez).ToString());
+                            gm_s.GetComponent<par_effect>().st_par.Push("par pow");
+                            activate_art(art, x_cl, y_cl);
+                        }
+                        else if (art.type == par_cart.type_cart.art_seal_fire  && (lt_carts_active_now_base.Contains("cart fire") || lt_carts_active_now_base.Contains("cart fire 1") || lt_carts_active_now_base.Contains("cart fire 2") || lt_carts_active_now_base.Contains("cart spirit fire")))
+                        {
+                            List<string> l = new List<string>();
+                            //if()
+                            l.Add("cart derlorg");
+                            l.AddRange(lt_carts_active_now_base);
+                            GameObject gm_s = func.create_effect("cart derlorg", x_cl, y_cl, mb.gameObject, false, 4, l);
+                            lt_effect_now.Add(gm_s);
+                            gm_s.GetComponent<par_effect>().st_par.Push((pow_rez).ToString());
+                            gm_s.GetComponent<par_effect>().st_par.Push("par pow");
+                            activate_art(art, x_cl, y_cl);
+                        }
+
+                        else if (art.type == par_cart.type_cart.art_seal_att  && (lt_carts_active_now_base.Contains("cart damage") || lt_carts_active_now_base.Contains("cart damage 1") || lt_carts_active_now_base.Contains("cart damage 2")))
+                        {
+                            List<string> l = new List<string>();
+                            //if()
+                            l.Add("cart derlorg");
+                            l.AddRange(lt_carts_active_now_base);
+                            GameObject gm_s = func.create_effect("cart derlorg", x_cl, y_cl, mb.gameObject, false, 4, l);
+                            lt_effect_now.Add(gm_s);
+                            gm_s.GetComponent<par_effect>().st_par.Push((pow_rez).ToString());
+                            gm_s.GetComponent<par_effect>().st_par.Push("par pow");
+                            activate_art(art, x_cl, y_cl);
+                        }
+
+                        else if (art.type == par_cart.type_cart.art_seal_bar && (lt_carts_active_now_base.Contains("cart barier") || lt_carts_active_now_base.Contains("cart barier 1") || lt_carts_active_now_base.Contains("cart barier 2")))
+                        {
+                            List<string> l = new List<string>();
+                            //if()
+                            l.Add("cart derlorg");
+                            l.AddRange(lt_carts_active_now_base);
+                            GameObject gm_s = func.create_effect("cart derlorg", x_cl, y_cl, mb.gameObject, false, 4, l);
+                            lt_effect_now.Add(gm_s);
+                            gm_s.GetComponent<par_effect>().st_par.Push((pow_rez).ToString());
+                            gm_s.GetComponent<par_effect>().st_par.Push("par pow");
+                            activate_art(art, x_cl, y_cl);
+                        }
+                        /*
+                        else if (art.type == par_cart.type_cart.art_dych_bomb && (lt_carts_active_now_base.Contains("cart dych") || lt_carts_active_now_base.Contains("cart dych 1") || lt_carts_active_now_base.Contains("cart dych 2")))
+                        {
+                            pow_crystall += art.lvl;
+                            activate_art(art, x_cl, y_cl);
+                        }*/
+                        else if (art.type == par_cart.type_cart.art_seal_bomb && (lt_carts_active_now_base.Contains("cart bomb") || lt_carts_active_now_base.Contains("cart bomb 1") || lt_carts_active_now_base.Contains("cart bomb 2")))
+                        {
+                            List<string> l = new List<string>();
+                            //if()
+                            l.Add("cart derlorg");
+                            l.AddRange(lt_carts_active_now_base);
+                            GameObject gm_s = func.create_effect("cart derlorg", x_cl, y_cl, mb.gameObject, false, 4, l);
+                            lt_effect_now.Add(gm_s);
+                            gm_s.GetComponent<par_effect>().st_par.Push((pow_rez).ToString());
+                            gm_s.GetComponent<par_effect>().st_par.Push("par pow");
+                            activate_art(art, x_cl, y_cl);
+                        }
+
+
+                        else if (art.name == "cart mast poition" && (lt_carts_active_now_base.Contains("cart poition") || lt_carts_active_now_base.Contains("cart poition 1") || lt_carts_active_now_base.Contains("cart poition 2") || lt_carts_active_now_base.Contains("cart spirit poition")))
+                        {
+                            if (art.perez_now == 0)
+                            {
+                                foreach (string cart in lt_carts_active_now)
+                                {
+                                    bool act = false;
+                                    if (func.baza[cart].GetComponent<par_cart>().type==par_cart.type_cart.poition || func.baza[cart].GetComponent<par_cart>().type == par_cart.type_cart.spirit_poition)
+                                    {
+                                        spawn_cart(cart, gameObject.transform.Find("carts active").gameObject);
+                                        act = true;
+                                    }
+                                    if (act)
+                                    {
+                                        activate_art(art);
+
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (lt_art_base.ContainsKey("cart mast"))
+                                    art.perez_now -= (lt_art_base["cart mast"] + 1);
+                                else
+                                    art.perez_now--;
+                                if (art.perez_now < 0)
+                                    art.perez_now = 0;
+                            }
+
+                        }
+                        else if (art.name == "cart mast fire" && (lt_carts_active_now_base.Contains("cart fire") || lt_carts_active_now_base.Contains("cart fire 1") || lt_carts_active_now_base.Contains("cart fire 2") || lt_carts_active_now_base.Contains("cart spirit fire")))
+                        {
+                            if (art.perez_now == 0)
+                            {
+                                bool act = false;
+                                foreach (string cart in lt_carts_active_now)
+                                {
+                                    
+                                    if (func.baza[cart].GetComponent<par_cart>().type == par_cart.type_cart.fire || func.baza[cart].GetComponent<par_cart>().type == par_cart.type_cart.spirit_fire)
+                                    {
+                                        spawn_cart(cart, gameObject.transform.Find("carts active").gameObject);
+                                        act = true;
+                                    }
+
+                                }
+                                if (act)
+                                {
+                                    activate_art(art);
+
+                                }
+                            }
+                            else
+                            {
+                                if (lt_art_base.ContainsKey("cart mast"))
+                                    art.perez_now -= (lt_art_base["cart mast"] + 1);
+                                else
+                                    art.perez_now--;
+                                if (art.perez_now < 0)
+                                    art.perez_now = 0;
+                            }
+
+                        }
+                        else if (art.name == "cart mast rock" && (lt_carts_active_now_base.Contains("cart rock") || lt_carts_active_now_base.Contains("cart rock 1") || lt_carts_active_now_base.Contains("cart rock 2") || lt_carts_active_now_base.Contains("cart spirit rock")))
+                        {
+                            if (art.perez_now == 0)
+                            {
+                                bool act = false;
+                                foreach (string cart in lt_carts_active_now)
+                                {
+                                    
+                                    if (func.baza[cart].GetComponent<par_cart>().type == par_cart.type_cart.rock || func.baza[cart].GetComponent<par_cart>().type == par_cart.type_cart.spirit_rock)
+                                    {
+                                        spawn_cart(cart, gameObject.transform.Find("carts active").gameObject);
+                                        act = true;
+                                    }
+
+                                }
+                                if (act)
+                                {
+                                    activate_art(art);
+
+                                }
+                            }
+                            else
+                            {
+                                if (lt_art_base.ContainsKey("cart mast"))
+                                    art.perez_now -= (lt_art_base["cart mast"] + 1);
+                                else
+                                    art.perez_now--;
+                                if (art.perez_now < 0)
+                                    art.perez_now = 0;
+                            }
+                        }
+                        else if (art.name == "cart mast blood" &&  (lt_carts_active_now_base.Contains("cart blood") || lt_carts_active_now_base.Contains("cart blood 1") || lt_carts_active_now_base.Contains("cart blood 2") || lt_carts_active_now_base.Contains("cart spirit blood")))
+                        {
+                            if (art.perez_now == 0)
+                            {
+                                bool act = false;
+                                foreach (string cart in lt_carts_active_now)
+                                {
+                                    
+                                    if (func.baza[cart].GetComponent<par_cart>().type == par_cart.type_cart.blood || func.baza[cart].GetComponent<par_cart>().type == par_cart.type_cart.spirit_blood)
+                                    {
+                                        spawn_cart(cart, gameObject.transform.Find("carts active").gameObject);
+                                        act = true;
+                                    }
+                                }
+                                if (act)
+                                {
+                                    activate_art(art);
+
+                                }
+                            }
+                            else
+                            {
+                                if (lt_art_base.ContainsKey("cart mast"))
+                                    art.perez_now -= (lt_art_base["cart mast"] + 1);
+                                else
+                                    art.perez_now--;
+                                if (art.perez_now < 0)
+                                    art.perez_now = 0;
+                            }
+                        }
+                        else if (art.name == "cart mast energy" && (lt_carts_active_now_base.Contains("cart energy") || lt_carts_active_now_base.Contains("cart energy 1") || lt_carts_active_now_base.Contains("cart energy 2") || lt_carts_active_now_base.Contains("cart spirit energy")))
+                        {
+                            if (art.perez_now == 0)
+                            {
+                                bool act = false;
+                                foreach (string cart in lt_carts_active_now)
+                                {
+
+                                    if (func.baza[cart].GetComponent<par_cart>().type == par_cart.type_cart.energy || func.baza[cart].GetComponent<par_cart>().type == par_cart.type_cart.spirit_energy)
+                                    {
+                                        spawn_cart(cart, gameObject.transform.Find("carts active").gameObject);
+                                        act = true;
+                                    }
+                                }
+                                if (act)
+                                {
+                                    activate_art(art);
+
+                                }
+                            }
+                            else
+                            {
+                                if (lt_art_base.ContainsKey("cart mast"))
+                                    art.perez_now -= (lt_art_base["cart mast"] + 1);
+                                else
+                                    art.perez_now--;
+                                if (art.perez_now < 0)
+                                    art.perez_now = 0;
+                            }
+
+                        }
+                        else if (art.name == "cart mast ice" && (lt_carts_active_now_base.Contains("cart ice") || lt_carts_active_now_base.Contains("cart ice 1") || lt_carts_active_now_base.Contains("cart ice 2") || lt_carts_active_now_base.Contains("cart spirit ice")))
+                        {
+                            if (art.perez_now == 0)
+                            {
+                                bool act = false;
+                                foreach (string cart in lt_carts_active_now)
+                                {
+
+                                    if (func.baza[cart].GetComponent<par_cart>().type == par_cart.type_cart.ice || func.baza[cart].GetComponent<par_cart>().type == par_cart.type_cart.spirit_ice)
+                                    {
+                                        spawn_cart(cart, gameObject.transform.Find("carts active").gameObject);
+                                        act = true;
+                                    }
+                                }
+                                if (act)
+                                {
+                                    activate_art(art);
+
+                                }
+                            }
+                            else
+                            {
+                                if (lt_art_base.ContainsKey("cart mast"))
+                                    art.perez_now -= (lt_art_base["cart mast"]+1);
+                                else
+                                    art.perez_now--;
+                                if (art.perez_now < 0)
+                                    art.perez_now = 0;
+                            }
+
                         }
                     }
                 }
                 if (pow_crystall > 0)
                 {
                     par_effect eff = effect_now.GetComponent<par_effect>();
-                    if(x_cl>0)
-                        lt_effect_now.Add(func.create_effect(eff.name_in_lt, x_cl - 1, y_cl, parent, false, pow_crystall, lt_carts_active_now_base));
+                    if (x_cl > 0)
+                        lt_effect_now.Add(func.create_effect(eff.name_in_lt, x_cl - 1, y_cl, gameObject, false, pow_crystall, lt_carts_active_now_base));
                     if (y_cl > 0)
-                        lt_effect_now.Add(func.create_effect(eff.name_in_lt, x_cl, y_cl-1, parent, false, pow_crystall, lt_carts_active_now_base));
-                    if (x_cl < func.size_global-1)
-                        lt_effect_now.Add(func.create_effect(eff.name_in_lt, x_cl + 1, y_cl, parent, false, pow_crystall, lt_carts_active_now_base));
+                        lt_effect_now.Add(func.create_effect(eff.name_in_lt, x_cl, y_cl - 1, gameObject, false, pow_crystall, lt_carts_active_now_base));
+                    if (x_cl < func.size_global - 1)
+                        lt_effect_now.Add(func.create_effect(eff.name_in_lt, x_cl + 1, y_cl, gameObject, false, pow_crystall, lt_carts_active_now_base));
                     if (y_cl < func.size_global - 1)
-                        lt_effect_now.Add(func.create_effect(eff.name_in_lt, x_cl, y_cl+1, parent, false, pow_crystall, lt_carts_active_now_base));
+                        lt_effect_now.Add(func.create_effect(eff.name_in_lt, x_cl, y_cl + 1, gameObject, false, pow_crystall, lt_carts_active_now_base));
                 }
 
                 mb.gameObject.GetComponent<Animator>().SetBool("selected", false);
@@ -5214,8 +6009,17 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 {
                     data.give_achive("тяжёлая рука");
                 }
-                if (bl_att_hod)
-                    func.next_hod();
+
+                Debug.Log("hod after atack " + bl_att_hod);
+                if (!bl_att_hod)
+                {
+                    //timer_now = 0.1f;
+                    //func.nums_mob_wolk.Add(num);
+                    //func.nums_mob_wolk.Insert(func.nums_mob_wolk.IndexOf(num), num);
+                    speed_hod = true;
+                    
+                }
+                func.next_hod();
                 return true;
             }
 
@@ -5268,7 +6072,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
         }
         if (mb_lt_rd.Count > 0)
-            player = mb_lt_rd[Random.Range(0, mb_lt_rd.Count-1)].GetComponent<par_mob>();
+            player = mb_lt_rd[Random.Range(0, mb_lt_rd.Count - 1)].GetComponent<par_mob>();
         else if (parent != null)
         {
             player = parent.GetComponent<par_mob>();
@@ -5305,11 +6109,11 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
                 way_ = func.way_bool(bl_way, player.x, player.y, distanse_max);
 
-                if (way_[x, y] != -1 && distanse_min != -1)
+                if (way_[x, y] != -1 && distanse_attack != -1)
                 {
                     //int[,] way_ = func.way_bool(bl_way, player.x, player.y, distanse_max);
                     //Debug.Log("ways  " + way_[x, y]);
-                    if (way_[x, y] > distanse_min)
+                    if (way_[x, y] > distanse_attack)
                     {
                         if (x > 0 && way_[x - 1, y] < way_[x, y] && way_[x - 1, y] != -1)
                             wolk(x - 1, y);
@@ -5325,10 +6129,10 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                         wolk(x, y);
                     }
                 }
-                else if (distanse_min != -1)
+                else if (distanse_attack != -1)
                 {
                     way_ = func.way_bool(bl_way_1, player.x, player.y, distanse_max);
-                    if (way_[x, y] > distanse_min)
+                    if (way_[x, y] > distanse_attack)
                     {
                         if (x > 0 && way_[x - 1, y] < way_[x, y] && way_[x - 1, y] != -1 && func.object_bool(x - 1, y))
                             wolk(x - 1, y);
@@ -5348,22 +6152,25 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             else
             {
                 rd_wolk = false;
-                int[,] way_;
 
+
+                int[,] way_;
+                /*
                 List<object> lt = func.way_find_lt(func.mob, x, y, distanse_max);
                 List<GameObject> mob_rd = new List<GameObject>();
+                
                 foreach (object obj in lt)
                 {
                     par_mob mb = ((GameObject)obj).GetComponent<par_mob>();
                     if (!mb.friend && mb.num != num)
                         mob_rd.Add((GameObject)obj);
-                }
+                }*/
 
                 GameObject mb_end = null;
                 par_mob mb_end_par = null;
-                if (mob_rd.Count != 0)
+                if (lt_mob_vizited.Count != 0)
                 {
-                    mb_end = mob_rd[Random.Range(0, mob_rd.Count)];
+                    mb_end = func.rand_list(lt_mob_vizited);// mob_rd[Random.Range(0, mob_rd.Count)];
                     mb_end_par = mb_end.GetComponent<par_mob>();
                 }
                 if (mb_end_par != null)
@@ -5382,11 +6189,11 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
                     way_ = func.way_bool(bl_way, mb_end_par.x, mb_end_par.y, distanse_max);
 
-                    if (way_[x, y] != -1 && distanse_min != -1)
+                    if (way_[x, y] != -1 && distanse_attack != -1)
                     {
                         //int[,] way_ = func.way_bool(bl_way, player.x, player.y, distanse_max);
                         //Debug.Log("ways  " + way_[x, y]);
-                        if (way_[x, y] > distanse_min)
+                        if (way_[x, y] > distanse_attack)
                         {
                             if (x > 0 && way_[x - 1, y] < way_[x, y] && way_[x - 1, y] != -1)
                                 wolk(x - 1, y);
@@ -5460,7 +6267,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 //func.next_hod();
             }
         }
-        
+
 
         func.next_hod();
 
@@ -5552,11 +6359,12 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         }
         */
     }
-    public void viz_block(int x_v,int y_v)
+    public void viz_block(int x_v, int y_v)
     {
         lt_v2_vizited.Add(new Vector2(x_v, y_v));
-        if(friend)
-        func.lt_v2_viz_friend[x_v, y_v].Add(gameObject);
+        if (friend)
+            func.lt_v2_viz_friend[x_v, y_v].Add(gameObject);
+        func.lt_v2_viz_mob[x_v, y_v].Add(gameObject);
         if (func.mob[x_v, y_v] != null && !(x_v == x && y_v == y))
         {
             par_mob mb_viz = func.mob[x_v, y_v].GetComponent<par_mob>();
@@ -5571,7 +6379,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 lt_mob_vizited_in.Add(func.mob[x_v, y_v]);
             }
         }
-        if (friend && !(x_v==x && y_v== y))
+        if (friend && !(x_v == x && y_v == y))
         {
 
             if (func.nature[x_v, y_v] != null && !func.nature[x_v, y_v].active)
@@ -5586,13 +6394,14 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
         }
 
-        
+
     }
     public void unviz_block(int x_v, int y_v)
     {
         lt_v2_vizited.Remove(new Vector2(x_v, y_v));
-        if(friend)
-        func.lt_v2_viz_friend[x_v, y_v].Remove(gameObject);
+        if (friend)
+            func.lt_v2_viz_friend[x_v, y_v].Remove(gameObject);
+        func.lt_v2_viz_mob[x_v, y_v].Remove(gameObject);
         bool bl = false;
 
         if (func.mob[x_v, y_v] != null && !(x_v == x && y_v == y))
@@ -5610,7 +6419,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
         }
 
-        if (friend && !(x_v == x && y_v == y) && func.lt_v2_viz_friend[x_v, y_v].Count==0 )
+        if (friend && !(x_v == x && y_v == y) && func.lt_v2_viz_friend[x_v, y_v].Count == 0)
         {
             if (func.nature[x_v, y_v] != null && func.nature[x_v, y_v].active)
                 func.nature[x_v, y_v].active = false;
@@ -5622,7 +6431,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             if (func.eath[x_v, y_v].active)
                 func.eath[x_v, y_v].active = false;
         }
-        
+
 
     }
     public bool wolk(int x_wolk, int y_wolk)
@@ -5632,12 +6441,24 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
     public bool wolk(int x_wolk, int y_wolk, bool bl_wolk)
     {
         //Debug.Log("before mob coord" + num + " in " + x + " " + y);
-        //Debug.Log("wolk mob "+num+" in "+x_wolk+" "+y_wolk);
+        Debug.Log("wolk mob " + num + " in " + x_wolk + " " + y_wolk);
         if (func.object_bool(x_wolk, y_wolk) || bl_wolk)
         {
             //Debug.Log("wolk mob next");
 
             parametrs par = gameObject.GetComponent<parametrs>();
+
+
+            foreach (GameObject gm in func.lt_v2_viz_mob[x, y])
+            {
+                par_mob mb_viz = gm.GetComponent<par_mob>();
+                if (mb_viz.lt_mob_vizited.Contains(gameObject) && func.distance(x, y, mb_viz.x, mb_viz.y) > mb_viz.distanse_max && gameObject != gm)
+                {
+                    mb_viz.lt_mob_vizited.Remove(gameObject);
+                    lt_mob_vizited_in.Remove(gm);
+                }
+            }
+
             int x_b = par.x;
             int y_b = par.y;
 
@@ -5678,11 +6499,11 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
             int c_way = Mathf.Abs((x_wolk - x_b)) + Mathf.Abs((y_wolk - y_b));
             bool[,] bl = new bool[func.size_global, func.size_global];
-            for (int i = y_wolk - distanse_max; i <= y_wolk + distanse_max ; i++)
+            for (int i = y_wolk - distanse_max; i <= y_wolk + distanse_max; i++)
             {
                 if (i >= 0 && i < func.size_global)
                 {
-                    for (int j = x_wolk - distanse_max ; j <= x_wolk + distanse_max; j++)
+                    for (int j = x_wolk - distanse_max; j <= x_wolk + distanse_max; j++)
                     {
                         if (j >= 0 && j < func.size_global)
                         {
@@ -5702,10 +6523,10 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
 
 
-                    for (int j = x_b - i_ * dj; j != x_b + i_ * dj + dj; j += dj)
-                    {
-                        //if (j >= 0 && j < func.size_global)
-                        //{
+                for (int j = x_b - i_ * dj; j != x_b + i_ * dj + dj; j += dj)
+                {
+                    //if (j >= 0 && j < func.size_global)
+                    //{
                     int cc = Mathf.Abs((x_wolk - j)) + Mathf.Abs((y_wolk - i));
                     bool bl_ji = (j >= 0 && j < func.size_global && i >= 0 && i < func.size_global);
                     int n_x = (x_b - j) + x_wolk;//n_x=10 x_b=5 x_wolk=6 =>>  j=1
@@ -5714,14 +6535,14 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                     bool bl_n = (n_x >= 0 && n_x < func.size_global && n_y >= 0 && n_y < func.size_global);
                     //if(Math.abs(x_wolk))
 
-                    if (cc <= distanse_max )
+                    if (cc <= distanse_max)
                     {
 
-                        if(bl_n && way_fr_bl[n_x, n_y] != -1 && !lt_v2_vizited.Contains(new Vector2(n_x, n_y)))
+                        if (bl_n && way_fr_bl[n_x, n_y] != -1 && !lt_v2_vizited.Contains(new Vector2(n_x, n_y)))
                         {
                             viz_block(n_x, n_y);
                         }
-                        if (bl_ji  && way_fr_bl[j, i] ==-1 && lt_v2_vizited.Contains(new Vector2(j, i)))
+                        if (bl_ji && way_fr_bl[j, i] == -1 && lt_v2_vizited.Contains(new Vector2(j, i)))
                         {
                             unviz_block(j, i);
                         }
@@ -5730,93 +6551,30 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                         //break;
                         //continue;
                     }
-                    
-                    /*
-                    if (bl_ji&& way_fr_bl[j, i] <= distanse_max && way_fr_bl[j, i]!=-1)
+
+                    else
                     {
-                        //if (j == x_b - i_ * dj)
-                        //i_br = true;
-                        //break;
-                        continue;
-                    }
-                    */
-                    else 
-                            {
-                                
 
-                                //if (n_x>=0 && n_x< func.size_global && n_y >= 0 && n_y < func.size_global)
-                                //{
-                                    if (bl_n&& way_fr_bl[n_x, n_y] != -1)
-                                    {
+
+                        //if (n_x>=0 && n_x< func.size_global && n_y >= 0 && n_y < func.size_global)
+                        //{
+                        if (bl_n && way_fr_bl[n_x, n_y] != -1)
+                        {
                             viz_block(n_x, n_y);
-                            /*
-                                        lt_v2_vizited.Add(new Vector2(n_x, n_y));
-                                        if (func.mob[n_x, n_y] != null)
-                                        {
-                                            par_mob mb_viz = func.mob[n_x, n_y].GetComponent<par_mob>();
-                                            lt_mob_vizited.Add(func.mob[n_x, n_y]);
-
-                                            cc = Mathf.Abs((n_x - x_wolk)) + Mathf.Abs((n_y - y_wolk));
-                                            if (cc <= mb_viz.distanse_max)
-                                            {
-                                                mb_viz.lt_mob_vizited.Add(gameObject);
-                                            }
-                                        }
-                            */
-                                    }
+                        }
 
 
-                                    if (friend)
-                        {/*
-                                        if (bl_n &&way_fr_bl[n_x, n_y] != -1)
-                                        {
-                                            if (func.nature[n_x, n_y] != null && !func.nature[n_x, n_y].active)
-                                                func.nature[n_x, n_y].active = true;
-                                            if (func.mob[n_x, n_y] != null && !func.mob[n_x, n_y].GetComponent<par_mob>().vizited)
-                                                //func.mob[j, i].active = true;
-                                                func.mob[n_x, n_y].GetComponent<par_mob>().viz(true);
-                                            if (func.carts[n_x, n_y] != null && !func.carts[n_x, n_y].active)
-                                                func.carts[n_x, n_y].active = true;
-                                            if (!func.eath[n_x, n_y].active)
-                                                func.eath[n_x, n_y].active = true;
-                                        }
-
-
-                                        
-                                        if (bl_ji)
-                                        {
-                                            if (func.nature[j, i] != null && func.nature[j, i].active)
-                                                func.nature[j, i].active = false;
-                                            if (func.mob[j, i] != null && func.mob[j, i].GetComponent<par_mob>().vizited)
-                                                //func.mob[j, i].active = true;
-                                                func.mob[j, i].GetComponent<par_mob>().viz(false);
-                                            if (func.carts[j, i] != null && func.carts[j, i].active)
-                                                func.carts[j, i].active = false;
-                                            if (func.eath[j, i].active)
-                                                func.eath[j, i].active = false;
-                                        }
-                                        */
+                        if (friend)
+                        {
                         }
 
 
 
-                                    if (bl_ji )
-                                    {
+                        if (bl_ji)
+                        {
                             unviz_block(j, i);
-                            /*
-                                        lt_v2_vizited.Remove(new Vector2(j, i));
-                                        if (func.mob[j, i] != null && friend != func.mob[j, i].GetComponent<par_mob>().friend)
-                                        {
-                                            par_mob mb_viz = func.mob[j, i].GetComponent<par_mob>();
-                                            lt_mob_vizited.Remove(func.mob[j, i]);
-                                            cc = Mathf.Abs((j - x_wolk)) + Mathf.Abs((i - y_wolk));
-                                            if (cc > mb_viz.distanse_max)
-                                            {
-                                                mb_viz.lt_mob_vizited.Remove(gameObject);
-                                            }
-                                        }
-                            */
-                                    }
+
+                        }
                         //}
 
 
@@ -5829,14 +6587,14 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                             if (bl_n)
                                 Debug.Log(way_fr_bl[n_x, n_y]);
                         }
-                             */   
-                            }
-
-
-                        //}
+                             */
                     }
-                    if (i_br)
-                        break;
+
+
+                    //}
+                }
+                if (i_br)
+                    break;
                 //}
                 if (!i_bl)
                 {
@@ -5852,203 +6610,21 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
             Debug.Log(lt_mob_vizited.Count);
 
-            /*
-            for (int i = y_b- distanse_max*di; i != y_b +distanse_max*di +di; i+=di)
-            {
-                if (i >=0 &&  i < func.size_global)
-                {
-                    for (int j = x_b; j != x_wolk+ dj; j += dj)
-                    {
-                        if (j >= 0 && j < func.size_global)
-                        {
-                            if (way_fr[j, i] == -1)
-                            {
-                                if (j == x_b)
-                                    i_br = true;
-                                break;
-                            }
-                                
-                            else
-                            {
-
-                            }
-                        }
-                    }
-                    if (i_br)
-                        break;
-                }
-
-            }
-
-            for()
-
-                for (int i = y_b - distanse_max; i <= y_b + distanse_max; i++)
-                {
-                    if (i >= 0 && i < func.size_global)
-                    {
-                        for (int j = x_b - distanse_max; j <= x_b + distanse_max; j++)
-                        {
-                            if (j >= 0 && j < func.size_global)
-                            {
-                                if (way_fr[j, i] != -1)
-                                {
-
-                                    //gm_lt[j, i] = new List<GameObject>();
-                                    List<GameObject> lt_gm1 = new List<GameObject>();
-                                    if (func.nature[j, i] != null && func.nature[j, i].active)
-                                        lt_gm1.Add(func.nature[j, i]);
-                                    if (func.mob[j, i] != null && !func.mob[j, i].GetComponent<par_mob>().friend && func.mob[j, i].GetComponent<par_mob>().vizited)
-                                        lt_gm1.Add(func.mob[j, i]);
-                                    if (func.carts[j, i] != null && func.carts[j, i].active)
-                                        lt_gm1.Add(func.carts[j, i]);
-                                    if (func.eath[j, i].active)
-                                        lt_gm1.Add(func.eath[j, i]);
-                                    if (lt_gm1.Count > 0)
-                                        lt_gm.Add(new Vector2(j, i), lt_gm1);
-
-                                }
-                            }
-                        }
-                    }
-                }
-            //}
-            //Debug.Log("wolk mob nex 1 count "+lt_gm.Count);
-
-            func.mob[par.x, par.y] = null;
-
-            if (x_wolk > par.x)
-                simm(1);
-            else if (x_wolk < par.x)
-                simm(-1);
-
-            par.x = x_wolk;
-            par.y = y_wolk;
-
-            bool[,] bl = new bool[func.size_global, func.size_global];
-            for (int i = y_wolk - distanse_max; i <= y_wolk + distanse_max; i++)
-            {
-                if (i >= 0 && i < func.size_global)
-                {
-                    for (int j = x_wolk - distanse_max; j <= x_wolk + distanse_max; j++)
-                    {
-                        if (j >= 0 && j < func.size_global)
-                        {
-                            bl[j, i] = (func.nature[j, i] == null || func.nature[j, i].GetComponent<par_nat>().vizible);
-                        }
-                    }
-                }
-            }
-            //&& !(x_wolk == x_b && y_wolk == y_b)
-            //if (friend)
-            //{
-
-            //bl = func.recurs(bl, 0, 0);
-
-
-            int[,] way_fr_bl = func.way_bool_and(bl, x_wolk, y_wolk, distanse_max);
-            for (int i = y_wolk - distanse_max; i <= y_wolk + distanse_max; i++)
-            {
-                if (i >= 0 && i < func.size_global)
-                {
-                    for (int j = x_wolk - distanse_max; j <= x_wolk + distanse_max; j++)
-                    {
-                        if (j >= 0 && j < func.size_global)
-                        {
-                            if (way_fr_bl[j, i] != -1)
-                            {
-                                if (lt_gm.ContainsKey(new Vector2(j, i)))
-                                {
-                                    lt_gm.Remove(new Vector2(j, i));
-                                    if (!lt_mob_vizited.Contains(func.mob[j, i]))
-                                    {
-                                        lt_mob_vizited.Add(func.mob[j, i]);
-                                        par_mob mb_viz = func.mob[j, i].GetComponent<par_mob>();
-                                        int c_viz = Mathf.Abs(x - mb_viz.x) + Mathf.Abs(y - mb_viz.y);
-                                        if (c_viz<= mb_viz.distanse_max && !mb_viz.lt_mob_vizited.Contains(gameObject))
-                                        {
-                                            mb_viz.lt_mob_vizited.Add(gameObject);
-                                        }
-                                    }
-                                        
-                                }
-
-                                else
-                                {
-                                    if (func.nature[j, i] != null && !func.nature[j, i].active)
-                                        func.nature[j, i].active = true;
-                                    if (func.mob[j, i] != null && !func.mob[j, i].GetComponent<par_mob>().friend && !func.mob[j, i].GetComponent<par_mob>().vizited)
-                                        //func.mob[j, i].active = true;
-                                        func.mob[j, i].GetComponent<par_mob>().viz(true);
-                                    if (func.carts[j, i] != null && !func.carts[j, i].active)
-                                        func.carts[j, i].active = true;
-                                    if (!func.eath[j, i].active)
-                                        func.eath[j, i].active = true;
-                                }
-                                /*
-                                if (func.nature[j, i] != null && !func.nature[j, i].active)
-                                    func.nature[j, i].active = true;
-                                if (func.mob[j, i] != null && !func.mob[j, i].GetComponent<par_mob>().friend && !func.mob[j, i].GetComponent<par_mob>().vizited)
-                                    //func.mob[j, i].active = true;
-                                    func.mob[j, i].GetComponent<par_mob>().viz(true);
-                                if (func.carts[j, i] != null && !func.carts[j, i].active)
-                                    func.carts[j, i].active = true;
-                                if(!func.eath[j, i].active)
-                                    func.eath[j, i].active = true;
-                                */
-            /*
-
-                            }
-                        }
-                    }
-                }
-            }
-            */
-            //Debug.Log("wolk mob nex 2 count " + lt_gm.Count);
-
-            /*
-            foreach (List<GameObject> lt in lt_gm.Values)
-            {
-                foreach (GameObject gm in lt)
-                {
-                    /*
-                    if (func.nature[j, i] != null && func.nature[j, i].active)
-                        func.nature[j, i].active = false;
-                    if (func.mob[j, i] != null && !func.mob[j, i].GetComponent<par_mob>().friend && func.mob[j, i].GetComponent<par_mob>().vizited)
-                        func.mob[j, i].GetComponent<par_mob>().viz(false);
-                    if (func.carts[j, i] != null && func.carts[j, i].active)
-                        func.carts[j, i].active = false;
-                    if (func.eath[j, i].active)
-                        func.eath[j, i].active = false;
-                    */
-            /*
-                    if (gm.GetComponent<par_mob>() != null)
-                    {
-                        par_mob mb_viz = gm.GetComponent<par_mob>();
-                        if (lt_mob_vizited.Contains(gm))
-                        {
-                            lt_mob_vizited.Remove(gm);
-                            
-                            int c_viz = Mathf.Abs(x - mb_viz.x) + Mathf.Abs(y - mb_viz.y);
-                            if (c_viz > mb_viz.distanse_max && mb_viz.lt_mob_vizited.Contains(gameObject))
-                            {
-                                mb_viz.lt_mob_vizited.Add(gameObject);
-                            }
-                        }
-                            
-                        gm.GetComponent<par_mob>().viz(false);
-                    }
-
-                    else
-                        gm.active = false;
-                }
-        
-            }
-    */
             if (num == 0)
                 GameObject.Find("bt up").GetComponent<Animator>().SetBool("opened", func.carts[x_wolk, y_wolk] != null);
             //}
 
+            foreach (GameObject gm in func.lt_v2_viz_mob[x, y])
+            {
+                par_mob mb_viz = gm.GetComponent<par_mob>();
+                Debug.Log("viz " + mb_viz.num + " " + func.lt_v2_viz_mob[x, y].Count);
+                if (!mb_viz.lt_mob_vizited.Contains(gameObject) && func.distance(x, y, mb_viz.x, mb_viz.y) <= mb_viz.distanse_max && gameObject != gm)
+                {
+                    mb_viz.lt_mob_vizited.Add(gameObject);
+                    lt_mob_vizited_in.Add(gm);
 
+                }
+            }
 
 
             //
@@ -6072,10 +6648,21 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             */
             if (!(gameObject.transform.position.x < 0 || gameObject.transform.position.y < 0) && vizited)
             {
-                time_wolk = 0;
-                d_v2_wolk = new Vector2(x_wolk - x_b, y_wolk - y_b) / 0.15f;
-                d_v2_wolk_end = new Vector2(x_wolk, y_wolk);
-                anim.col_anim++;
+                if (!friend ||(friend && num==0))
+                {
+                    time_wolk = 0;
+                    d_v2_wolk = new Vector2(x_wolk - x_b, y_wolk - y_b) / 0.15f;
+                    d_v2_wolk_end = new Vector2(x_wolk, y_wolk);
+                    anim.col_anim++;
+                }
+                else
+                {
+                    time_wolk = 0.05f;
+                    d_v2_wolk = new Vector2(x_wolk - x_b, y_wolk - y_b) / 0.1f;
+                    d_v2_wolk_end = new Vector2(x_wolk, y_wolk);
+                    anim.col_anim++;
+                }
+
             }
             else
             {
@@ -6118,13 +6705,14 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         {
             int j = (int)v2.x;
             int i = (int)v2.y;
-            if(friend)
+            if (friend)
                 func.lt_v2_viz_friend[j, i].Remove(gameObject);
-            if (way_fr_bl[j, i] != -1 && func.lt_v2_viz_friend[j, i].Count==0)
+            func.lt_v2_viz_mob[j, i].Remove(gameObject);
+            if (way_fr_bl[j, i] != -1 && func.lt_v2_viz_friend[j, i].Count == 0)
             {
                 if (func.nature[j, i] != null && func.nature[j, i].active)
                     func.nature[j, i].active = false;
-                if (func.mob[j, i] != null && func.mob[j, i] != gameObject &&func.mob[j, i].GetComponent<par_mob>().vizited)
+                if (func.mob[j, i] != null && func.mob[j, i] != gameObject && func.mob[j, i].GetComponent<par_mob>().vizited)
                     //func.mob[j, i].active = true;
                     func.mob[j, i].GetComponent<par_mob>().viz(false);
                 if (func.carts[j, i] != null && func.carts[j, i].active)
@@ -6132,32 +6720,35 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 if (func.eath[j, i].active)
                     func.eath[j, i].active = false;
             }
-            
+
         }
         foreach (GameObject gm in lt_mob_vizited)
         {
             if (gm != null)
             {
                 par_mob mb_viz = gm.GetComponent<par_mob>();
-                if (mb_viz.lt_mob_vizited.Contains(gameObject))
+                if (mb_viz.lt_mob_vizited_in.Contains(gameObject))
                 {
-                    mb_viz.lt_mob_vizited.Remove(gameObject);
+                    mb_viz.lt_mob_vizited_in.Remove(gameObject);
+                    //lt_mob_vizited_in.Remove(gm);
                 }
-                    
+
             }
 
         }
+        //can_atacked = false;
         lt_v2_vizited.Clear();
         lt_mob_vizited.Clear();
+        //lt_mob_vizited.Clear();
 
-        for (int i = y - distanse_max ; i <= y + distanse_max  ; i ++)
+        for (int i = y - distanse_max; i <= y + distanse_max; i++)
         {
             if (i >= 0 && i < func.size_global)
             {
 
 
 
-                for (int j = x - distanse_max; j <=x+ distanse_max; j ++)
+                for (int j = x - distanse_max; j <= x + distanse_max; j++)
                 {
                     if (j >= 0 && j < func.size_global)
                     {
@@ -6168,21 +6759,23 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                         int n_x = j;
                         int n_y = i;
 
-                        
+
                         if (way_fr_bl[n_x, n_y] != -1)
                         {
                             lt_v2_vizited.Add(new Vector2(n_x, n_y));
-                            if (friend) 
+                            if (friend)
                                 func.lt_v2_viz_friend[n_x, n_y].Add(gameObject);
+                            func.lt_v2_viz_mob[n_x, n_y].Add(gameObject);
                             if (func.mob[n_x, n_y] != null && !(j == x && i == y))
                             {
                                 par_mob mb_viz = func.mob[n_x, n_y].GetComponent<par_mob>();
                                 lt_mob_vizited.Add(func.mob[n_x, n_y]);
-
+                                mb_viz.lt_mob_vizited_in.Add(gameObject);
                                 cc = Mathf.Abs((n_x - x)) + Mathf.Abs((n_y - y));
-                                if (cc <= mb_viz.distanse_max && func.mob[n_x, n_y]!=gameObject)
+                                if (cc <= mb_viz.distanse_max && func.mob[n_x, n_y] != gameObject)
                                 {
                                     mb_viz.lt_mob_vizited.Add(gameObject);
+                                    lt_mob_vizited_in.Add(func.mob[n_x, n_y]);
                                 }
                             }
                         }
@@ -6289,13 +6882,13 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
         func.test_message = "error wolk damage " + num.ToString() + " 5077";
         dm += dop_dm;
-        
-        
+
+
         if (dm > 0)
         {
             foreach (par_cart_art cart in lt_carts_art)
             {
-                if (cart.q>0 &&  cart.name == "cart berserk boss")
+                if (cart.q > 0 && cart.name == "cart berserk boss")
                 {
                     int c = dm;
                     dm -= cart.q;
@@ -6317,7 +6910,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
             foreach (par_cart_art cart in lt_carts_art)
             {
-                if (cart.name == "cart respawn")
+                if (cart.name == "cart respawn" && hp == 0)
                 {
                     cart_del_art.Add(cart);
                     activate_art(cart, x, y);
@@ -6356,22 +6949,22 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             gameObject.transform.Find("Canvas hp").Find("hp bar").gameObject.GetComponent<Scrollbar>().size = ((float)hp / hp_max);
         }
         func.test_message = "error wolk damage " + num.ToString() + " 5150";
+
+        int count_mast = lt_carts_art.ConvertAll(x => x.name).Where(x => (x == "cart mast")).Count();
         foreach (par_cart_art cart in lt_carts_art)
         {
-            
-            if (cart.perez_now != 0)
+
+            if (cart.perez_now != 0 && cart.tp_perez==par_cart_art.type_perez.damage)
             {
-                
-                    
                 if (cart.name == "cart berserk")
                 {
-                    cart.perez_now -= dm;
+                    cart.perez_now -= dm * (1 + count_mast);
+                    if (cart.perez_now < 0)
+                        cart.perez_now = 0;
                     if (cart.perez_now == 0)
                     {
                         activate_art(cart);
                     }
-                        
-
                 }
                 /*
                 else if (cart.name == "cart berserk")
@@ -6386,8 +6979,10 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 }*/
                 else if (cart.name == "cart berserk boss")
                 {
-                    if(cart.q==0)
-                        cart.perez_now -= dm;
+                    if (cart.q == 0)
+                        cart.perez_now -= dm * (1 + count_mast);
+                    if (cart.perez_now < 0)
+                        cart.perez_now = 0;
                     if (cart.perez_now == 0)
                     {
                         activate_art(cart);
@@ -6410,6 +7005,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         if (hp <= 0)
         {
             hp = 0;
+            dead();
             /*
             foreach (par_cart_art cart in lt_carts_art)
             {
@@ -6426,7 +7022,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
              */
 
-
+            /*
             func.test_message = "error wolk damage " + num.ToString() + " 5189";
             if (gameObject.name != data.data_now.pl_name_now)
             {
@@ -6438,28 +7034,28 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                         bl_boss = 5;
                         data.give_achive("умелый");
                     }
-                    if(!friend)
-                    foreach (par_cart_art cart in lt_carts_art)
-                    {
-                        if (Random.Range(0, 25 / bl_boss) == 0)
+                    if (!friend)
+                        foreach (par_cart_art cart in lt_carts_art)
                         {
-                            GameObject gm_cart = func.drop(cart.name, x, y);
-                            if (gm_cart != null)
-                                gm_cart.active = func.eath[x, y].active;
-                        }
+                            if (Random.Range(0, 25 / bl_boss) == 0)
+                            {
+                                GameObject gm_cart = func.drop(cart.name, x, y);
+                                if (gm_cart != null)
+                                    gm_cart.active = func.eath[x, y].active;
+                            }
 
-                    }
-                    if(!friend)
-                    foreach (string cart in lt_carts)
-                    {
-                        if (Random.Range(0, 10 / bl_boss) == 0)
-                        {
-                            GameObject gm_cart = func.drop(cart, x, y);
-                            if (gm_cart != null)
-                                gm_cart.active = func.eath[x, y].active;
                         }
-                        //func.drop(cart, x, y).active = func.eath[x, y].active;
-                    }
+                    if (!friend)
+                        foreach (string cart in lt_carts)
+                        {
+                            if (Random.Range(0, 10 / bl_boss) == 0)
+                            {
+                                GameObject gm_cart = func.drop(cart, x, y);
+                                if (gm_cart != null)
+                                    gm_cart.active = func.eath[x, y].active;
+                            }
+                            //func.drop(cart, x, y).active = func.eath[x, y].active;
+                        }
 
                     if (gameObject.name == "derlorg" || gameObject.name == "derlorg shaman" || gameObject.name == "derlorg fire" || gameObject.name == "derlorg poition" || gameObject.name == "derlorg blood" || gameObject.name == "derlorg rock" || gameObject.name == "derlorg energy" || gameObject.name == "derlorg ice" || gameObject.name == "dungalorg")
                         data.data_now.cl_mob_dead_derlorg++;
@@ -6480,16 +7076,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
                     }
                     func.test_message = "error wolk damage " + num.ToString() + " 5220";
-                    /*
-                    data.data_now.cl_mob_dead_ber++;
 
-                    if (data.data_now.cl_mob_dead_ber == 50)
-                    {
-                        data.data_now.lt_players.Add(data.players.berserk);
-                        data.give_achive("до самой смерти");
-
-                    }
-                    */
                     distanse_max = 0;
                     update_viz();
 
@@ -6502,6 +7089,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                     {
                         gm.GetComponent<par_mob>().lt_mob_vizited_in.Remove(gameObject);
                     }
+                    func.lt_v2_viz_mob[x, y].Remove(gameObject);
                     Debug.Log("dead " + num);
 
                     func.mob_list[num] = null;
@@ -6553,10 +7141,184 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 //func.hod_next_mob = false;
                 GameObject.Find("Canvas end").GetComponent<Animator>().SetBool("opened", true);
             }
+*/
 
         }
         func.test_message = "good";
         //par_mob player = gameObject.Find("player");
+    }
+    public void dead()
+    {
+        //func.test_message = "error wolk damage " + num.ToString() + " 5189";
+        if (gameObject.name != data.data_now.pl_name_now)
+        {
+            if (gameObject.GetInstanceID() < 0)
+            {
+                if((data.data_now.pl_name_now== "berserk player") &&!friend)
+                    func.mob_list[0].GetComponent<par_mob>().regen(hp_max,"none");
+
+
+                int bl_boss = 1;
+                List<string> lt_el_mob = new List<string>();
+
+                lt_el_mob.Add("org");
+                lt_el_mob.Add("shaman");
+
+                lt_el_mob.Add("half-fire spirit");
+                lt_el_mob.Add("half-poition spirit");
+                lt_el_mob.Add("half-energy spirit");
+                lt_el_mob.Add("half-ice spirit");
+                lt_el_mob.Add("half-blood spirit");
+                lt_el_mob.Add("half-rock spirit");
+
+                lt_el_mob.Add("fire defender 1");
+                lt_el_mob.Add("poition defender 1");
+                lt_el_mob.Add("energy defender 1");
+                lt_el_mob.Add("ice defender 1");
+                lt_el_mob.Add("blood defender 1");
+                lt_el_mob.Add("rock defender 1");
+
+                lt_el_mob.Add("org berserk");
+                lt_el_mob.Add("goblin shaman");
+
+                lt_el_mob.Add("fire elemental");
+                lt_el_mob.Add("poition elemental");
+                lt_el_mob.Add("energy elemental");
+                lt_el_mob.Add("ice elemental");
+                lt_el_mob.Add("blood elemental");
+                lt_el_mob.Add("rock elemental");
+
+                lt_el_mob.Add("damage master");
+                
+                lt_el_mob.Add("fire master");
+                lt_el_mob.Add("poition master");
+                lt_el_mob.Add("energy master");
+                lt_el_mob.Add("ice master");
+                lt_el_mob.Add("blood master");
+                lt_el_mob.Add("rock master");
+                
+
+                if (lt_el_mob.Contains(gameObject.name)&& (func.num_lev%5==0))
+                {
+                    bl_boss = 5;
+                    data.give_achive("умелый");
+                }
+                if (!friend && gameObject.name!= "dych")
+                    foreach (par_cart_art cart in lt_carts_art)
+                    {
+                        if (Random.Range(0, 20 / bl_boss) == 0)
+                        {
+                            GameObject gm_cart = func.drop(cart.name, x, y);
+                            if (gm_cart != null)
+                                gm_cart.active = func.eath[x, y].active;
+                        }
+
+                    }
+                if (!friend && gameObject.name != "dych")
+                    foreach (string cart in lt_carts)
+                    {
+                        if (Random.Range(0, 10 / bl_boss) == 0)
+                        {
+                            GameObject gm_cart = func.drop(cart, x, y);
+                            if (gm_cart != null)
+                                gm_cart.active = func.eath[x, y].active;
+                        }
+                        //func.drop(cart, x, y).active = func.eath[x, y].active;
+                    }
+
+                if (gameObject.name == "derlorg" || gameObject.name == "derlorg shaman" || gameObject.name == "derlorg fire" || gameObject.name == "derlorg poition" || gameObject.name == "derlorg blood" || gameObject.name == "derlorg rock" || gameObject.name == "derlorg energy" || gameObject.name == "derlorg ice" || gameObject.name == "derlorg bomb" || gameObject.name == "derlorg necro" || gameObject.name == "dungalorg")
+                    data.data_now.cl_mob_dead_derlorg++;
+                if (data.data_now.cl_mob_dead_derlorg == 50)
+                {
+                    //data.data_now.lt_players.Add(data.players.berserk);
+                    data.data_now.lt_players.Add(data.players.derlorg);
+                    data.give_achive("Истребитель");
+
+                }
+                if (!friend)
+                    data.data_now.cl_mob_dead_now++;
+                if (data.data_now.cl_mob_dead_now == 100)
+                {
+                    //data.data_now.lt_players.Add(data.players.berserk);
+                    //data.data_now.lt_players.Add(data.players.derlorg);
+                    data.give_achive("опытный");
+
+                }
+                func.test_message = "error wolk damage " + num.ToString() + " 5220";
+                /*
+                data.data_now.cl_mob_dead_ber++;
+
+                if (data.data_now.cl_mob_dead_ber == 50)
+                {
+                    data.data_now.lt_players.Add(data.players.berserk);
+                    data.give_achive("до самой смерти");
+
+                }
+                */
+                distanse_max = 0;
+                update_viz();
+
+
+                foreach (GameObject gm in lt_mob_vizited_in)
+                {
+                    gm.GetComponent<par_mob>().lt_mob_vizited.Remove(gameObject);
+                }
+                foreach (GameObject gm in lt_mob_vizited)
+                {
+                    gm.GetComponent<par_mob>().lt_mob_vizited_in.Remove(gameObject);
+                }
+                func.lt_v2_viz_mob[x, y].Remove(gameObject);
+                Debug.Log("dead " + num);
+
+                func.mob_list[num] = null;
+                func.nums_mob.Remove(num);
+                func.nums_mob_wolk.Remove(num);
+                func.mob[x, y] = null;
+                if (parent != null)
+                    parent.GetComponent<par_mob>().childs.Remove(gameObject);
+
+                if (friend)
+                {
+                    func.col_friend--;
+                    GameObject.Find("Main Camera").transform.parent = func.mob_list[0].transform;
+                    GameObject.Find("Main Camera").transform.localPosition = new Vector3(0, 0, -10);
+                }
+
+            }
+            Destroy(gameObject);
+            func.test_message = "error wolk damage " + num.ToString() + " 5241";
+
+
+
+        }
+
+        else
+        {
+
+            if (data.data_now.col_dead < 20)
+            {
+                data.data_now.col_dead++;
+                if (data.data_now.col_dead == 20)
+                {
+                    //data.data_now.lt_players.Add(data.players.berserk);
+                    data.give_achive("не в первый раз");
+
+                }
+            }
+            data.save_data();
+
+
+            if (friend)
+                friend = false;
+
+            func.played = false;
+            //GameObject.Find("EventS")
+            //Time.timeScale = 0;
+            anim.col_anim++;
+            //func.hod_next_mob_art = false;
+            //func.hod_next_mob = false;
+            GameObject.Find("Canvas end").GetComponent<Animator>().SetBool("opened", true);
+        }
     }
     public void pr_damage(int dm)
     {
@@ -6614,6 +7376,11 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
         //Debug.Log("def");
     }
+    void Awake()
+    {
+        hp = hp_max;
+        
+    }
     void Start()
     {
         if (!func.baza.ContainsKey(gameObject.name))
@@ -6625,40 +7392,37 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         func = GameObject.Find("func").GetComponent<func>();
 
 
-        //Debug.Log("key " + carts_count_max.Count);
-    }
-    void Awake()
-    {
-        hp = hp_max;
+        //Debug.Log("key " + gameObject.name);
+
         if (!func.baza.ContainsKey(gameObject.name))
         {
             foreach (Transform tr in GameObject.Find("list carts").transform)
             {
-                Debug.Log(tr.gameObject.name + " "+ (GameObject.Find(tr.gameObject.name)==null));
+                //Debug.Log(tr.gameObject.name + " "+ (GameObject.Find(tr.gameObject.name)==null));
                 string nm = tr.gameObject.name;
                 if (!GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().art_cart_bl() && tr.gameObject.name != "cart gold")
                 {
                     par_cart.type_cart cart_name = GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().type;
                     if (cart_name == par_cart.type_cart.damage && gameObject.name == "atack player")
                         carts_count_max.Add(tr.gameObject.name, 8);
-                    else if (cart_name == par_cart.type_cart.fire && gameObject.name == "fire player")
+                    else if ((cart_name == par_cart.type_cart.fire || cart_name == par_cart.type_cart.spirit_fire) && gameObject.name == "fire player")
                         carts_count_max.Add(tr.gameObject.name, 8);
-                    else if (cart_name == par_cart.type_cart.rock && gameObject.name == "rock player")
+                    else if ((cart_name == par_cart.type_cart.rock || cart_name == par_cart.type_cart.spirit_rock) && gameObject.name == "rock player")
                         carts_count_max.Add(tr.gameObject.name, 8);
-                    else if (cart_name == par_cart.type_cart.ice && gameObject.name == "ice player")
+                    else if ((cart_name == par_cart.type_cart.ice || cart_name == par_cart.type_cart.spirit_ice) && gameObject.name == "ice player")
                         carts_count_max.Add(tr.gameObject.name, 8);
-                    else if (cart_name == par_cart.type_cart.blood && gameObject.name == "blood player")
+                    else if ((cart_name == par_cart.type_cart.blood || cart_name == par_cart.type_cart.spirit_blood) && gameObject.name == "blood player")
                         carts_count_max.Add(tr.gameObject.name, 8);
-                    else if (cart_name == par_cart.type_cart.energy && gameObject.name == "energy player")
+                    else if ((cart_name == par_cart.type_cart.energy || cart_name == par_cart.type_cart.spirit_energy) && gameObject.name == "energy player")
                         carts_count_max.Add(tr.gameObject.name, 8);
-                    else if (cart_name == par_cart.type_cart.poition && gameObject.name == "poition player")
+                    else if ((cart_name == par_cart.type_cart.poition || cart_name == par_cart.type_cart.spirit_poition) && gameObject.name == "poition player")
                         carts_count_max.Add(tr.gameObject.name, 8);
 
                     else if (cart_name == par_cart.type_cart.sp_barier && gameObject.name == "barier player")
                         carts_count_max.Add(tr.gameObject.name, 4);
 
-                    else if (cart_name == par_cart.type_cart.damage && gameObject.name == "goblin boss")
-                        carts_count_max.Add(tr.gameObject.name, 10);
+                    //else if (cart_name == par_cart.type_cart.damage && gameObject.name == "org berserk")
+                        //carts_count_max.Add(tr.gameObject.name, 10);
 
                     else
                     {
@@ -6668,9 +7432,9 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                         //if (nm == "cart dungalorg(sleep)" || nm == "cart dungalorg")
                         //carts_count_max.Add(tr.gameObject.name, 12+2*dop_inven);
                         if (GameObject.Find(tr.gameObject.name).GetComponent<par_cart>().spetial)
-                            carts_count_max.Add(tr.gameObject.name, 3 + dop_inven);
+                            carts_count_max.Add(tr.gameObject.name, 3 - dop_inven);
                         else
-                            carts_count_max.Add(tr.gameObject.name, 6 + dop_inven * 2);
+                            carts_count_max.Add(tr.gameObject.name, 6 - dop_inven * 2);
                     }
 
                     //Debug.Log(carts_count_max[tr.gameObject.name] + " trtr  " + tr.gameObject.name + "       " + gameObject.name);
@@ -6683,6 +7447,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             if (gameObject.name == "base player")
             {
                 add_cart_art("cart base st");
+                
                 //add_cart_art("cart dungalorg(boss)");
                 //add_cart_art("cart dungalorg heard");
                 //add_cart_art("cart berserk boss");
@@ -6758,43 +7523,124 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             else if (gameObject.name == "goblin elit")
             {
                 add_cart_art("cart sp atack");
-                add_cart_art("cart sp barier");
+                //add_cart_art("cart sp barier");
 
-                type_lt_attack.Add(type_atack_mob.damage);
-                type_lt_attack.Add(type_atack_mob.barier);
+                //base_pr();
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.barier, 1));
+                //type_lt_attack.Add(type_atack_mob.damage);
+                //type_lt_attack.Add(type_atack_mob.barier);
             }
 
-
-
-            else if (gameObject.name == "goblin")
+            else if (gameObject.name == "defender 1")
             {
                 add_cart_art("cart sp atack");
-                type_lt_attack.Add(type_atack_mob.damage);
+                add_cart_art("cart universal");
+                //add_cart_art("cart sp barier");
+
+                //base_pr();
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.barier, 1));
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.bomb, 1));
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.dych, 1));
+                //type_lt_attack.Add(type_atack_mob.damage);
+                //type_lt_attack.Add(type_atack_mob.barier);
             }
-                
+            else if (gameObject.name == "defender elemental")
+            {
+                add_cart_art("cart sp atack");
+                add_cart_art("cart elemental");
+                //add_cart_art("cart sp barier");
+
+                //base_pr();
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.rock, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.blood, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.fire, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.ice, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.energy, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.poition, 1));
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.bomb, 1));
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.dych, 1));
+                //type_lt_attack.Add(type_atack_mob.damage);
+                //type_lt_attack.Add(type_atack_mob.barier);
+            }
+            else if (gameObject.name == "defender barier")
+            {
+                add_cart_art("cart sp atack");
+                add_cart_art("cart sp barier");
+                //add_cart_art("cart sp barier");
+
+                //base_pr();
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.barier, 1));
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.bomb, 1));
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.dych, 1));
+                //type_lt_attack.Add(type_atack_mob.damage);
+                //type_lt_attack.Add(type_atack_mob.barier);
+            }
+
+            else if (gameObject.name == "goblin" || gameObject.name == "defender")
+            {
+                add_cart_art("cart sp atack");
+                //base_pr();
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+            }
+
             //add_cart_art("cart sp rock");
             //add_cart_art("cart sp blood");
             else if (gameObject.name == "goblin hiller")
             {
                 add_cart_art("cart sp barier");
-                type_lt_attack.Add(type_atack_mob.barier);
+                //base_pr();
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.barier, 1));
+                //type_priority_attack.Add(new );
                 //add_cart_art("cart sp rock");
             }
+            else if (gameObject.name == "shaman")
+            {
+                add_cart_art("cart sp atack");
+                add_cart_art("cart mini spirit");
+                add_cart_art("cart mini shaman");
+                //base_pr();
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                //type_priority_attack.Add(new );
+                //add_cart_art("cart sp rock");
+            }
+            else if (gameObject.name == "org")
+            {
+                add_cart_art("cart sp atack");
+                add_cart_art("cart dop hill");
+                add_cart_art("cart berserk");
+                //base_pr();
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                //type_priority_attack.Add(new );
+                //add_cart_art("cart sp rock");
+            }
+
 
             if (gameObject.name == "org berserk")
             {
                 add_cart_art("cart sp atack");
-                add_cart_art("cart sp atack");
+                //add_cart_art("cart sp atack");
                 add_cart_art("cart berserk boss");
                 add_cart_art("cart rage");
 
-                type_lt_attack.Add(type_atack_mob.damage);
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+
+                //base_pr();
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.sp_boss, 2));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 0));
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.crystall, 0));
+                //Debug.Log("start priority " + contains_pr_at(priority_atack.type_atack.damage));
                 //add_cart_art("cart sp barier 1");
                 //add_cart_art("cart sp rock 1");
                 //add_cart_art("cart berserk");
             }
             else if (gameObject.name == "goblin shaman")
             {
+                /*
                 add_cart_art("cart sp atack");
                 add_cart_art("cart sp fire");
                 add_cart_art("cart sp rock");
@@ -6803,11 +7649,17 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 add_cart_art("cart sp ice");
                 add_cart_art("cart sp poition");
 
+                */
+                add_cart_art("cart sp atack");
                 add_cart_art("cart shaman boss");
                 add_cart_art("cart spirit");
 
-                type_lt_attack.Add(type_atack_mob.damage);
-                type_lt_attack.Add(type_atack_mob.elemental);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.sp_boss, 2));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.fire, 2));
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                //type_lt_attack.Add(type_atack_mob.damage);
+                //type_lt_attack.Add(type_atack_mob.elemental);
                 //add_cart_art("cart sp barier 1");
                 //add_cart_art("cart sp rock 1");
                 //add_cart_art("cart berserk");
@@ -6815,46 +7667,333 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             else if (gameObject.name == "goblin blood elit")
             {
                 add_cart_art("cart sp blood");
-                type_lt_attack.Add(type_atack_mob.blood);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.blood, 1));
+                //base_pr();
                 //add_cart_art("cart berserk");
             }
-            else if (gameObject.name == "goblin rock elit")
+            else if (gameObject.name == "goblin rock elit" )
             {
                 add_cart_art("cart sp rock");
-                type_lt_attack.Add(type_atack_mob.rock);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.rock, 1));
+                //base_pr();
                 //add_cart_art("cart act rock");
             }
-            else if (gameObject.name == "goblin fire elit")
+            else if (gameObject.name == "goblin fire elit" )
             {
                 add_cart_art("cart sp fire");
-                type_lt_attack.Add(type_atack_mob.fire);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.fire, 1));
+                //base_pr();
                 //add_cart_art("cart act fire");
             }
             else if (gameObject.name == "goblin energy elit")
             {
                 add_cart_art("cart sp energy");
-                type_lt_attack.Add(type_atack_mob.energy);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.energy, 1));
+                //base_pr();
                 //add_cart_art("cart act energy");
             }
             else if (gameObject.name == "goblin ice elit")
             {
                 add_cart_art("cart sp ice");
-                type_lt_attack.Add(type_atack_mob.ice);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.ice, 1));
+                //base_pr();
                 //add_cart_art("cart act energy");
             }
             else if (gameObject.name == "goblin poition elit")
             {
                 add_cart_art("cart sp poition");
-                type_lt_attack.Add(type_atack_mob.poition);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.poition, 1));
+                //base_pr();
                 //add_cart_art("cart act energy");
             }
+
+
+
+            else if ( gameObject.name == "defender blood")
+            {
+                add_cart_art("cart sp blood");
+                add_cart_art("cart sp atack");
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.blood, 1));
+                //base_pr();
+                //add_cart_art("cart berserk");
+            }
+            else if (gameObject.name == "defender rock")
+            {
+                add_cart_art("cart sp rock");
+                add_cart_art("cart sp atack");
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.rock, 1));
+                //base_pr();
+                //add_cart_art("cart act rock");
+            }
+            else if (gameObject.name == "defender fire")
+            {
+                add_cart_art("cart sp fire");
+                add_cart_art("cart sp atack");
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.fire, 1));
+                //base_pr();
+                //add_cart_art("cart act fire");
+            }
+            else if (gameObject.name == "defender energy")
+            {
+                add_cart_art("cart sp energy");
+                add_cart_art("cart sp atack");
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.energy, 1));
+                //base_pr();
+                //add_cart_art("cart act energy");
+            }
+            else if ( gameObject.name == "defender ice")
+            {
+                add_cart_art("cart sp ice");
+                add_cart_art("cart sp atack");
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.ice, 1));
+                //base_pr();
+                //add_cart_art("cart act energy");
+            }
+            else if ( gameObject.name == "defender poition")
+            {
+                add_cart_art("cart sp poition");
+                add_cart_art("cart sp atack");
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.poition, 1));
+                //base_pr();
+                //add_cart_art("cart act energy");
+            }
+
+
+
+            else if (gameObject.name == "defender necro")
+            {
+                add_cart_art("cart sp dych");
+                add_cart_art("cart sp atack");
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.dych, 1));
+                //base_pr();
+                //add_cart_art("cart act energy");
+            }
+            else if (gameObject.name == "defender bomb")
+            {
+                add_cart_art("cart sp bomb");
+                add_cart_art("cart sp atack");
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.damage, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.bomb, 1));
+                //base_pr();
+                //add_cart_art("cart act energy");
+            }
+
+            else if (gameObject.name == "rock defender 1")
+            {
+                add_cart_art("cart sp rock 1");
+                add_cart_art("cart mini mast rock");
+                add_cart_art("cart sp rock");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.rock, 1));
+            }
+            else if (gameObject.name == "blood defender 1")
+            {
+                add_cart_art("cart sp blood 1");
+                add_cart_art("cart mini mast blood");
+                add_cart_art("cart sp blood");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.blood, 1));
+            }
+            else if (gameObject.name == "fire defender 1")
+            {
+                add_cart_art("cart sp fire 1");
+                add_cart_art("cart mini mast fire");
+                add_cart_art("cart sp fire");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.fire, 1));
+            }
+            else if (gameObject.name == "poition defender 1")
+            {
+                add_cart_art("cart sp poition 1");
+                add_cart_art("cart mini mast poition");
+                add_cart_art("cart sp poition");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.poition, 1));
+            }
+            else if (gameObject.name == "energy defender 1")
+            {
+                add_cart_art("cart sp energy 1");
+                add_cart_art("cart mini mast energy");
+                add_cart_art("cart sp energy");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.energy, 1));
+            }
+            else if (gameObject.name == "ice defender 1")
+            {
+                add_cart_art("cart sp ice 1");
+                add_cart_art("cart mini mast ice");
+                add_cart_art("cart sp ice");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.ice, 1));
+            }
+
+            else if (gameObject.name == "half-rock spirit")
+            {
+                add_cart_art("cart mini spirit rock");
+                add_cart_art("cart rock heart");
+                add_cart_art("cart sp rock");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.rock, 1));
+            }
+            else if (gameObject.name == "half-fire spirit")
+            {
+                add_cart_art("cart mini spirit fire");
+                add_cart_art("cart fire heart");
+                add_cart_art("cart sp fire");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.fire, 1));
+            }
+            else if (gameObject.name == "half-poition spirit")
+            {
+                add_cart_art("cart mini spirit poition");
+                add_cart_art("cart poition heart");
+                add_cart_art("cart sp poition");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.poition, 1));
+            }
+            else if (gameObject.name == "half-blood spirit")
+            {
+                add_cart_art("cart mini spirit blood");
+                add_cart_art("cart blood heart");
+                add_cart_art("cart sp blood");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.blood, 1));
+            }
+            else if (gameObject.name == "half-energy spirit")
+            {
+                add_cart_art("cart mini spirit energy");
+                add_cart_art("cart energy heart");
+                add_cart_art("cart sp energy");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.energy, 1));
+            }
+            else if (gameObject.name == "half-ice spirit")
+            {
+                add_cart_art("cart mini spirit ice");
+                add_cart_art("cart ice heart");
+                add_cart_art("cart sp ice");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.ice, 1));
+            }
+
+
+
+            else if (gameObject.name == "rock master")
+            {
+                add_cart_art("cart sp atack");
+                add_cart_art("cart sp rock");
+                add_cart_art("cart sp rock 2");
+                add_cart_art("cart mast rock");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.rock, 1));
+            }
+            else if (gameObject.name == "blood master")
+            {
+                add_cart_art("cart sp atack");
+                add_cart_art("cart sp blood");
+                add_cart_art("cart sp blood 2");
+                add_cart_art("cart mast blood");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.blood, 1));
+            }
+            else if (gameObject.name == "fire master")
+            {
+                add_cart_art("cart sp atack");
+                add_cart_art("cart sp fire");
+                add_cart_art("cart sp fire 2");
+                add_cart_art("cart mast fire");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.fire, 1));
+            }
+            else if (gameObject.name == "poition master")
+            {
+                add_cart_art("cart sp atack");
+                add_cart_art("cart sp poition");
+                add_cart_art("cart sp poition 2");
+                add_cart_art("cart mast poition");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.poition, 1));
+            }
+            else if (gameObject.name == "energy master")
+            {
+                add_cart_art("cart sp atack");
+                add_cart_art("cart sp energy");
+                add_cart_art("cart sp energy 2");
+                add_cart_art("cart mast energy");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.energy, 1));
+            }
+            else if (gameObject.name == "ice master")
+            {
+                add_cart_art("cart sp atack");
+                add_cart_art("cart sp ice");
+                add_cart_art("cart sp ice 2");
+                add_cart_art("cart mast ice");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.ice, 1));
+            }
+
+
+
+            else if (gameObject.name == "rock elemental")
+            {
+                add_cart_art("cart sp spirit rock");
+                add_cart_art("cart spirit rock heart");
+                add_cart_art("cart sp rock");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.rock, 1));
+            }
+            else if (gameObject.name == "fire elemental")
+            {
+                add_cart_art("cart sp spirit fire");
+                add_cart_art("cart spirit fire heart");
+                add_cart_art("cart sp fire");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.fire, 1));
+            }
+            else if (gameObject.name == "poition elemental")
+            {
+                add_cart_art("cart sp spirit poition");
+                add_cart_art("cart spirit poition heart");
+                add_cart_art("cart sp poition");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.poition, 1));
+            }
+            else if (gameObject.name == "blood elemental")
+            {
+                add_cart_art("cart sp spirit blood");
+                add_cart_art("cart spirit blood heart");
+                add_cart_art("cart sp blood");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.blood, 1));
+            }
+            else if (gameObject.name == "energy elemental")
+            {
+                add_cart_art("cart sp spirit energy");
+                add_cart_art("cart spirit energy heart");
+                add_cart_art("cart sp energy");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.energy, 1));
+            }
+            else if (gameObject.name == "ice elemental")
+            {
+                add_cart_art("cart sp spirit ice");
+                add_cart_art("cart spirit ice heart");
+                add_cart_art("cart sp ice");
+                add_cart_art("cart sp atack");
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.ice, 1));
+            }
+
+
+
             else if (gameObject.name == "derlorg")
             {
                 add_cart_art("cart sp derlorg");
                 add_cart_art("cart sp atack");
 
-                type_lt_attack.Add(type_atack_mob.seal);
-                type_lt_attack.Add(type_atack_mob.damage);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.seal, 1));
+                //base_pr();
                 //add_cart_art("cart act energy");
             }
             else if (gameObject.name == "derlorg shaman")
@@ -6862,8 +8001,10 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 add_cart_art("cart sp derlorg");
                 add_cart_art("cart sp barier");
 
-                type_lt_attack.Add(type_atack_mob.seal);
-                type_lt_attack.Add(type_atack_mob.barier);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.seal, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.barier, 1));
+                //type_priority_attack.Add(new priority_atack(priority_atack.type_atack.blood, 1));
+                //base_pr();
                 //add_cart_art("cart act energy");
             }
             else if (gameObject.name == "derlorg fire")
@@ -6871,12 +8012,10 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 add_cart_art("cart sp derlorg");
                 add_cart_art("cart sp atack");
                 add_cart_art("cart sp fire");
-                add_cart_art("cart sp barier");
+                //add_cart_art("cart sp barier");
 
-                type_lt_attack.Add(type_atack_mob.seal);
-                type_lt_attack.Add(type_atack_mob.fire);
-                type_lt_attack.Add(type_atack_mob.damage);
-                type_lt_attack.Add(type_atack_mob.barier);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.fire, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.seal, 1));
                 //add_cart_art("cart act energy");
             }
             else if (gameObject.name == "derlorg blood")
@@ -6884,12 +8023,10 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 add_cart_art("cart sp derlorg");
                 add_cart_art("cart sp atack");
                 add_cart_art("cart sp blood");
-                add_cart_art("cart sp barier");
+                //add_cart_art("cart sp barier");
 
-                type_lt_attack.Add(type_atack_mob.seal);
-                type_lt_attack.Add(type_atack_mob.blood);
-                type_lt_attack.Add(type_atack_mob.damage);
-                type_lt_attack.Add(type_atack_mob.barier);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.blood, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.seal, 1));
                 //add_cart_art("cart act energy");
             }
             else if (gameObject.name == "derlorg poition")
@@ -6897,12 +8034,11 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 add_cart_art("cart sp derlorg");
                 add_cart_art("cart sp atack");
                 add_cart_art("cart sp poition");
-                add_cart_art("cart sp barier");
+                //add_cart_art("cart sp barier");
 
-                type_lt_attack.Add(type_atack_mob.seal);
-                type_lt_attack.Add(type_atack_mob.poition);
-                type_lt_attack.Add(type_atack_mob.damage);
-                type_lt_attack.Add(type_atack_mob.barier);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.poition, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.seal, 1));
+                //base_pr();
                 //add_cart_art("cart act energy");
             }
             else if (gameObject.name == "derlorg ice")
@@ -6910,12 +8046,11 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 add_cart_art("cart sp derlorg");
                 add_cart_art("cart sp atack");
                 add_cart_art("cart sp ice");
-                add_cart_art("cart sp barier");
+                //add_cart_art("cart sp barier");
 
-                type_lt_attack.Add(type_atack_mob.seal);
-                type_lt_attack.Add(type_atack_mob.ice);
-                type_lt_attack.Add(type_atack_mob.damage);
-                type_lt_attack.Add(type_atack_mob.barier);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.ice, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.seal, 1));
+                base_pr();
                 //add_cart_art("cart act energy");
             }
             else if (gameObject.name == "derlorg energy")
@@ -6923,12 +8058,11 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 add_cart_art("cart sp derlorg");
                 add_cart_art("cart sp atack");
                 add_cart_art("cart sp energy");
-                add_cart_art("cart sp barier");
+                //add_cart_art("cart sp barier");
 
-                type_lt_attack.Add(type_atack_mob.seal);
-                type_lt_attack.Add(type_atack_mob.energy);
-                type_lt_attack.Add(type_atack_mob.damage);
-                type_lt_attack.Add(type_atack_mob.barier);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.energy, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.seal, 1));
+                base_pr();
                 //add_cart_art("cart act energy");
             }
             else if (gameObject.name == "derlorg rock")
@@ -6936,12 +8070,32 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 add_cart_art("cart sp derlorg");
                 add_cart_art("cart sp atack");
                 add_cart_art("cart sp rock");
-                add_cart_art("cart sp barier");
+                //add_cart_art("cart sp barier");
 
-                type_lt_attack.Add(type_atack_mob.seal);
-                type_lt_attack.Add(type_atack_mob.rock);
-                type_lt_attack.Add(type_atack_mob.damage);
-                type_lt_attack.Add(type_atack_mob.barier);
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.rock, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.seal, 1));
+                //add_cart_art("cart act energy");
+            }
+            else if (gameObject.name == "derlorg bomb")
+            {
+                add_cart_art("cart sp derlorg");
+                add_cart_art("cart sp atack");
+                add_cart_art("cart sp bomb");
+                //add_cart_art("cart sp barier");
+
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.bomb, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.seal, 1));
+                //add_cart_art("cart act energy");
+            }
+            else if (gameObject.name == "derlorg necro")
+            {
+                add_cart_art("cart sp derlorg");
+                add_cart_art("cart sp atack");
+                add_cart_art("cart sp dych");
+                //add_cart_art("cart sp barier");
+
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.dych, 1));
+                type_priority_attack.Add(new priority_atack(priority_atack.type_atack.seal, 1));
                 //add_cart_art("cart act energy");
             }
             else if (gameObject.name == "dungalorg")
@@ -6949,17 +8103,6 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 add_cart_art("cart sp atack");
                 add_cart_art("cart dungalorg(boss)");
                 add_cart_art("cart dungalorg heard");
-                //add_cart_art("cart act energy");
-            }
-
-            else if (gameObject.name == "spider (spawned)")
-            {
-                add_cart_art("cart sp spider(spawned)");
-                //add_cart_art("cart act energy");
-            }
-            else if (gameObject.name == "spider (spawned)")
-            {
-                add_cart_art("cart sp spider");
                 //add_cart_art("cart act energy");
             }
 
@@ -6972,8 +8115,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
     void Update()
     {
         //if (num == 0 && lt_carts_active_now.Count>0)
-            //Debug.Log("ui bt " + lt_carts_active_now.Count);
-
+        //Debug.Log("ui bt " + lt_carts_active_now.Count);
         if (timer_now < 0.5f)
             timer_now += Time.deltaTime;
         if (que_dm_tx.Count > 0 && timer_now >= 0.5f)
@@ -6989,7 +8131,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
         if (time_wolk >= 0)
         {
-            Debug.Log("timer hod " + num);
+            //Debug.Log("timer hod " + num);
             time_wolk += Time.deltaTime;
             Vector2 v2 = gameObject.transform.position;
             v2 += d_v2_wolk * Time.deltaTime;

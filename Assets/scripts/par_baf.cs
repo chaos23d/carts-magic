@@ -30,27 +30,24 @@ public class par_baf : parametrs
 
         rage,
         berserk,
-        seal_damage,
-        seal_barier,
-        seal_fire,
-        seal_poition,
-        seal_energy,
-        seal_ice,
-        seal_rock,
-        seal_blood,
+        seal_spetial
     }
 
     public int long_baf = 0;
     public int power = 0;
     public type_baf type;
+
+    public List<string> lt_cart= new List<string>();
+
     public bool passive = true;
     public bool before = true;
     public bool skip_first = false;
 
     public GameObject parent = null;
+    public GameObject gm_anim = null;
     public void baf()
     {
-        Debug.Log("is baf");
+        //Debug.Log("is baf");
         if (long_baf != -1)
         {
             long_baf--;

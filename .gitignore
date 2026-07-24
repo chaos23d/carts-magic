@@ -1,0 +1,18 @@
+Library/
+Library(backup)/
+Logs/
+Packages/
+Recordings/
+res market/
+UserSettings/
+
+# Файлы IDE
+*.csproj
+*.sln
+*.user
+*.pidb
+*.unityproj
+*.tmp
+
+# Crash reports
+sysinfo.txt

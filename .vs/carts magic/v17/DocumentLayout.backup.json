@@ -3,16 +3,32 @@
   "WorkspaceRootPath": "D:\\programming\\projectsUnity\\carts magic\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|d:\\programming\\projectsunity\\carts magic\\assets\\resources\\ui\\shader\\text.shader||{3B902123-F8A7-4915-9F01-361F908088D0}",
-      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\resources\\ui\\shader\\text.shader||{3B902123-F8A7-4915-9F01-361F908088D0}"
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|d:\\programming\\projectsunity\\carts magic\\assets\\scripts\\par_dialog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\par_dialog.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|d:\\programming\\projectsunity\\carts magic\\assets\\scripts\\ui\\ui_tx.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\ui_tx.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\abstract\\abs_physics.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\abstract\\abs_physics.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\data\\data.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\data\\data.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\par_move_camera.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\par_move_camera.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\ui\\ui_anim_text.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\ui_anim_text.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\ui\\ui_button.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\ui_button.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\ui\\ui_start.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\ui_start.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\ui\\ui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\ui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\func.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -21,6 +37,50 @@
     {
       "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\par_mob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\par_mob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\par_effect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\par_effect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\data\\story.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\data\\story.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\data\\data.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\data\\data.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\par_eath.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\par_eath.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\anim.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\anim.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\cart_spawn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\cart_spawn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\ui\\ui_anim.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\ui_anim.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\resources\\ui\\shader\\test shader\\shader_grad.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\resources\\ui\\shader\\test shader\\shader_grad.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\resources\\ui\\shader\\test shader\\shader_grad.shader||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\resources\\ui\\shader\\test shader\\shader_grad.shader||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\resources\\ui\\shader\\text.shader||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\resources\\ui\\shader\\text.shader||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\ui\\ui_tx.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\ui_tx.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\par_cart.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -39,18 +99,6 @@
       "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\par_cart_art.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\ui\\ui_button.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\ui_button.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\par_effect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\par_effect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\ui\\ui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\ui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\ui\\ui_atack.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\ui_atack.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -67,20 +115,8 @@
       "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\ui_wait.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\anim.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\anim.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\anim_color.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\anim_color.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\ui\\ui_start.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\ui_start.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\ui\\ui_anim.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\ui\\ui_anim.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FA5D8222-3114-BE5E-FF9F-5A94C5EBC3B5}|Assembly-CSharp.csproj|D:\\programming\\projectsUnity\\carts magic\\assets\\scripts\\par_lovyshka.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -94,7 +130,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -102,7 +138,116 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "story.cs",
+              "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\data\\story.cs",
+              "RelativeDocumentMoniker": "Assets\\scripts\\data\\story.cs",
+              "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\data\\story.cs",
+              "RelativeToolTip": "Assets\\scripts\\data\\story.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-02T13:12:21.381Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "abs_physics.cs",
+              "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\abstract\\abs_physics.cs",
+              "RelativeDocumentMoniker": "Assets\\scripts\\abstract\\abs_physics.cs",
+              "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\abstract\\abs_physics.cs",
+              "RelativeToolTip": "Assets\\scripts\\abstract\\abs_physics.cs",
+              "ViewState": "AgIAACsAAAAAAAAAAAAQwD4AAABLAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-02T06:59:29.056Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "cart_spawn.cs",
+              "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\cart_spawn.cs",
+              "RelativeDocumentMoniker": "Assets\\scripts\\cart_spawn.cs",
+              "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\cart_spawn.cs",
+              "RelativeToolTip": "Assets\\scripts\\cart_spawn.cs",
+              "ViewState": "AgIAACoAAAAAAAAAAAAYwDwAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-29T21:03:22.212Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "par_move_camera.cs",
+              "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_move_camera.cs",
+              "RelativeDocumentMoniker": "Assets\\scripts\\par_move_camera.cs",
+              "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_move_camera.cs",
+              "RelativeToolTip": "Assets\\scripts\\par_move_camera.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-29T21:02:32.481Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "par_dialog.cs",
+              "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_dialog.cs",
+              "RelativeDocumentMoniker": "Assets\\scripts\\par_dialog.cs",
+              "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_dialog.cs",
+              "RelativeToolTip": "Assets\\scripts\\par_dialog.cs",
+              "ViewState": "AgIAACMAAAAAAAAAAAAvwDEAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-29T20:57:29.658Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "par_eath.cs",
+              "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_eath.cs",
+              "RelativeDocumentMoniker": "Assets\\scripts\\par_eath.cs",
+              "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_eath.cs",
+              "RelativeToolTip": "Assets\\scripts\\par_eath.cs",
+              "ViewState": "AgIAACkAAAAAAAAAAAAgwDgAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-29T16:40:11.268Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ui_anim_text.cs",
+              "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\ui\\ui_anim_text.cs",
+              "RelativeDocumentMoniker": "Assets\\scripts\\ui\\ui_anim_text.cs",
+              "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\ui\\ui_anim_text.cs",
+              "RelativeToolTip": "Assets\\scripts\\ui\\ui_anim_text.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAQwCQAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-29T10:45:07.323Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "shader_grad.cs",
+              "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\resources\\ui\\shader\\test shader\\shader_grad.cs",
+              "RelativeDocumentMoniker": "Assets\\resources\\ui\\shader\\test shader\\shader_grad.cs",
+              "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\resources\\ui\\shader\\test shader\\shader_grad.cs",
+              "RelativeToolTip": "Assets\\resources\\ui\\shader\\test shader\\shader_grad.cs",
+              "ViewState": "AgIAABIAAAAAAAAAAAAYwBAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-22T07:28:04.559Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "shader_grad.shader",
+              "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\resources\\ui\\shader\\test shader\\shader_grad.shader",
+              "RelativeDocumentMoniker": "Assets\\resources\\ui\\shader\\test shader\\shader_grad.shader",
+              "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\resources\\ui\\shader\\test shader\\shader_grad.shader",
+              "RelativeToolTip": "Assets\\resources\\ui\\shader\\test shader\\shader_grad.shader",
+              "ViewState": "AgIAADwAAAAAAAAAAIBJwE8AAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002777|",
+              "WhenOpened": "2026-06-22T07:24:15.817Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
               "Title": "text.shader",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\resources\\ui\\shader\\text.shader",
               "RelativeDocumentMoniker": "Assets\\resources\\ui\\shader\\text.shader",
@@ -110,12 +255,11 @@
               "RelativeToolTip": "Assets\\resources\\ui\\shader\\text.shader",
               "ViewState": "AgIAAB4AAAAAAAAAAAAAADYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002777|",
-              "WhenOpened": "2026-06-22T07:18:26.752Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-06-22T07:18:26.752Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 23,
               "Title": "par_cart_art.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_cart_art.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\par_cart_art.cs",
@@ -127,7 +271,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 25,
               "Title": "add.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\data\\add.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\data\\add.cs",
@@ -139,19 +283,19 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 7,
               "Title": "func.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\func.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\func.cs",
               "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\func.cs",
               "RelativeToolTip": "Assets\\scripts\\func.cs",
-              "ViewState": "AgIAAGsbAAAAAAAAAAAcwIEbAAAhAAAAAAAAAA==",
+              "ViewState": "AgIAAC0TAAAAAAAAAAAvwNASAABmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-02-19T13:49:25.67Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 27,
               "Title": "ui_wait.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\ui\\ui_wait.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\ui\\ui_wait.cs",
@@ -163,7 +307,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 21,
               "Title": "parametrs.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\parametrs.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\parametrs.cs",
@@ -175,7 +319,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 19,
               "Title": "ui_tx.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\ui\\ui_tx.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\ui\\ui_tx.cs",
@@ -183,36 +327,35 @@
               "RelativeToolTip": "Assets\\scripts\\ui\\ui_tx.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAABVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-20T18:53:32.355Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-20T18:53:32.355Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 5,
               "Title": "ui_start.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\ui\\ui_start.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\ui\\ui_start.cs",
               "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\ui\\ui_start.cs",
               "RelativeToolTip": "Assets\\scripts\\ui\\ui_start.cs",
-              "ViewState": "AQIAAAoAAAAAAAAAAAAQwCAAAAAWAAAA",
+              "ViewState": "AgIAACAAAAAAAAAAAIAwwDIAAABZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-08-15T10:56:13.21Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 15,
               "Title": "ui_anim.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\ui\\ui_anim.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\ui\\ui_anim.cs",
               "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\ui\\ui_anim.cs",
               "RelativeToolTip": "Assets\\scripts\\ui\\ui_anim.cs",
-              "ViewState": "AQIAAAcAAAAAAAAAAAAIwAAAAAAAAAAA",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-08-15T10:56:04.149Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 26,
               "Title": "par_prise.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_prise.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\par_prise.cs",
@@ -224,31 +367,31 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 4,
               "Title": "ui_button.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\ui\\ui_button.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\ui\\ui_button.cs",
               "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\ui\\ui_button.cs",
               "RelativeToolTip": "Assets\\scripts\\ui\\ui_button.cs",
-              "ViewState": "AQIAADsAAAAAAAAAAAAiwCQDAAApAAAA",
+              "ViewState": "AgIAAAIDAAAAAAAAAAAnwBIDAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-21T12:57:49.145Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 13,
               "Title": "anim.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\anim.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\anim.cs",
               "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\anim.cs",
               "RelativeToolTip": "Assets\\scripts\\anim.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABIAAAAFAAAA",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAAwBIAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-19T11:03:59.792Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 29,
               "Title": "par_lovyshka.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_lovyshka.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\par_lovyshka.cs",
@@ -260,19 +403,19 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 6,
               "Title": "ui.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\ui\\ui.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\ui\\ui.cs",
               "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\ui\\ui.cs",
               "RelativeToolTip": "Assets\\scripts\\ui\\ui.cs",
-              "ViewState": "AQIAABABAAAAAAAAAAAjwHwAAAAXAAAA",
+              "ViewState": "AgIAACYBAAAAAAAAAAAvwCMBAABcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-17T07:14:56.112Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 24,
               "Title": "ui_atack.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\ui\\ui_atack.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\ui\\ui_atack.cs",
@@ -284,7 +427,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 20,
               "Title": "par_cart.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_cart.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\par_cart.cs",
@@ -296,7 +439,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 22,
               "Title": "par_baf.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_baf.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\par_baf.cs",
@@ -308,7 +451,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 28,
               "Title": "anim_color.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\anim_color.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\anim_color.cs",
@@ -320,37 +463,37 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 8,
               "Title": "par_mob.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_mob.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\par_mob.cs",
               "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_mob.cs",
               "RelativeToolTip": "Assets\\scripts\\par_mob.cs",
-              "ViewState": "AgIAAKsAAAAAAAAAAAAYwJsAAAArAAAAAAAAAA==",
+              "ViewState": "AgIAAKMCAAAAAAAAAAArwK8CAABqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-02-17T16:37:15.552Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 9,
               "Title": "par_effect.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_effect.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\par_effect.cs",
               "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\par_effect.cs",
               "RelativeToolTip": "Assets\\scripts\\par_effect.cs",
-              "ViewState": "AQIAAEoAAAAAAAAAAAAuwFoAAAA5AAAA",
+              "ViewState": "AgIAANkDAAAAAAAAAAAswDUFAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-02-20T18:49:07.941Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 11,
               "Title": "data.cs",
               "DocumentMoniker": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\data\\data.cs",
               "RelativeDocumentMoniker": "Assets\\scripts\\data\\data.cs",
               "ToolTip": "D:\\programming\\projectsUnity\\carts magic\\Assets\\scripts\\data\\data.cs",
               "RelativeToolTip": "Assets\\scripts\\data\\data.cs",
-              "ViewState": "AgIAAJkBAAAAAAAAAAAwwKUBAAAXAAAAAAAAAA==",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAQwCIAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-02-19T19:10:16.23Z"
             }

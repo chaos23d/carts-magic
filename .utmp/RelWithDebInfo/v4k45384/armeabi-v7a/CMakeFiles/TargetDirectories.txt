@@ -1,0 +1,5 @@
+D:/programming/projectsUnity/carts magic/.utmp/RelWithDebInfo/v4k45384/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/programming/projectsUnity/carts magic/.utmp/RelWithDebInfo/v4k45384/armeabi-v7a/CMakeFiles/rebuild_cache.dir
+D:/programming/projectsUnity/carts magic/.utmp/RelWithDebInfo/v4k45384/armeabi-v7a/FramePacing/CMakeFiles/swappywrapper.dir
+D:/programming/projectsUnity/carts magic/.utmp/RelWithDebInfo/v4k45384/armeabi-v7a/FramePacing/CMakeFiles/edit_cache.dir
+D:/programming/projectsUnity/carts magic/.utmp/RelWithDebInfo/v4k45384/armeabi-v7a/FramePacing/CMakeFiles/rebuild_cache.dir

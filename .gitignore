@@ -5,6 +5,9 @@ Packages/
 Recordings/
 res market/
 UserSettings/
+Temp/
+.vs/
+
 
 # Файлы IDE
 *.csproj

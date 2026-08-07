@@ -1331,7 +1331,7 @@ public class par_effect : MonoBehaviour
         
         sp.parent = parent;
         Vector3 v3 = gameObject.transform.position;
-        sp.v2_start_all = v3;
+        sp.v2_start_base = v3;
         v3.y++;
         sp.sets(0.5f, false, v3);
         gm.active = true;

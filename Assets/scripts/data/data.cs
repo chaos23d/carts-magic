@@ -77,7 +77,7 @@ public class data : MonoBehaviour
         {
             first_game = true;
 
-
+            
             lt_achives.Add("умелый", "дойдите до 5 этажа и убейте босса");
 
             //lt_achives.Add("умелый", "дойдите до 4 этажа и убейте босса");
@@ -415,7 +415,7 @@ public class data : MonoBehaviour
             data_now = new SaveData();
             save_data();
         }
-        //File.Delete(Application.persistentDataPath + path);
+        File.Delete(Application.persistentDataPath + path);
     }
     public static void save_data()
     {
@@ -433,7 +433,7 @@ public class data : MonoBehaviour
         
         if (!data_now.first_game)
         {
-            GameObject.Find("Canvas obych").active = false;
+            //GameObject.Find("Canvas obych").active = false;
             //GameObject.Find("Main Camera").GetComponent<Animator>().enabled = true;
             //GameObject.Find("tx lvl").GetComponent<Animator>().enabled = true;
         }
@@ -442,6 +442,7 @@ public class data : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        /*
         if(GameObject.Find("Canvas obych")==null)
         {
             //if(!GameObject.Find("Main Camera").GetComponent<Animator>().enabled)
@@ -457,5 +458,6 @@ public class data : MonoBehaviour
 
             save_data();
         }
+        */
     }
 }

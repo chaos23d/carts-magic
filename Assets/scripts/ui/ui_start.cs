@@ -51,9 +51,9 @@ public class ui_start : MonoBehaviour
             GameObject.Find("tx lvl").GetComponent<Text>().text = func.num_lev + " этаж";
             if (data.data_now.first_game)
             {
-                
-                gameObject.GetComponent<Animator>().enabled = false;
-                GameObject.Find("tx lvl").GetComponent<Animator>().enabled = false;
+                GameObject.Find("tx lvl").GetComponent<Text>().text = "тренировка";
+                //gameObject.GetComponent<Animator>().enabled = false;
+                //GameObject.Find("tx lvl").GetComponent<Animator>().enabled = false;
             }
            
         }

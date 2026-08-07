@@ -1947,6 +1947,115 @@ if (bl_leg)
         }
     }
 
+    public static void clear_room(List<GameObject> lt_fr)
+    {
+        for (int i = 0; i < size_global; i++)
+        {
+            for (int j = 0; j < size_global; j++)
+            {
+                if (mob[j, i] != null && !mob[j, i].GetComponent<par_mob>().friend)
+                    Destroy(mob[j, i]);
+                else if (mob[j, i] != null && mob[j, i].GetComponent<par_mob>().friend)
+                    lt_fr.Add(mob[j, i]);
+                if (nature[j, i] != null)
+                    Destroy(nature[j, i]);
+                if (carts[j, i] != null)
+                    Destroy(carts[j, i]);
+                if (eath[j, i] != null)
+                    Destroy(eath[j, i]);
+                if (lt_lovyshka[j, i] != null)
+                {
+                    foreach (GameObject gm in lt_lovyshka[j, i])
+                    {
+                        Destroy(gm);
+                    }
+
+                    lt_lovyshka[j, i].Clear();
+                }
+
+                mob[j, i] = null;
+                nature[j, i] = null;
+                carts[j, i] = null;
+                eath[j, i] = null;
+                mob_list[i * size_global + j] = null;
+                lt_v2_viz_mob[j, i] = new List<GameObject>();
+                lt_v2_viz_friend[j, i] = new List<GameObject>();
+            }
+        }
+        nums_mob.Clear();
+        nums_mob_wolk.Clear();
+        foreach (GameObject gm in lt_fr)
+        {
+            par_mob mbs = gm.GetComponent<par_mob>();
+            nums_mob.Add(mbs.num);
+            mob_list[mbs.num] = gm;
+        }
+        //mob_list[0] = GameObject.Find("player");
+        //nums_mob.Add(0);
+
+    }
+    public static void generate_room_obych()
+    {
+        List<GameObject> lt_fr = new List<GameObject>();
+        if (!(num_lev == 0))
+        {
+            clear_room(lt_fr);
+
+        }
+        else
+            lt_fr.Add(GameObject.Find(data.data_now.pl_name_now));
+
+        int st_x = 5;
+        int st_y = 5;
+
+        for (int i = 0; i < size_global; i++)
+        {
+            for (int j = 0; j < size_global; j++)
+            {
+                string st_eath = "";
+                if (Random.Range(0, 2) == 0)
+                    st_eath = "grass start 1";
+                else
+                    st_eath = "grass start 2";
+
+                if(i==5 && (j>=5 && j<=20))
+                    st_eath = "eath start";
+                if (j == 9 && (i >= 2 && i < 5))
+                    st_eath = "eath start";
+                create(st_eath, j, i);
+
+                string st_nature = null;
+                if(j==8 || j == 10)
+                {
+                    if(i<=4 && i >= 2)
+                    {
+                        st_nature = "wood wall v";
+                    }
+                }
+                if (j == 9 && i == 1)
+                    st_nature = "wood wall h";
+                if ((j == 8 || j==10) && i == 1)
+                    st_nature = "wood wall hv";
+                if(j==9 && i==2)
+                    st_nature = "manecen";
+
+                if (j == 9 && i == 6)
+                    st_nature = "teacher";
+
+                if(j%3==0 && i%3==0 && ((j<=3 || j>= size_global-1 - 3) &&( i <= 3 || i >= size_global - 1 - 3)))
+                    st_nature = "cyst";
+                if (st_nature != null)
+                {
+                    GameObject gm= create(st_nature, j, i);
+                    if (st_nature == "teacher")
+                        gm.GetComponent<par_mob>().simm(-1);
+                }
+                    
+
+            }
+        }
+        end_generate_room(lt_fr,st_x,st_y);
+    }
     public static void generate_room()
     {
         //test_message = "error generate";
@@ -1956,49 +2065,8 @@ if (bl_leg)
         List<GameObject> lt_fr = new List<GameObject>();
         if (!(num_lev == 0))
         {
-            for (int i = 0; i < size_global; i++)
-            {
-                for (int j = 0; j < size_global; j++)
-                {
-                    if (mob[j, i] != null && !mob[j, i].GetComponent<par_mob>().friend)
-                        Destroy(mob[j, i]);
-                    else if (mob[j, i] != null && mob[j, i].GetComponent<par_mob>().friend)
-                        lt_fr.Add(mob[j, i]);
-                    if (nature[j, i] != null)
-                        Destroy(nature[j, i]);
-                    if (carts[j, i] != null)
-                        Destroy(carts[j, i]);
-                    if (eath[j, i] != null)
-                        Destroy(eath[j, i]);
-                    if (lt_lovyshka[j, i] != null)
-                    {
-                        foreach (GameObject gm in lt_lovyshka[j, i])
-                        {
-                            Destroy(gm);
-                        }
+            clear_room(lt_fr);
 
-                        lt_lovyshka[j, i].Clear();
-                    }
-
-                    mob[j, i] = null;
-                    nature[j, i] = null;
-                    carts[j, i] = null;
-                    eath[j, i] = null;
-                    mob_list[i * size_global + j] = null;
-                    lt_v2_viz_mob[j,i] = new List<GameObject>();
-                    lt_v2_viz_friend[j, i] = new List<GameObject>();
-                }
-            }
-            nums_mob.Clear();
-            nums_mob_wolk.Clear();
-            //mob_list[0] = GameObject.Find("player");
-            //nums_mob.Add(0);
-            foreach (GameObject gm in lt_fr)
-            {
-                par_mob mbs = gm.GetComponent<par_mob>();
-                nums_mob.Add(mbs.num);
-                mob_list[mbs.num] = gm;
-            }
         }
         else
             lt_fr.Add(GameObject.Find(data.data_now.pl_name_now));
@@ -4009,11 +4077,21 @@ if (bl_leg)
 
         }
 
-
+        end_generate_room(lt_fr, st_x, st_y);
 
 
 
         //nat[st_x, st_y] = false;
+
+
+
+
+        //test_message = "good";
+        //GameObject.Find("player").GetComponent<par_mob>().wolk(st_x, st_y);
+
+    }
+    public static void end_generate_room(List<GameObject> lt_fr,int st_x,int st_y)
+    {
         gm_wolk_friend = GameObject.Find(data.data_now.pl_name_now);
 
         Debug.Log("end rd");
@@ -4077,20 +4155,14 @@ if (bl_leg)
             if (art.tp_perez == par_cart_art.type_perez.perehod_lvl)
             {
                 art.perez_now -= (1 + count_mast);
-                if(art.perez_now < 0)
+                if (art.perez_now < 0)
                     art.perez = 0;
-                if(art.perez_now==0 && art.name=="cart brilliant")
+                if (art.perez_now == 0 && art.name == "cart brilliant")
                     GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>().activate_art(art);
             }
         }
 
         add.load_add();
-
-
-
-        //test_message = "good";
-        //GameObject.Find("player").GetComponent<par_mob>().wolk(st_x, st_y);
-
     }
     #endregion
 
@@ -4541,7 +4613,7 @@ if (bl_leg)
 
             if (pr_mob.friend && pr_mob.friend_type==par_mob.type_friend.active)
             {
-                GameObject gg = GameObject.Find("im baf");
+                GameObject gg = GameObject.Find("canvases").transform.Find("Canvas").Find("im baf").gameObject;
                 //gg.GetComponent<SprireRenderer>
                 gg.GetComponent<Animator>().SetBool("energy_anim", (pr_mob.speed_now < pr_mob.speed) && (pr_mob.speed > 1));
                 gg.GetComponent<Animator>().SetBool("ice_anim", (pr_mob.speed_now <= 0) && (pr_mob.speed <= 0));
@@ -4718,7 +4790,7 @@ if (bl_leg)
                 //test_message = "error wolk mob " + num.ToString() + " 1998";
                 par_mob pr_pl = mob_list[0].GetComponent<par_mob>();
                 if(num==0)
-                    GameObject.Find("bt up").GetComponent<Animator>().SetBool("opened", carts[pr_pl.x, pr_pl.y] != null);
+                    GameObject.Find("canvases").transform.Find("Canvas").Find("bt up").gameObject.GetComponent<Animator>().SetBool("opened", carts[pr_pl.x, pr_pl.y] != null);
 
                 if (mob_list[num].GetComponent<par_mob>().wolked)
                 {
@@ -4749,12 +4821,13 @@ if (bl_leg)
                     Debug.Log(pr_mob.carts_count_max["cart damage"] + " count damage " + pr_mob.lt_carts_art[0].type);
                     if (pr_mob.friend_type == par_mob.type_friend.active )
                     {
-                        GameObject.Find("bt up").GetComponent<Animator>().SetBool("opened", carts[pr_pl.x, pr_pl.y] != null&& num == 0);
+                        GameObject.Find("canvases").transform.Find("Canvas").Find("bt up").gameObject.GetComponent<Animator>().SetBool("opened", carts[pr_pl.x, pr_pl.y] != null&& num == 0);
                         //ui.print_carts_tip(num);
                         ui.print_carts_art(num);
                         ui.update_pn_mob(num);
                         GameObject.Find("Main Camera").transform.parent = mob_list[num].transform;
-                        GameObject.Find("Main Camera").transform.localPosition = new Vector3(0, 0, -10);
+                        if(!GameObject.Find("canvases").transform.Find("Canvas dialog").gameObject.activeSelf)
+                            GameObject.Find("Main Camera").transform.localPosition = new Vector3(0, 0, -10);
 
                         //if(num != 0)
                     }
@@ -7493,117 +7566,6 @@ if (bl_leg)
 
         add_lt_ef("cart derlorg[n]", "derlorg ef");
         add_lt_ef("cart bomb[n]", "bomb create");
-
-        //add_lt_ef("cart")
-        /*
-        cart_effects.Add("cart rock", tr.Find("rock ef").gameObject);
-        cart_effects.Add("cart rock 1", tr.Find("rock 1 ef").gameObject);
-
-        cart_effects.Add("cart blood", tr.Find("blood ef").gameObject);
-        cart_effects.Add("cart blood 1", tr.Find("blood 1 ef").gameObject);
-        cart_effects.Add("cart blood 2", tr.Find("blood 2 ef").gameObject);
-
-        cart_effects.Add("cart fire", tr.Find("fire ef").gameObject);
-        cart_effects.Add("cart fire 1", tr.Find("fire 1 ef").gameObject);
-
-        cart_effects.Add("cart energy", tr.Find("energy ef").gameObject);
-        cart_effects.Add("cart energy 1", tr.Find("energy ef").gameObject);
-
-        cart_effects.Add("cart ice", tr.Find("ice ef").gameObject);
-        cart_effects.Add("cart ice 1", tr.Find("ice ef").gameObject);
-
-        cart_effects.Add("cart poition", tr.Find("poition ef").gameObject);
-        cart_effects.Add("cart poition 1", tr.Find("poition ef").gameObject);
-
-        cart_effects.Add("cart spider", tr.Find("spawn spider").gameObject);
-        cart_effects.Add("cart spider poition", tr.Find("spider poition ef").gameObject);
-
-        cart_effects.Add("atack energy", tr.Find("atack energy").gameObject);
-        cart_effects.Add("atack fire", tr.Find("atack fire").gameObject);
-        cart_effects.Add("atack rock", tr.Find("atack rock").gameObject);
-        cart_effects.Add("atack blood", tr.Find("atack blood").gameObject);
-        cart_effects.Add("atack ice", tr.Find("atack ice").gameObject);
-        cart_effects.Add("atack poition", tr.Find("atack poition").gameObject);
-
-        cart_effects.Add("atack energy 1", tr.Find("atack energy 1").gameObject);
-        cart_effects.Add("atack fire 1", tr.Find("atack fire 1").gameObject);
-        cart_effects.Add("atack rock 1", tr.Find("atack rock 1").gameObject);
-        cart_effects.Add("atack blood 1", tr.Find("atack blood 1").gameObject);
-        cart_effects.Add("atack ice 1", tr.Find("atack ice 1").gameObject);
-        cart_effects.Add("atack poition 1", tr.Find("atack poition 1").gameObject);
-
-        cart_effects.Add("atack energy 2", tr.Find("atack energy 2").gameObject);
-        cart_effects.Add("atack fire 2", tr.Find("atack fire 2").gameObject);
-        cart_effects.Add("atack rock 2", tr.Find("atack rock 2").gameObject);
-        cart_effects.Add("atack blood 2", tr.Find("atack blood 2").gameObject);
-        cart_effects.Add("atack ice 2", tr.Find("atack ice 2").gameObject);
-        cart_effects.Add("atack poition 2", tr.Find("atack poition 2").gameObject);
-
-        cart_effects.Add("cart damage", tr.Find("atack base").gameObject);
-        cart_effects.Add("cart damage 1", tr.Find("atack base 1").gameObject);
-        cart_effects.Add("cart damage 2", tr.Find("atack base 2").gameObject);
-        cart_effects.Add("cart barier", tr.Find("bases bar ef").gameObject);
-        cart_effects.Add("cart barier 1", tr.Find("bases bar ef").gameObject);
-
-        cart_effects.Add("cart derlorg", tr.Find("derlorg ef").gameObject);
-
-        cart_effects.Add("cart metca(boss)", tr.Find("metca ef").gameObject);
-        /*
-        cart_effects.Add("tuman energy", tr.Find("tuman energy").gameObject);
-        cart_effects.Add("tuman fire", tr.Find("tuman fire").gameObject);
-        cart_effects.Add("tuman rock", tr.Find("tuman rock").gameObject);
-        cart_effects.Add("tuman blood", tr.Find("tuman blood").gameObject);
-        cart_effects.Add("tuman ice", tr.Find("tuman ice").gameObject);
-        cart_effects.Add("tuman poition", tr.Find("tuman poition").gameObject);
-
-
-        cart_effects.Add("spawn dych energy", tr.Find("spawn dych energy").gameObject);
-        cart_effects.Add("spawn dych fire", tr.Find("spawn dych fire").gameObject);
-        cart_effects.Add("spawn dych rock", tr.Find("spawn dych rock").gameObject);
-        cart_effects.Add("spawn dych blood", tr.Find("spawn dych blood").gameObject);
-        cart_effects.Add("spawn dych ice", tr.Find("spawn dych ice").gameObject);
-        cart_effects.Add("spawn dych poition", tr.Find("spawn dych poition").gameObject);
-
-                
-
-        //cart_effects.Add("cart spirit energy", tr.Find("spirit energy ef").gameObject);
-        cart_effects.Add("cart spirit fire", tr.Find("spirit fire ef").gameObject);
-        //cart_effects.Add("cart spirit rock", tr.Find("spirit rock ef").gameObject);
-        cart_effects.Add("cart spirit blood", tr.Find("spirit blood ef").gameObject);
-        cart_effects.Add("cart spirit ice", tr.Find("spirit ice ef").gameObject);
-        cart_effects.Add("cart spirit poition", tr.Find("spirit poition ef").gameObject);
-
-        cart_effects.Add("barier bases energy", tr.Find("bases energy bar ef").gameObject);
-        cart_effects.Add("barier bases fire", tr.Find("bases fire bar ef").gameObject);
-        cart_effects.Add("barier bases rock", tr.Find("bases rock bar ef").gameObject);
-        cart_effects.Add("barier bases blood", tr.Find("bases blood bar ef").gameObject);
-        cart_effects.Add("barier bases ice", tr.Find("bases ice bar ef").gameObject);
-        cart_effects.Add("barier bases poition", tr.Find("bases poition bar ef").gameObject);
-
-        cart_effects.Add("barier energy", tr.Find("energy bar ef").gameObject);
-        cart_effects.Add("barier fire", tr.Find("fire bar ef").gameObject);
-        cart_effects.Add("barier rock", tr.Find("rock bar ef").gameObject);
-        cart_effects.Add("barier blood", tr.Find("blood bar ef").gameObject);
-        cart_effects.Add("barier ice", tr.Find("ice bar ef").gameObject);
-        cart_effects.Add("barier poition", tr.Find("poition bar ef").gameObject);
-
-        cart_effects.Add("seal energy", tr.Find("seal energy").gameObject);
-        cart_effects.Add("seal fire", tr.Find("seal fire").gameObject);
-        cart_effects.Add("seal rock", tr.Find("seal rock").gameObject);
-        cart_effects.Add("seal blood", tr.Find("seal blood").gameObject);
-        cart_effects.Add("seal ice", tr.Find("seal ice").gameObject);
-        cart_effects.Add("seal poition", tr.Find("seal poition").gameObject);
-        cart_effects.Add("seal damage", tr.Find("seal damage").gameObject);
-        cart_effects.Add("seal barier", tr.Find("seal barier").gameObject);
-
-
-        //cart_effects.Add("create crystall", tr.Find("create crystall").gameObject);
-        cart_effects.Add("cart crystall", tr.Find("crystall create").gameObject);
-        //cart_effects.Add("cart crystall 1", tr.Find("create crystall").gameObject);
-        cart_effects.Add("crystall destroy", tr.Find("crystall destroy").gameObject);
-
-        
-        */
         Transform tr = GameObject.Find("effects").transform;
 
         cart_effects.Add("cart rage(boss)", "rage ef");
@@ -7637,7 +7599,11 @@ if (bl_leg)
 
         type_lvl_now = type_lvl.bases;
 
-        generate_room();
+        Debug.Log(data.data_now.first_game);
+        if(data.data_now.first_game)
+            generate_room_obych();
+        else 
+            generate_room();
         GameObject.Find("func").GetComponent<AudioSource>().clip = music_lvl[type_lvl_now];
         GameObject.Find("func").GetComponent<AudioSource>().Play();
         //par_cart.cart_combinations.print(par_cart.cart_combinations.get_comb("cart damage[n]-cart ice[n]"));

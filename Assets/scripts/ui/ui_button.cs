@@ -17,14 +17,15 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public float timer = 0;
     public bool down = false;
     public bool isCart = false;
-    void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
+    void OnPointerDown(PointerEventData eventData)
     {
+        Debug.Log("CLICK");
             down = true;
             timer = 0;
         
 
     }
-    void IPointerUpHandler.OnPointerUp(PointerEventData eventData)
+    void OnPointerUp(PointerEventData eventData)
     {
             down = false;
             if (GameObject.Find("pn infa")!=null && GameObject.Find("pn infa").GetComponent<Animator>().GetBool("opened"))
@@ -710,65 +711,7 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             }
             else if (type!="cart gold" && !mob.selected_anim && atack)
             {
-                /*
-                par_cart.cart_combinations.comb_cart now = null;
-                //par_cart.cart_combinations.comb_cart now1 = null;
-                string st_start = null;
-                if(mob.lt_carts_active_now.Count == 0)
-                {
-                    st_start = type;
-                }
-                else
-                {
-                    st_start = mob.lt_carts_active_now[0];
-                }
 
-                bool bl = false;
-                List<string> lt_carts_active_now_base = new List<string>();
-                foreach (string st_cart in mob.lt_carts_active_now)
-                {
-                    par_cart.type_cart cart_type = GameObject.Find(st_cart).GetComponent<par_cart>().type;
-                    par_cart.type_cart cart_type1 = par_cart.type_cart.bases;
-
-                    if (lt_carts_active_now_base.Count == 0)
-                        lt_carts_active_now_base.Add(st_cart);
-                    else
-                    {
-                        cart_type1 = GameObject.Find(lt_carts_active_now_base[lt_carts_active_now_base.Count - 1]).GetComponent<par_cart>().type;
-                        if (cart_type != cart_type1)
-                        {
-                            lt_carts_active_now_base.Add(st_cart);
-                        }
-                    }
-                }
-
-
-                foreach (par_cart.cart_combinations.comb_cart ct in par_cart.cart_combinations.lt_comb)
-                {
-                    if (ct.name == st_start)
-                    {
-                        now = ct;
-                        bool bl1 = true;
-                        if(now.next.Count>0)
-                        for (int i = 1; i < mob.lt_carts_active_now.Count; i++)
-                            {
-                                Debug.Log(now.name);
-                                if (now.next.ContainsKey(mob.lt_carts_active_now[i]))
-                                    now = now.next[mob.lt_carts_active_now[i]];
-                                else bl1 = false;
-                            }
-                        if (now != null && bl1&& (mob.lt_carts_active_now.Count == 0 || now.next.ContainsKey(type)))
-                        {
-                            bl = true;
-                            break;
-                        }
-                        //now1 = ct;
-                        //break;
-                    }
-
-                       
-                }
-                */
                 List<string> lt_other = new List<string>(mob.lt_carts_active_now);
                 lt_other.Add(type);
                 //now1 = par_cart.cart_combinations.lt_comb[6];
@@ -831,6 +774,29 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         func.clean_func();
         SceneManager.LoadScene("menu player");
 
+    }
+    public void next_dialog(ui_anim_text tx_anim)
+    {
+        par_dialog dialog_now = par_dialog.par_dialog_now;
+
+        if (tx_anim.end)
+        {
+            if (dialog_now.lt_dialog[dialog_now.type_now].Count - 1 > dialog_now.id_now)
+            {
+                dialog_now.id_now++;
+                dialog_now.start_dialog();
+            }
+            else
+            {
+                par_dialog.end_dialog();
+                //GameObject.Find("canvases").transform.Find("Canvas dialog").gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            tx_anim.end_text();
+        }
+        
     }
     void Start()
     {
@@ -941,5 +907,15 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             //}
         }
             
+    }
+
+    void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
+    {
+        OnPointerDown(eventData);
+    }
+
+    void IPointerUpHandler.OnPointerUp(PointerEventData eventData)
+    {
+        OnPointerUp(eventData);
     }
 }

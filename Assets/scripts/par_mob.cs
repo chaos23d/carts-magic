@@ -685,7 +685,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
     }
     public void update_bufs()
     {
-        GameObject pn_bf = GameObject.Find("pn bufs");
+        GameObject pn_bf = GameObject.Find("canvases").transform.Find("Canvas").Find("pn bufs").gameObject;
         int iii = 0;
         foreach (Transform tr in pn_bf.transform)
         {
@@ -6751,6 +6751,17 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
             //gameObject.GetComponent<SpriteRenderer>().sortingOrder = (6 - y_wolk + 1) * 2-1;
             //func.next_hod();
+
+            if(gameObject.name == data.data_now.pl_name_now)
+            {
+                foreach (GameObject gm in lt_mob_vizited)
+                {
+                    par_mob mb = gm.GetComponent<par_mob>();
+                    if (gm.name == "teacher" && func.distance(x, y, mb.x, mb.y) <= 2)
+                        gm.GetComponent<par_dialog>().start_dialog("start");
+                }
+               
+            }
             return true;
         }
         else
@@ -6929,7 +6940,8 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
     public void simm(int i)
     {
         gameObject.transform.localScale = new Vector3(i * Mathf.Abs(gameObject.transform.localScale.x), gameObject.transform.localScale.y, gameObject.transform.localScale.z);
-        gameObject.transform.Find("Canvas hp").localScale = new Vector3(i * Mathf.Abs(gameObject.transform.Find("Canvas hp").localScale.x), gameObject.transform.Find("Canvas hp").localScale.y, gameObject.transform.Find("Canvas hp").localScale.z);
+        if(gameObject.transform.Find("Canvas hp")!=null)
+            gameObject.transform.Find("Canvas hp").localScale = new Vector3(i * Mathf.Abs(gameObject.transform.Find("Canvas hp").localScale.x), gameObject.transform.Find("Canvas hp").localScale.y, gameObject.transform.Find("Canvas hp").localScale.z);
     }
     public void viz(bool bl)
     {

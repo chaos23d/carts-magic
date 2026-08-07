@@ -47,11 +47,11 @@ public class par_eath : MonoBehaviour, event_click, IPointerClickHandler
             func.baza.Add(gameObject.name, gameObject);
         else
         {
-            if (gameObject.GetComponent<Animator>() == null)
+            if (gameObject.GetComponent<Animator>() == null && rd_im_st.Count>0)
             {
                 gameObject.GetComponent<SpriteRenderer>().sprite = rd_im_st[Random.Range(0, rd_im_st.Count)];
             }
-            else
+            else if(gameObject.GetComponent<Animator>() != null)
             {
                 gameObject.GetComponent<Animator>().enabled = true;
                 int a_e = Random.Range(0, rd_im_st.Count);

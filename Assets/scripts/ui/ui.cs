@@ -13,6 +13,7 @@ public  class ui : MonoBehaviour
     public static Dictionary<Vector2, List<GameObject>> lt_pricel_wolk = new Dictionary<Vector2, List<GameObject>>();
     public static Dictionary<Vector2, int> lt_pricel_col = new Dictionary<Vector2, int>();
 
+    
     public void create_pricel(Vector2 v2)
     {
         GameObject gm = Instantiate(GameObject.Find("pricel"));
@@ -94,6 +95,9 @@ public  class ui : MonoBehaviour
 
         par_mob pr_mob = func.mob_list[num].GetComponent<par_mob>();
         Dictionary<string, int> lt_cart = new Dictionary<string, int>();
+
+        Transform tr_base = GameObject.Find("Scroll View carts").transform.Find("Viewport").Find("pn");
+        Transform tr_pn = tr_base.Find("pn carts");
         foreach (string st in pr_mob.lt_carts)
         {
             if (!lt_cart.ContainsKey(st))
@@ -101,7 +105,7 @@ public  class ui : MonoBehaviour
             else
                 lt_cart[st]++;
         }
-        foreach (Transform tr in GameObject.Find("Content tip").transform)
+        foreach (Transform tr in tr_pn)
         {
             Destroy(tr.gameObject);
         }
@@ -111,7 +115,7 @@ public  class ui : MonoBehaviour
             if (cart_sprite.ContainsKey(st))
             {
 
-                GameObject gm = Instantiate(GameObject.Find("ignoring").transform.Find("cart").gameObject, GameObject.Find("Content tip").transform);
+                GameObject gm = Instantiate(GameObject.Find("ignoring").transform.Find("cart").gameObject, tr_pn);
                 gm.GetComponent<Image>().sprite = cart_sprite[st];
                 gm.GetComponent<ui_button>().type = st;
                 //string st_dop = "";
@@ -129,7 +133,12 @@ public  class ui : MonoBehaviour
             //
             par_mob pr_mob = func.mob_list[num].GetComponent<par_mob>();
             List<par_cart_art> lt_cart = new List<par_cart_art>(pr_mob.lt_carts_art);
-            foreach (Transform tr in GameObject.Find("Content art").transform)
+
+
+            Transform tr_base = GameObject.Find("canvases").transform.Find("Canvas").Find("panels").Find("Scroll View carts").transform.Find("Viewport").Find("pn");
+            Transform tr_pn = tr_base.Find("pn art");
+
+            foreach (Transform tr in tr_pn)
             {
                 Destroy(tr.gameObject);
             }
@@ -137,7 +146,7 @@ public  class ui : MonoBehaviour
             //Debug.Log("print art  "+ pr_mob.col_art);
             for (int i1 = 0; i1 <  pr_mob.col_art; i1++)
             {
-                GameObject gm = Instantiate(GameObject.Find("Scroll View art").transform.Find("Viewport").Find("art").gameObject, GameObject.Find("Content art").transform);
+                GameObject gm = Instantiate(GameObject.Find("canvases").transform.Find("Canvas").Find("panels").Find("ignoring").Find("art").gameObject, tr_pn);
                 gm.transform.Find("im").gameObject.GetComponent<ui_button>().num = i - 1;
                 gm.name = "art" + i;
                 
@@ -280,7 +289,7 @@ public  class ui : MonoBehaviour
     {
         
 
-        GameObject pn = GameObject.Find("panels").transform.Find("pn infa mob").Find("infa mob").gameObject;
+        GameObject pn = GameObject.Find("canvases").transform.Find("Canvas").Find("panels").transform.Find("pn infa mob").Find("infa mob").gameObject;
         par_mob mb = func.mob_list[i].GetComponent<par_mob>();
         pn.transform.Find("tx dist atc 1").gameObject.GetComponent<Text>().text = mb.distanse_attack.ToString();
         pn.transform.Find("tx dist rad 1").gameObject.GetComponent<Text>().text = mb.distanse_max.ToString();

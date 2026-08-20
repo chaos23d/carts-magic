@@ -234,6 +234,7 @@ public class par_cart : MonoBehaviour
             string command;
 
             List<string> lt_comm= new List<string>();
+            lt_comm.Add("cart damage 0");
             lt_comm.Add("cart damage[n]");
             lt_comm.Add("cart barier[n]");
             lt_comm.Add("cart [e][n]");
@@ -954,120 +955,7 @@ public class par_cart : MonoBehaviour
     }
     public bool art_cart_bl()
     {
-        /*
-        return (type == type_cart.art_blood_sp ||
-            type == type_cart.art_blood_act ||
-            type == type_cart.art_rock_sp ||
-            type == type_cart.art_rock_act ||
-            type == type_cart.art_fire_sp ||
-            type == type_cart.art_fire_act ||
-            type == type_cart.art_energy_sp ||
-            type == type_cart.art_energy_act ||
-            type == type_cart.art_ice_sp ||
-            type == type_cart.art_ice_act ||
-            type == type_cart.art_poition_sp ||
-            type == type_cart.art_poition_act ||
 
-            type == type_cart.art_potoc_blood ||
-            type == type_cart.art_potoc_fire ||
-            type == type_cart.art_potoc_rock ||
-            type == type_cart.art_potoc_energy ||
-            type == type_cart.art_potoc_ice ||
-            type == type_cart.art_potoc_poition ||
-
-            type == type_cart.art_speed_blood ||
-            type == type_cart.art_speed_fire ||
-            type == type_cart.art_speed_rock ||
-            type == type_cart.art_speed_energy ||
-            type == type_cart.art_speed_ice ||
-            type == type_cart.art_speed_poition ||
-            type == type_cart.art_speed_dych||
-
-
-            type == type_cart.art_pow_blood ||
-            type == type_cart.art_pow_fire ||
-            type == type_cart.art_pow_rock ||
-            type == type_cart.art_pow_energy ||
-            type == type_cart.art_pow_ice ||
-            type == type_cart.art_pow_poition ||
-            type == type_cart.art_dych_pow ||
-
-            type == type_cart.art_blood_cuzna ||
-            type == type_cart.art_rock_cuzna ||
-            type == type_cart.art_ice_cuzna ||
-            type == type_cart.art_energy_cuzna ||
-            type == type_cart.art_poition_cuzna ||
-            type == type_cart.art_fire_cuzna ||
-            type == type_cart.art_dych_cuzna ||
-
-            type == type_cart.art_blood_bomb ||
-            type == type_cart.art_rock_bomb ||
-            type == type_cart.art_ice_bomb ||
-            type == type_cart.art_energy_bomb ||
-            type == type_cart.art_poition_bomb ||
-            type == type_cart.art_fire_bomb ||
-            type == type_cart.art_dych_bomb ||
-
-
-            type == type_cart.art_att_sp ||
-            type == type_cart.art_bar_sp ||
-
-            type == type_cart.art_bomb_sp ||
-
-            type == type_cart.art_att_pow ||
-            type == type_cart.art_bar_pow ||
-
-            type == type_cart.art_dop_carts ||
-            type == type_cart.art_pow ||
-            type == type_cart.art_speed ||
-            type == type_cart.art_respawn ||
-
-            type == type_cart.art_base_st ||
-            type == type_cart.art_att_st ||
-            type == type_cart.art_bar_st ||
-            type == type_cart.art_fire_st ||
-            type == type_cart.art_poition_st ||
-            type == type_cart.art_ice_st ||
-            type == type_cart.art_blood_st ||
-            type == type_cart.art_energy_st ||
-            type == type_cart.art_rock_st ||
-            type == type_cart.art_berserk_st ||
-
-
-            type == type_cart.art_berserk ||
-            type == type_cart.art_hp_max ||
-            type == type_cart.art_mast||
-            type == type_cart.art_elemental||
-            type == type_cart.art_universal ||
-            //type == type_cart.art_touch_rock ||
-
-            type == type_cart.art_derlorg_sp ||
-
-            type ==type_cart.art_spirit_fire||
-            type == type_cart.art_spirit_rock ||
-            type == type_cart.art_spirit_blood ||
-            type == type_cart.art_spirit_energy||
-            type == type_cart.art_spirit_poition ||
-            type == type_cart.art_spirit_ice||
-
-            type == type_cart.art_touch_blood ||
-            type == type_cart.art_touch_energy ||
-            type == type_cart.art_touch_fire ||
-            type == type_cart.art_touch_ice ||
-            type == type_cart.art_touch_poition ||
-            type == type_cart.art_touch_rock ||
-
-            type == type_cart.art_boss_shaman||
-            type == type_cart.art_boss_shaman_tuman ||
-            type == type_cart.art_boss_berserk ||
-            type == type_cart.art_boss_berserk_rage||
-            type == type_cart.art_boss_dungalorg ||
-            type == type_cart.art_boss_dungalorg_heard||
-
-            type==type_cart.art_derlorg_st
-
-            );
-        */
         return (this is par_cart_art);
     }
     public void Start()
@@ -1096,19 +984,26 @@ public class par_cart : MonoBehaviour
                 func.baza.Add(gameObject.name, gameObject);
                 name = gameObject.name;
                 #region typ
+
+                if (name == "cart damage 0")
+                {
+                    infa = "наносит 1 урона живому существу| |можно использовать для уничтожения препятствий";
+                    type = type_cart.damage;
+                }
+
                 if (name == "cart damage")
                 {
-                    infa = "наносит 1 урона живому существу| |можно использовать для уничтожения препятствий| |позволяет комбинировать с картой-элементом для усиления атаки| |карта может быть улучшена";
+                    infa = "наносит 2 урона живому существу| |можно использовать для уничтожения препятствий| |позволяет комбинировать с картой-элементом для усиления атаки| |карта может быть улучшена";
                     type = type_cart.damage;
                 }
                 if (name == "cart damage 1")
                 {
-                    infa = "наносит 2 урона живому существу| |можно использовать для уничтожения препятствий| |позволяет комбинировать с картой-элементом для усиления атаки| |карта может быть улучшена";
+                    infa = "наносит 4 урона живому существу| |можно использовать для уничтожения препятствий| |позволяет комбинировать с картой-элементом для усиления атаки| |карта может быть улучшена";
                     type= type_cart.damage;
                 }
                 if (name == "cart damage 2")
                 {
-                    infa = "наносит 4 урона живому существу| |можно использовать для уничтожения препятствий| |позволяет комбинировать с картой-элементом для усиления атаки";
+                    infa = "наносит 8 урона живому существу| |можно использовать для уничтожения препятствий| |позволяет комбинировать с картой-элементом для усиления атаки";
                     type=type_cart.damage;
                 }
                 if (name == "cart barier")

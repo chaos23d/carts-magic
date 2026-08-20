@@ -11,7 +11,9 @@ public class shader_grad : MonoBehaviour
     }
     private void Awake()
     {
+        
         Sprite sprite = gameObject.GetComponent<Image>().sprite;
+        Debug.Log(gameObject);
         Texture2D tex = sprite.texture;
         Rect rect = sprite.textureRect;
 

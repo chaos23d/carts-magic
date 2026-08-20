@@ -63,7 +63,7 @@ Shader "Unlit/shader_grad"
 
                 // Центр окружности движется по окружности радиуса _PathRadius
                 float2 center = float2(
-                    0,
+                    0.5f,
                     sin(t)
                 )*0.4+0.5;
 

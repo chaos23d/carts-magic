@@ -29,7 +29,7 @@ public class func : MonoBehaviour
     public static int num_lev_type = 0;
     public static type_lvl type_lvl_now = type_lvl.bases;
 
-    public static int size_global = 30;
+    public const int size_global = 30;
 
     public static Dictionary<string, GameObject> baza = new Dictionary<string, GameObject>();
 
@@ -1818,7 +1818,7 @@ if (bl_leg)
 
 
 
-            if (!mb.nps && bl)
+            if (!mb.nps && bl && gm.transform.Find("artefacts")!=null)
             {
                 Destroy(gm.transform.Find("artefacts").gameObject);
             }
@@ -2007,7 +2007,7 @@ if (bl_leg)
 
         int st_x = 5;
         int st_y = 5;
-
+        par_mob pr_teacher = null;
         for (int i = 0; i < size_global; i++)
         {
             for (int j = 0; j < size_global; j++)
@@ -2020,26 +2020,39 @@ if (bl_leg)
 
                 if(i==5 && (j>=5 && j<=20))
                     st_eath = "eath start";
-                if (j == 9 && (i >= 2 && i < 5))
+                if ((j == 9 ||j==13)&& (i >= 2 && i < 5))
+                    st_eath = "eath start";
+                if(j>=5 && j<15 && i>=12 && i<=22 )
                     st_eath = "eath start";
                 create(st_eath, j, i);
 
                 string st_nature = null;
-                if(j==8 || j == 10)
+                if(j==8 || j == 10 || j == 12 || j == 14)
                 {
                     if(i<=4 && i >= 2)
                     {
                         st_nature = "wood wall v";
                     }
                 }
-                if (j == 9 && i == 1)
+                if ((j == 9||j==13) && i == 1)
                     st_nature = "wood wall h";
-                if ((j == 8 || j==10) && i == 1)
+                if ((j == 8 || j==10 || j == 12 || j == 14) && i == 1)
                     st_nature = "wood wall hv";
-                if(j==9 && i==2)
+
+                if (j >= 5 && j <= 15 && (i == 12 || i == 22))
+                    st_nature = "wood wall h";
+                if ((j == 5 || j == 15) && i >= 12 && i <= 22)
+                    st_nature = "wood wall v";
+                if ((j == 5 || j == 15) && (i == 12 || i == 22))
+                    st_nature = "wood wall hv";
+
+                if (j==9 && i==2)
                     st_nature = "manecen";
 
-                if (j == 9 && i == 6)
+                if (j == 13 && i == 2)
+                    st_nature = "manecen";
+
+                if (j == 25 && i == 7)
                     st_nature = "teacher";
 
                 if(j%3==0 && i%3==0 && ((j<=3 || j>= size_global-1 - 3) &&( i <= 3 || i >= size_global - 1 - 3)))
@@ -2048,13 +2061,42 @@ if (bl_leg)
                 {
                     GameObject gm= create(st_nature, j, i);
                     if (st_nature == "teacher")
+                    {
                         gm.GetComponent<par_mob>().simm(-1);
+                        pr_teacher = gm.GetComponent<par_mob>();
+                    }
+                        
                 }
                     
 
             }
         }
         end_generate_room(lt_fr,st_x,st_y);
+        priority_hod = pr_teacher.num;
+        pr_teacher.action_after_wolk_now = new action_after_wolk(() => 
+        {
+            priority_hod = -1;
+            next_hod();
+            pr_teacher.gameObject.GetComponent<par_dialog>().start_dialog("start");
+        }
+        );
+        pr_teacher.lt_wolk = func.way_wolk(pr_teacher.x, pr_teacher.y, 5, 7);
+        pr_teacher.wolk_v2();
+        //pr_teacher.time_wolk = -4;
+        next_hod();
+        Debug.Break();
+        /*
+        //if (pl.lt_wolk.Count != 0)
+        if (pl.lt_wolk.Count != 0)
+        {
+            foreach (Vector2 v2 in pl.lt_wolk)
+            {
+                ui.create_pricel_wolk(v2);
+            }
+            pl.wolk_v2();
+            next_hod();
+        }
+        */
     }
     public static void generate_room()
     {
@@ -4120,7 +4162,11 @@ if (bl_leg)
                 int y_rd = Random.Range(0, 4) + st_y - 2;
                 //x_rd = st_x;
                 //y_rd = st_y;
-                if (object_bool(x_rd, y_rd))
+                bool bl = gm.GetComponent<par_mob>().num == 0;
+                
+
+
+                if (object_bool(x_rd, y_rd) &&( (bl&&(x_rd == st_x && y_rd == st_y)) ||(!bl && !(x_rd==st_x && y_rd==st_y))  ))
                 {
                     gm.GetComponent<par_mob>().x = x_rd;
                     gm.GetComponent<par_mob>().y = y_rd;
@@ -4408,6 +4454,7 @@ if (bl_leg)
 
     public static GameObject create_effect(string name, string cart, Vector3 v3, bool bl)
     {
+        //Debug.Break();
         Debug.Log("spawn art " + name);
         //que_effects[1,2].
         string name_ = name;
@@ -4945,9 +4992,20 @@ if (bl_leg)
             }
             else
             {
-                timer_now = 0.1f;
-                next_hod();
-                return;
+                if (pr_mob.lt_wolk.Count != 0)
+                {
+                    if (col_friend > 1)
+                        timer_now = -0.1f;
+                    pr_mob.wolk_v2();
+                    next_hod();
+                }
+                else
+                {
+                    timer_now = 0.1f;
+                    next_hod();
+                    return;
+                }
+
             }
             Debug.Log("error with sh");
         }
@@ -7096,6 +7154,22 @@ if (bl_leg)
 
     }
 
+    public static void clicable_object(bool bl,int x,int y)
+    {
+        //GameObject gg
+        if (mob[x, y] != null && mob[x, y].GetComponent<BoxCollider2D>()!=null)
+        {
+            mob[x, y].GetComponent<BoxCollider2D>().enabled = bl;
+        }
+        if (eath[x, y] != null && eath[x, y].GetComponent<BoxCollider2D>()!=null)
+        {
+            eath[x, y].GetComponent<BoxCollider2D>().enabled = bl;
+        }
+        if (nature[x, y] != null && nature[x, y].GetComponent<BoxCollider2D>())
+        {
+            nature[x, y].GetComponent<BoxCollider2D>().enabled = bl;
+        }
+    }
     public static void func_next_hod()
     {
 
@@ -7149,6 +7223,8 @@ if (bl_leg)
                 if (nums_mob_wolk.Count == 0)
                 {
                     nums_mob_wolk = new List<int>(nums_mob);
+                    if (priority_hod != -1)
+                        nums_mob_wolk = new List<int> { priority_hod };
                     end_hod_all();
                 }
 
@@ -7273,14 +7349,14 @@ if (bl_leg)
         //ui_atack.last_type_atack = new List<ui_atack.atack_comb>();
     }
 
-    public static GameObject[,] mob;
-    public static GameObject[,] nature;
-    public static GameObject[,] carts;
-    public static GameObject[,] eath;
-    public static Queue<GameObject>[,] que_effects;
-    public static List<GameObject>[,] lt_lovyshka;
-    public static List<GameObject>[,] lt_v2_viz_friend;
-    public static List<GameObject>[,] lt_v2_viz_mob;
+    public static GameObject[,] mob = new GameObject[size_global, size_global];
+    public static GameObject[,] nature = new GameObject[size_global, size_global];
+    public static GameObject[,] carts = new GameObject[size_global, size_global];
+    public static GameObject[,] eath = new GameObject[size_global, size_global];
+    public static Queue<GameObject>[,] que_effects = new Queue<GameObject>[size_global, size_global];
+    public static List<GameObject>[,] lt_lovyshka=new List<GameObject>[size_global, size_global];
+    public static List<GameObject>[,] lt_v2_viz_friend= new List<GameObject>[size_global, size_global];
+    public static List<GameObject>[,] lt_v2_viz_mob= new List<GameObject>[size_global, size_global];
 
     public static List<GameObject> lovyshka_now;
     public static List<GameObject> lovyshka_after;
@@ -7290,7 +7366,7 @@ if (bl_leg)
     //public func.room rt = new func.room();
 
     //public static List<GameObject>[,,,] decor = new List<GameObject>[5, 5, 7, 7];
-    public static GameObject[] mob_list;
+    public static GameObject[] mob_list = new GameObject[size_global * size_global];
     public static List<int> nums_mob = new List<int>();
     public static List<int> nums_mob_wolk = new List<int>();
     public static Dictionary<string, string> cart_effects = new Dictionary<string, string>();
@@ -7439,15 +7515,15 @@ if (bl_leg)
         }
 
         //mob_list = new GameObject[size_global*size_global];
-        mob = new GameObject[size_global, size_global];
-        nature = new GameObject[size_global, size_global];
-        carts = new GameObject[size_global, size_global];
-        eath = new GameObject[size_global, size_global];
-        mob_list = new GameObject[size_global * size_global];
-        que_effects = new Queue<GameObject>[size_global, size_global];
-        lt_lovyshka = new List<GameObject>[size_global, size_global];
-        lt_v2_viz_friend = new List<GameObject>[size_global, size_global];
-        lt_v2_viz_mob = new List<GameObject>[size_global, size_global];
+        //mob = new GameObject[size_global, size_global];
+        //nature = new GameObject[size_global, size_global];
+        //carts = new GameObject[size_global, size_global];
+        //eath = new GameObject[size_global, size_global];
+        //mob_list = new GameObject[size_global * size_global];
+        //que_effects = new Queue<GameObject>[size_global, size_global];
+        //lt_lovyshka = new List<GameObject>[size_global, size_global];
+        //lt_v2_viz_friend = new List<GameObject>[size_global, size_global];
+        //lt_v2_viz_mob = new List<GameObject>[size_global, size_global];
         for (int i = 0; i < size_global; i++)
         {
             for (int j = 0; j < size_global; j++)
@@ -7540,6 +7616,7 @@ if (bl_leg)
 
 
         //List<List<string>> lt_lt_st = par_cart.cart_combinations.get_comb_now("cart rock[n]");
+        add_lt_ef("cart damage 0", "atack base");
         add_lt_ef("cart damage[n]", "atack base");
         add_lt_ef("cart barier[n]", "bases bar ef");
 

@@ -2,22 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class cart_spawn : abs_physics
+public class cart_spawn : MonoBehaviour
 {
+
     // Start is called before the first frame update
     public void next_cart()
     {
         
         //if (lt_v3.ContainsKey(v2_start_all))
         //{
-            if (lt_v3[v2_start_base].Count > 0)
-                lt_v3[v2_start_base].Dequeue();
-            if (lt_v3[v2_start_base].Count == 0)
-                lt_v3.Remove(v2_start_base);
+            if (lt_v3[p1].Count > 0)
+                lt_v3[p1].Dequeue();
+            if (lt_v3[p1].Count == 0)
+                lt_v3.Remove(p1);
        // }
 
-        if (lt_v3.ContainsKey(v2_start_base) && lt_v3[v2_start_base].Count > 0)
-            lt_v3[v2_start_base].Peek().active = true;
+        if (lt_v3.ContainsKey(p1) && lt_v3[p1].Count > 0)
+            lt_v3[p1].Peek().active = true;
         /*
         foreach (Vector3 v3_ in cart_spawn.lt_v3.Keys)
         {
@@ -27,22 +28,7 @@ public class cart_spawn : abs_physics
     }
     public void Destroyed()
     {
-        /*
-        foreach (Vector3 v3_ in lt_v3.Keys)
-        {
-            Debug.Log(v3_+" "+lt_v3[v3_].Count);
-        }
-        */
 
-        //lt_v3[v2_start_all].Peek().active = true;
-        /*
-        if (lt_v3[v2_start_all].Count > 0)
-            lt_v3[v2_start_all].Dequeue();
-        if (lt_v3[v2_start_all].Count == 0)
-            lt_v3.Remove(v2_start_all);
-        if (lt_v3.ContainsKey(v2_start_all) && lt_v3[v2_start_all].Count > 0)
-            lt_v3[v2_start_all].Peek().active = true;
-        */
         anim.col_anim--;
         Destroy(gameObject);
     }
@@ -52,22 +38,42 @@ public class cart_spawn : abs_physics
     void FixedUpdate()
     {
 
-        base.FixedUpdate();
-
-        if (time_now >= time)
-            if (!bl_a)
-            {
-                bl_a = true;
-                sets(0.5f,true, parent.transform.position);
-                
-            }
-            else
-                Destroyed();
-        else if(time_now>=0.1f && !bl_next_cart)
+        if (time_now < time)
         {
-            //next_cart();
-            bl_next_cart = true;
+            float a = time_now / time;
+            Vector2 pp1 = p1 + (p2 - p1) * a;
+            Vector2 pp2 = p2 + (p3 - p2) * a;
+            Vector2 pp = pp1 + (pp2 - pp1) * a;
+            transform.position = pp;
+            time_now += Time.deltaTime;
         }
-            
+        else
+        {
+            Destroyed();
+        }
+    }
+
+    public float time_now = 0;
+    public float time = 0;
+    public GameObject parent;
+
+
+    public static Dictionary<Vector3, Queue<GameObject>> lt_v3 = new Dictionary<Vector3, Queue<GameObject>>();
+
+
+    public Vector2 p1;
+    public Vector2 p2;
+    public Vector2 p3;
+    public void sets(float time, Vector3 v3_p1, Vector3 v3_p3)
+    {
+
+
+
+        time_now = 0;
+        this.time = time;
+        p1 = v3_p1;
+        transform.position = p1;
+        p2 = p1+Vector2.up*2 + new Vector2(Random.Range(-10, 10), Random.Range(-20, 20)) / 20;
+        p3 = v3_p3;
     }
 }

@@ -2,22 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class ui_atack : MonoBehaviour
 {
-    public enum type_atack { 
+    public enum type_atack
+    {
         bases,
         mob,
         friend,
         mob_friend,
         eath
     }
-    public class atack_comb {
+    public class atack_comb
+    {
         public Queue<string> carts = new Queue<string>();
         public type_atack atack_type = type_atack.mob;
         public bool active = false;
 
     }
-
     public GameObject Canvas_atack;
     public static atack_comb atack_comb_now;
     public static type_atack last_type_atack = type_atack.mob;

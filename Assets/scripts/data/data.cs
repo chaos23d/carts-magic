@@ -42,6 +42,7 @@ public class data : MonoBehaviour
         
         public bool first_game=true;
         public int version_now = version;
+        public List<string> lt_dialog = new List<string>();
         public List<players> lt_players = new List<players>();
 
         public Dictionary<string, string> lt_achives = new Dictionary<string, string>();

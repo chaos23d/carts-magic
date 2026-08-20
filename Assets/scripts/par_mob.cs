@@ -8,6 +8,8 @@ using static Unity.Collections.AllocatorManager;
 using static UnityEngine.EventSystems.EventTrigger;
 using System.Linq;
 using JetBrains.Annotations;
+using Unity.Android.Gradle.Manifest;
+//using System;
 
 public class par_mob : parametrs, IPointerClickHandler, interfase_click
 {
@@ -15,6 +17,16 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
     //public int col_skills;
     //public GameObject ray
 
+
+
+    public void spawn_carts(List<string> lt_c,GameObject from)
+    {
+        foreach (string st in lt_c)
+        {
+            spawn_cart(st, from);
+        }
+       
+    }
     public enum type_friend
     {
         none,
@@ -6360,33 +6372,42 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         Vector2 v2 = lt_wolk.Pop();
         int i = Mathf.Abs(x - (int)v2.x) + Mathf.Abs(y - (int)v2.y);
         //Debug.Log("wolk auto " + v2);
-        if (i == 1)
+        if (i == 1 || i == 0)
         {
-            ui.del_pricels(v2);
+            if(num==0)
+                ui.del_pricels(v2);
             if (wolk((int)v2.x, (int)v2.y))
             {
 
-                if (lt_wolk.Count == 0)
+                if (lt_wolk.Count == 0 && num==0)
                     ui.clean_pricels("pricel");
+                
             }
             else
             {
-                foreach (Vector2 v2_ in lt_wolk)
-                {
-                    Debug.Log("del pricels " + v2_ + " " + num);
-                    ui.del_pricels(v2_);
-                }
+                if(num==0)
+                    foreach (Vector2 v2_ in lt_wolk)
+                    {
+                        Debug.Log("del pricels " + v2_ + " " + num);
+                        ui.del_pricels(v2_);
+                    }
                 lt_wolk.Clear();
             }
 
         }
         else
         {
-            foreach (Vector2 v2_ in lt_wolk)
-            {
-                ui.del_pricels(v2_);
-            }
+            if(num==0)
+                foreach (Vector2 v2_ in lt_wolk)
+                {
+                    ui.del_pricels(v2_);
+                }
             lt_wolk.Clear();
+        }
+        if (lt_wolk.Count == 0 && action_after_wolk_now!=null)
+        {
+            Debug.Log("action after wolk is true");
+            action_after_wolk_now.active = true;
         }
 
     }
@@ -6398,39 +6419,6 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             wolk_v2_bool();
             bool_func_wolk_v2 = false;
         }
-        /*
-        Vector2 v2 = lt_wolk.Pop();
-        int i = Mathf.Abs(x - (int)v2.x) + Mathf.Abs(y - (int)v2.y);
-        //Debug.Log("wolk auto " + v2);
-        if (i == 1)
-        {
-            ui.del_pricels(v2);
-            if (wolk((int)v2.x, (int)v2.y))
-            {
-                
-                if (lt_wolk.Count == 0)
-                    ui.clean_pricels("pricel");
-            }
-            else
-            {
-                foreach (Vector2 v2_ in lt_wolk)
-                {
-                    Debug.Log("del pricels " + v2_+" "+num);
-                    ui.del_pricels(v2_);
-                }
-                lt_wolk.Clear();
-            }
-
-        }
-        else
-        {
-            foreach (Vector2 v2_ in lt_wolk)
-            {
-                ui.del_pricels(v2_);
-            }
-            lt_wolk.Clear();
-        }
-        */
     }
     public void viz_block(int x_v, int y_v)
     {
@@ -6515,7 +6503,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
     {
         //Debug.Log("before mob coord" + num + " in " + x + " " + y);
         Debug.Log("wolk mob " + num + " in " + x_wolk + " " + y_wolk);
-        if (func.object_bool(x_wolk, y_wolk) || bl_wolk)
+        if ((func.object_bool(x_wolk, y_wolk) || (x_wolk==x && y_wolk==y))|| bl_wolk)
         {
             //Debug.Log("wolk mob next");
 
@@ -6531,6 +6519,10 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                     {
                         mb_viz.lt_mob_vizited.Remove(gameObject);
                         lt_mob_vizited_in.Remove(gm);
+                        if (mb_viz.friend && vizited)
+                        {
+                            viz(false);
+                        }
                     }
                 }
 
@@ -6687,8 +6679,8 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
             Debug.Log(lt_mob_vizited.Count);
 
-            if (num == 0)
-                GameObject.Find("bt up").GetComponent<Animator>().SetBool("opened", func.carts[x_wolk, y_wolk] != null);
+            //if (num == 0)
+                //GameObject.Find("bt up").GetComponent<Animator>().SetBool("opened", func.carts[x_wolk, y_wolk] != null);
             //}
 
             foreach (GameObject gm in func.lt_v2_viz_mob[x, y])
@@ -6701,6 +6693,10 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                     {
                         mb_viz.lt_mob_vizited.Add(gameObject);
                         lt_mob_vizited_in.Add(gm);
+                        if (mb_viz.friend &&!vizited)
+                        {
+                            viz(true);
+                        }
 
                     }
                 }
@@ -6752,6 +6748,8 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             //gameObject.GetComponent<SpriteRenderer>().sortingOrder = (6 - y_wolk + 1) * 2-1;
             //func.next_hod();
 
+            /*
+
             if(gameObject.name == data.data_now.pl_name_now)
             {
                 foreach (GameObject gm in lt_mob_vizited)
@@ -6762,6 +6760,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 }
                
             }
+            */
             return true;
         }
         else
@@ -7037,7 +7036,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         func.test_message = "error wolk damage " + num.ToString() + " 5143";
         if (gameObject.name == data.data_now.pl_name_now)
             gameObject.GetComponent<Animator>().SetInteger("hp", hp);
-        if (gameObject.transform.Find("Canvas hp").Find("hp bar") != null)
+        if (gameObject.transform.Find("Canvas hp")!=null && gameObject.transform.Find("Canvas hp").Find("hp bar") != null)
         {
             gameObject.transform.Find("Canvas hp").Find("hp bar").gameObject.GetComponent<Scrollbar>().size = ((float)hp / hp_max);
         }
@@ -7318,7 +7317,14 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                         }
                         //func.drop(cart, x, y).active = func.eath[x, y].active;
                     }
-
+                if(gameObject.name=="manecen" &&(x==9 && y==2)&& data.data_now.lt_dialog.Contains("start") && !data.data_now.lt_dialog.Contains("start 1"))
+                {
+                    par_dialog.par_dialog_now.start_dialog("start 1");
+                }
+                if (gameObject.name == "manecen" && (x == 11 && y == 2) && data.data_now.lt_dialog.Contains("start 1") && !data.data_now.lt_dialog.Contains("start 2"))
+                {
+                    par_dialog.par_dialog_now.start_dialog("start 2");
+                }
                 if (gameObject.name == "derlorg" || gameObject.name == "derlorg shaman" || gameObject.name == "derlorg fire" || gameObject.name == "derlorg poition" || gameObject.name == "derlorg blood" || gameObject.name == "derlorg rock" || gameObject.name == "derlorg energy" || gameObject.name == "derlorg ice" || gameObject.name == "derlorg bomb" || gameObject.name == "derlorg necro" || gameObject.name == "dungalorg")
                     data.data_now.cl_mob_dead_derlorg++;
                 if (data.data_now.cl_mob_dead_derlorg == 50)
@@ -7545,7 +7551,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             if (gameObject.name == "base player")
             {
                 add_cart_art("cart base st");
-                
+                //add_cart_art("cart elemental");
                 //add_cart_art("cart dungalorg(boss)");
                 //add_cart_art("cart dungalorg heard");
                 //add_cart_art("cart berserk boss");
@@ -8207,9 +8213,37 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         }
         if (gameObject.name == data.data_now.pl_name_now)
             gameObject.GetComponent<Animator>().SetInteger("hp", hp);
+
+        gameObject.GetComponent<SpriteRenderer>().material = new Material(gameObject.GetComponent<SpriteRenderer>().material);
     }
     public float timer_now = 0;
+    public static int priority_hod=-1;
     public Queue<GameObject> que_dm_tx = new Queue<GameObject>();
+    
+    public class action_after_wolk
+    {
+        public bool active = false;
+        public System.Action f;
+        public action_after_wolk(System.Action f)
+        {
+            //this.active = active;
+            this.f = f;
+        }
+    }
+    public class action_atack
+    {
+        public Queue<string> carts = new Queue<string>();
+        public Vector2 v2;
+        public action_atack(Queue<string> carts,Vector2 v2)
+        {
+            this.carts = carts;
+            this.v2 = v2;
+        }
+    }
+    public action_after_wolk action_after_wolk_now = null;
+    public List<action_atack> lt_atack_comb = new List<action_atack>();
+    //public Material mat;
+    public bool outline_mat = true;
     void Update()
     {
         //if (num == 0 && lt_carts_active_now.Count>0)
@@ -8239,12 +8273,23 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 gameObject.transform.position = new Vector3(d_v2_wolk_end.x, d_v2_wolk_end.y, 0);
                 anim.col_anim--;
                 time_wolk = -1;
+                if(action_after_wolk_now!=null && action_after_wolk_now.active)
+                {
+                    Debug.Log("invoke action");
+                    action_after_wolk_now.f.Invoke();
+                    action_after_wolk_now = null;
+                }
             }
 
         }
-
-
+        if (outline_mat)
+        {
+            Texture v2_t = gameObject.GetComponent<SpriteRenderer>().sprite.texture;
+            gameObject.GetComponent<SpriteRenderer>().material.SetFloat("_texture_w", v2_t.width);
+            gameObject.GetComponent<SpriteRenderer>().material.SetFloat("_texture_h", v2_t.height);
+        }
     }
+        
     // Update is called once per frame
 }
 

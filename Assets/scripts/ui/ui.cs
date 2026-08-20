@@ -52,6 +52,8 @@ public  class ui : MonoBehaviour
     }
     public static void del_pricels(Vector2 v2)
     {
+        if (!lt_pricel_wolk.ContainsKey(v2))
+            return;
         GameObject gm= lt_pricel_wolk[v2][0];
         lt_pricel_wolk[v2].Remove(gm);
         //Debug.Log("del pricels ui " + lt_pricel_col[v2]+"  "+gm.transform.position);
@@ -96,7 +98,7 @@ public  class ui : MonoBehaviour
         par_mob pr_mob = func.mob_list[num].GetComponent<par_mob>();
         Dictionary<string, int> lt_cart = new Dictionary<string, int>();
 
-        Transform tr_base = GameObject.Find("Scroll View carts").transform.Find("Viewport").Find("pn");
+        Transform tr_base = GameObject.Find("canvases").transform.Find("Canvas").Find("panels").Find("Scroll View carts").Find("Viewport").Find("pn");
         Transform tr_pn = tr_base.Find("pn carts");
         foreach (string st in pr_mob.lt_carts)
         {
@@ -115,9 +117,20 @@ public  class ui : MonoBehaviour
             if (cart_sprite.ContainsKey(st))
             {
 
-                GameObject gm = Instantiate(GameObject.Find("ignoring").transform.Find("cart").gameObject, tr_pn);
+                GameObject gm = Instantiate(GameObject.Find("canvases").transform.Find("Canvas").Find("panels").Find("ignoring").transform.Find("cart").gameObject, tr_pn);
                 gm.GetComponent<Image>().sprite = cart_sprite[st];
-                gm.GetComponent<ui_button>().type = st;
+                if (func.baza[st].transform.childCount>0 && func.baza[st].transform.GetChild(0) != null)
+                {
+                    gm.GetComponent<Image>().sprite = func.baza[st].GetComponent<SpriteRenderer>().sprite;
+                    gm.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = func.baza[st].transform.GetChild(0).gameObject.GetComponent<SpriteRenderer>().sprite;
+                }
+                else
+                {
+                    gm.GetComponent<Image>().sprite = cart_sprite[st];
+                    gm.transform.GetChild(0).gameObject.GetComponent<Image>().sprite =  cart_sprite[st];
+                }
+                gm.transform.GetChild(0).gameObject.SetActive(true);
+                    gm.GetComponent<ui_button>().type = st;
                 //string st_dop = "";
                 gm.transform.Find("tx max").gameObject.active = (pr_mob.carts_count_max.ContainsKey(st) && lt_cart[st] == pr_mob.carts_count_max[st]);
 

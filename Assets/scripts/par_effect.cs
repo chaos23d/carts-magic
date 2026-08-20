@@ -330,59 +330,7 @@ public class par_effect : MonoBehaviour
         }
         if (parent != null)
         {
-            /*
-            foreach (par_cart_art art in parent.GetComponent<par_mob>().lt_carts_art)
-            {
 
-                if (art.name == "cart shaman boss" && art.perez_now == 0)
-                {
-                    
-                    foreach (string st_cart in cart_par)
-                    {
-                        //Debug.Break();
-                        par_cart cart = GameObject.Find(st_cart).GetComponent<par_cart>();
-                        GameObject gm_l = null;
-                        Debug.Log("true " + st_cart);
-                        if (cart.type == par_cart.type_cart.rock || cart.type == par_cart.type_cart.spirit_rock)
-                        {
-                            gm_l = func.create_lovyshka(x, y, "run rock", parent, cart.lvl, 1, true);
-                            gm_l.GetComponent<par_lovyshka>().par_carts.Add("cart rock");
-                        }
-
-                        else if (cart.type == par_cart.type_cart.blood || cart.type == par_cart.type_cart.spirit_blood)
-                        {
-                            gm_l = func.create_lovyshka(x, y, "run blood", parent, cart.lvl, 1, true);
-                            gm_l.GetComponent<par_lovyshka>().par_carts.Add("cart blood");
-                        }
-
-                        else if (cart.type == par_cart.type_cart.fire || cart.type == par_cart.type_cart.spirit_fire)
-                        {
-                            gm_l = func.create_lovyshka(x, y, "run fire", parent, cart.lvl, 1, true);
-                            gm_l.GetComponent<par_lovyshka>().par_carts.Add("cart fire");
-                        }
-
-                        else if (cart.type == par_cart.type_cart.poition || cart.type == par_cart.type_cart.spirit_poition)
-                        {
-                            gm_l = func.create_lovyshka(x, y, "run poition", parent, cart.lvl, 1, true);
-                            gm_l.GetComponent<par_lovyshka>().par_carts.Add("cart poition");
-                        }
-
-                        else if (cart.type == par_cart.type_cart.ice || cart.type == par_cart.type_cart.spirit_ice)
-                        {
-                            gm_l = func.create_lovyshka(x, y, "run ice", parent, cart.lvl, 1, true);
-                            gm_l.GetComponent<par_lovyshka>().par_carts.Add("cart ice");
-                        }
-
-                        else if (cart.type == par_cart.type_cart.energy || cart.type == par_cart.type_cart.spirit_energy)
-                        {
-                            gm_l = func.create_lovyshka(x, y, "run energy", parent, cart.lvl, 1,true);
-                            gm_l.GetComponent<par_lovyshka>().par_carts.Add("cart energy");
-                        }
-
-                    }
-                }
-            }
-            */
         }
 
         if (gameObject.name == "bomb create"  && power > 0)
@@ -654,35 +602,7 @@ public class par_effect : MonoBehaviour
 
             }
         }
-        /*
-        else if (gameObject.name == "spirit blood ef" && power > 0)
-        {
-            GameObject g_c=func.create_lovyshka(x, y, "spirit base", parent, power, 1);
-            g_c.GetComponent<par_lovyshka>().par_carts = new List<string> { "cart blood" };
-            func.set_anim_color(g_c, g_c.GetComponent<par_lovyshka>().par_carts);
 
-        }
-        else if (gameObject.name == "spirit fire ef" && power > 0)
-        {
-            GameObject g_c = func.create_lovyshka(x, y, "spirit base", parent, power, 1);
-            g_c.GetComponent<par_lovyshka>().par_carts = new List<string> { "cart damage", "cart fire" };
-            func.set_anim_color(g_c, new List<string> { "cart damage","cart fire" });
-        }
-        else if (gameObject.name == "spirit ice ef" && power > 0)
-        {
-            GameObject g_c = func.create_lovyshka(x, y, "spirit base", parent, power, 1);
-            g_c.GetComponent<par_lovyshka>().par_carts = new List<string> { "cart ice" };
-            func.set_anim_color(g_c, g_c.GetComponent<par_lovyshka>().par_carts);
-        }
-        else if (gameObject.name == "spirit poition ef" && power > 0)
-        {
-            GameObject g_c = func.create_lovyshka(x, y, "spirit base", parent, power, 1);
-            g_c.GetComponent<par_lovyshka>().par_carts = new List<string> { "cart poition" };
-            func.set_anim_color(g_c, g_c.GetComponent<par_lovyshka>().par_carts);
-        }
-
-
-        */
 
         else if(cart_par[0] == "cart rage(boss)")
         {
@@ -1195,7 +1115,7 @@ public class par_effect : MonoBehaviour
                 if(regen>0)
                     mb.regen(power * regen, "blood");
                 else
-                    mb.damage(power*dop_ef, type_dm);
+                    mb.damage((int)Mathf.Pow(2, power*dop_ef), type_dm);
             }
                 
         }
@@ -1331,9 +1251,10 @@ public class par_effect : MonoBehaviour
         
         sp.parent = parent;
         Vector3 v3 = gameObject.transform.position;
-        sp.v2_start_base = v3;
-        v3.y++;
-        sp.sets(0.5f, false, v3);
+        Debug.Log(v3, gameObject);
+        //sp.v2_start_base = v3;
+        //v3.y++;
+        sp.sets(1, v3,parent.transform.position);
         gm.active = true;
         sp.next_cart();
         anim.col_anim++;

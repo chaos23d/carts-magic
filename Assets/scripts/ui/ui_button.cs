@@ -695,6 +695,7 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         if (friend() && timer < 0.75f&& anim.col_anim==0 )
         {
+            Debug.Break();
             par_mob mob = func.mob_list[func.hod_mob_now_int].GetComponent<par_mob>();
             bool atack = true;
             foreach (par_baf baf in mob.lt_bafs)
@@ -777,26 +778,33 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     }
     public void next_dialog(ui_anim_text tx_anim)
     {
-        par_dialog dialog_now = par_dialog.par_dialog_now;
-
-        if (tx_anim.end)
+        if (anim.col_anim == 0)
         {
-            if (dialog_now.lt_dialog[dialog_now.type_now].Count - 1 > dialog_now.id_now)
+            
+            par_dialog dialog_now = par_dialog.par_dialog_now;
+            //if (dialog_now.id_now > 18)
+                //Debug.Break();
+            if (tx_anim.end)
             {
-                dialog_now.id_now++;
-                dialog_now.start_dialog();
+                if (dialog_now.lt_dialog[par_dialog.type_now].Count - 1 > par_dialog.id_now)
+                {
+                    par_dialog.id_now++;
+                    dialog_now.start_dialog();
+                }
+                else
+                {
+                    par_dialog.end_dialog();
+                    //GameObject.Find("canvases").transform.Find("Canvas dialog").gameObject.SetActive(false);
+                }
             }
+
             else
             {
-                par_dialog.end_dialog();
-                //GameObject.Find("canvases").transform.Find("Canvas dialog").gameObject.SetActive(false);
+                tx_anim.end_text();
             }
+
         }
-        else
-        {
-            tx_anim.end_text();
-        }
-        
+
     }
     void Start()
     {

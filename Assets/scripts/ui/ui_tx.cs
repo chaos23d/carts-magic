@@ -20,9 +20,9 @@ public class ui_tx : MonoBehaviour
     void Update()
     {
         TMP_Text tx = gameObject.GetComponent<TMP_Text>();
-        if (func.mob_list[func.hod_mob_now_int] != null)
+        if (func.mob_list[func.hod_mob_now] != null)
         {
-            par_mob mb = func.mob_list[func.hod_mob_now_int].GetComponent<par_mob>();
+            par_mob mb = func.mob_list[func.hod_mob_now].GetComponent<par_mob>();
             if (gameObject.name == "hp tx" && mb.friend && mb.friend_type == par_mob.type_friend.active)
                 tx.text = mb.hp + "/" + mb.hp_max;
         }

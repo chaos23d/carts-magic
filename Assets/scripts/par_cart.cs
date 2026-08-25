@@ -239,10 +239,13 @@ public class par_cart : MonoBehaviour
             lt_comm.Add("cart barier[n]");
             lt_comm.Add("cart [e][n]");
             lt_comm.Add("cart [e_d]");
+
             lt_comm.Add("cart damage[n]-cart [e][n]");
-            lt_comm.Add("cart barier[n]-cart [e][n]");
-            lt_comm.Add("cart damage[n]-cart [e_d]");
-            lt_comm.Add("cart barier[n]-cart [e_d]");
+            lt_comm.Add("cart barier[n]-cart damage[n]");
+            lt_comm.Add("cart barier[n]-cart damage[n]-cart [e][n]");
+
+            //lt_comm.Add("cart damage[n]-cart [e_d]");
+            //lt_comm.Add("cart barier[n]-cart [e_d]");
 
             lt_comm.Add("cart derlorg[n]");
 

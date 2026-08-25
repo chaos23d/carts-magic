@@ -233,7 +233,22 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
 
     public Stack<Vector2> lt_wolk = new Stack<Vector2>();
 
-    public float time_wolk = -1;
+    public float time_wolk_now = -1;
+    /*
+    public float time_wolk_now
+    {
+        get
+        {
+            return time_wolk_now_gs;
+        }
+        set
+        {
+            Debug.Log(value);
+            time_wolk_now_gs = value;
+        }
+    }
+    */
+    public float time_wolk = 0.15f;
     public Vector2 d_v2_wolk;
     public Vector2 d_v2_wolk_end;
 
@@ -2949,7 +2964,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
     public void remove_cart(string name)
     {
         lt_carts.Remove(name);
-        if (func.hod_mob_now_int == num && friend_type==type_friend.active && friend)
+        if (func.hod_mob_now == num && friend_type==type_friend.active && friend)
         {
             ui.print_carts_tip(num);
         }
@@ -6081,7 +6096,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 mb.gameObject.GetComponent<Animator>().SetBool("select_now", false);
 
                 mb.gameObject.GetComponent<Animator>().SetBool("atack", true);
-
+                anim.col_anim++;
                 data.data_now.cl_carts_speed++;
 
                 mb.lt_carts_active_now.Clear();
@@ -6104,7 +6119,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                     speed_hod = true;
                     
                 }
-                func.next_hod();
+                //func.next_hod();
                 return true;
             }
 
@@ -6354,7 +6369,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         }
 
 
-        func.next_hod();
+        //func.next_hod();
 
 
     }
@@ -6723,19 +6738,22 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 }
             }
             */
-            if (!(gameObject.transform.position.x < 0 || gameObject.transform.position.y < 0) && vizited)
+            //if (!(gameObject.transform.position.x < 0 || gameObject.transform.position.y < 0) && vizited)
+            if (!(gameObject.transform.position.x < 0 || gameObject.transform.position.y < 0) )
             {
                 if (!friend ||(friend && num==0))
                 {
-                    time_wolk = 0;
-                    d_v2_wolk = new Vector2(x_wolk - x_b, y_wolk - y_b) / 0.15f;
+                    //time_wolk = 0;
+                    time_wolk_now = 0;
+                    d_v2_wolk = new Vector2(x_wolk - x_b, y_wolk - y_b) / time_wolk;
                     d_v2_wolk_end = new Vector2(x_wolk, y_wolk);
                     anim.col_anim++;
                 }
                 else
                 {
-                    time_wolk = 0.05f;
-                    d_v2_wolk = new Vector2(x_wolk - x_b, y_wolk - y_b) / 0.1f;
+                    time_wolk_now = 0;
+                    //time_wolk = 0.05f;
+                    d_v2_wolk = new Vector2(x_wolk - x_b, y_wolk - y_b) / time_wolk;
                     d_v2_wolk_end = new Vector2(x_wolk, y_wolk);
                     anim.col_anim++;
                 }
@@ -8215,9 +8233,11 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             gameObject.GetComponent<Animator>().SetInteger("hp", hp);
 
         gameObject.GetComponent<SpriteRenderer>().material = new Material(gameObject.GetComponent<SpriteRenderer>().material);
+        if(time_wolk==-1)
+            time_wolk = 0.15f;
     }
     public float timer_now = 0;
-    public static int priority_hod=-1;
+    //public static int num_hod_wait=-1;
     public Queue<GameObject> que_dm_tx = new Queue<GameObject>();
     
     public class action_after_wolk
@@ -8232,16 +8252,17 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
     }
     public class action_atack
     {
-        public Queue<string> carts = new Queue<string>();
+        public List<string> carts = new List<string>();
         public Vector2 v2;
-        public action_atack(Queue<string> carts,Vector2 v2)
+        public action_atack(List<string> carts,Vector2 v2)
         {
             this.carts = carts;
             this.v2 = v2;
         }
     }
     public action_after_wolk action_after_wolk_now = null;
-    public List<action_atack> lt_atack_comb = new List<action_atack>();
+    public Queue<action_atack> lt_atack_comb = new Queue<action_atack>();
+    public Queue<System.Func<func.status_next_hod>> actions_hod = new Queue<System.Func<func.status_next_hod>>();
     //public Material mat;
     public bool outline_mat = true;
     void Update()
@@ -8261,18 +8282,18 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             bool_func_wolk_v2 = false;
         }
 
-        if (time_wolk >= 0)
+        if (time_wolk_now >= 0)
         {
             //Debug.Log("timer hod " + num);
-            time_wolk += Time.deltaTime;
+            time_wolk_now += Time.deltaTime;
             Vector2 v2 = gameObject.transform.position;
             v2 += d_v2_wolk * Time.deltaTime;
             gameObject.transform.position = new Vector3(v2.x, v2.y, 0);
-            if (time_wolk >= 0.15f)
+            if (time_wolk_now >= time_wolk)
             {
                 gameObject.transform.position = new Vector3(d_v2_wolk_end.x, d_v2_wolk_end.y, 0);
                 anim.col_anim--;
-                time_wolk = -1;
+                time_wolk_now = -1;
                 if(action_after_wolk_now!=null && action_after_wolk_now.active)
                 {
                     Debug.Log("invoke action");

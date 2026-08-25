@@ -13,14 +13,14 @@ public class ui_toogle : MonoBehaviour
     public void mob_is_wolked()
     {
         //int q = GameObject.Find("Main Camera").transform.parent.gameObject.GetComponent<par_mob>().num;
-        Debug.Log(num + " " + func.mob_list[func.hod_mob_now_int].GetComponent<par_mob>().wolked);
+        Debug.Log(num + " " + func.mob_list[func.hod_mob_now].GetComponent<par_mob>().wolked);
         if (gameObject.active && anim.col_anim==0 &&  func.mob_list[num].GetComponent<par_mob>().friend)
         {
             //Debug.Log(num + " wolk 1 " + func.mob_list[func.hod_mob_now_int].GetComponent<par_mob>().wolked);
             func.mob_list[num].GetComponent<par_mob>().wolked = !func.mob_list[num].GetComponent<par_mob>().wolked;
-            if (!func.mob_list[func.hod_mob_now_int].GetComponent<par_mob>().wolked && func.hod_mob_now_int==num)
+            if (!func.mob_list[func.hod_mob_now].GetComponent<par_mob>().wolked && func.hod_mob_now==num)
             {
-                func.next_hod();
+                //func.next_hod();
             }
         }
     }

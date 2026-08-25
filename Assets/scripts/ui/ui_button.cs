@@ -35,11 +35,11 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     }
     public bool friend()
     {
-        return func.mob_list[func.hod_mob_now_int].GetComponent<par_mob>().friend;
+        return func.mob_list[func.hod_mob_now].GetComponent<par_mob>().friend;
     }
     public GameObject friend_now()
     {
-        return func.mob_list[func.hod_mob_now_int];
+        return func.mob_list[func.hod_mob_now];
     }
     public void per_menu_inf()
     {
@@ -696,7 +696,7 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         if (friend() && timer < 0.75f&& anim.col_anim==0 )
         {
             Debug.Break();
-            par_mob mob = func.mob_list[func.hod_mob_now_int].GetComponent<par_mob>();
+            par_mob mob = func.mob_list[func.hod_mob_now].GetComponent<par_mob>();
             bool atack = true;
             foreach (par_baf baf in mob.lt_bafs)
             {
@@ -763,7 +763,7 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             }
 
 
-            if (mob.lt_carts_active_now.Count > 0 && func.mob_list[func.hod_mob_now_int].name == data.data_now.pl_name_now && !GameObject.Find("bt stop").GetComponent<Animator>().GetBool("opened"))
+            if (mob.lt_carts_active_now.Count > 0 && func.mob_list[func.hod_mob_now].name == data.data_now.pl_name_now && !GameObject.Find("bt stop").GetComponent<Animator>().GetBool("opened"))
             {
                 opened_closed(GameObject.Find("bt stop"));
             }

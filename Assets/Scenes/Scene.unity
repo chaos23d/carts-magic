@@ -127138,6 +127138,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -127224,6 +127225,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -127299,6 +127301,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -127367,6 +127370,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -127447,6 +127451,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -127516,6 +127521,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -127588,6 +127594,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -127668,6 +127675,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -127743,6 +127751,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -127823,6 +127832,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -127892,6 +127902,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -127978,6 +127989,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -128051,6 +128063,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -128119,6 +128132,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -128205,6 +128219,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -128285,6 +128300,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -128365,6 +128381,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -128440,6 +128457,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -128520,6 +128538,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -128606,6 +128625,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -128680,6 +128700,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -128749,6 +128770,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -128818,6 +128840,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -128887,6 +128910,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -128955,6 +128979,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -129030,6 +129055,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -129110,6 +129136,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -129193,6 +129220,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -129261,6 +129289,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -129329,6 +129358,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -129415,6 +129445,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -129501,6 +129532,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -129569,6 +129601,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -129644,6 +129677,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -129730,6 +129764,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -129805,6 +129840,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -129879,6 +129915,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -129951,6 +129988,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -130026,6 +130064,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -130094,6 +130133,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -130163,6 +130203,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -130243,6 +130284,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -130311,6 +130353,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -130381,6 +130424,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -130456,6 +130500,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -130536,6 +130581,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -130845,8 +130891,6 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 519ebd69f4bee404da52a684c69bb4b4, type: 3}
   - {fileID: 8300000, guid: 40d8fd1ec9eee674cb161e51ab3424dc, type: 3}
   - {fileID: 8300000, guid: d884c5782814a9549b65cb0069832307, type: 3}
-  aaa: 0
-  aaa1: 0
   lt1: 
   lt2: 
 --- !u!114 &4320
@@ -132156,6 +132200,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -133802,6 +133847,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -134177,6 +134223,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -139795,6 +139842,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -140706,6 +140754,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -141061,6 +141110,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -142969,6 +143019,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -143630,6 +143681,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -153097,6 +153149,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -155478,6 +155531,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -160409,6 +160463,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -165272,6 +165327,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -166012,6 +166068,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -167250,6 +167307,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -179662,6 +179720,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -183843,6 +183902,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -184612,6 +184672,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -185095,6 +185156,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -187395,6 +187457,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -192495,6 +192558,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -197971,6 +198035,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -198513,6 +198578,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -200395,6 +200461,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -207106,6 +207173,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -209513,6 +209581,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -210933,6 +211002,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -211286,6 +211356,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -212897,6 +212968,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -219979,6 +220051,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -224856,6 +224929,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -230998,6 +231072,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -231186,6 +231261,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -234155,6 +234231,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -236269,6 +236346,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -238838,6 +238916,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -240881,6 +240960,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -241228,6 +241308,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -245831,6 +245912,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -248875,7 +248957,8 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
-  time_wolk: -1
+  time_wolk_now: -1
+  time_wolk: 0.3
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
   gg: {fileID: 0}
@@ -251755,6 +251838,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -252712,6 +252796,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -253513,6 +253598,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -255845,6 +255931,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -257852,6 +257939,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -258185,6 +258273,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -258696,6 +258785,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -261111,6 +261201,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -262987,6 +263078,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -264396,6 +264488,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -266104,6 +266197,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -271625,6 +271719,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -272238,6 +272333,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -274063,6 +274159,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -274443,6 +274540,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -276372,6 +276470,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}
@@ -276831,6 +276930,7 @@ MonoBehaviour:
   selected_anim: 0
   bool_func_wolk_v2: 0
   effect_activate: 
+  time_wolk_now: -1
   time_wolk: -1
   d_v2_wolk: {x: 0, y: 0}
   d_v2_wolk_end: {x: 0, y: 0}

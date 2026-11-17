@@ -11,8 +11,7 @@ public class act_d_teacher : MonoBehaviour
     public void spawn_cart0()
     {
 
-            GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>().spawn_cart("cart damage", gameObject);
-            GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>().spawn_cart("cart bomb", gameObject);
+            GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>().spawn_cart("cart damage 0", gameObject);
 
         
         anim.next_dialog = true;
@@ -22,7 +21,7 @@ public class act_d_teacher : MonoBehaviour
     {
 
             GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>().spawn_cart("cart damage", gameObject);
-            GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>().spawn_cart("cart bomb", gameObject);
+            GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>().spawn_cart("cart energy", gameObject);
 
         
         anim.next_dialog = true;

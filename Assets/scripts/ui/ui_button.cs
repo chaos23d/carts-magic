@@ -695,7 +695,7 @@ public class ui_button : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         if (friend() && timer < 0.75f&& anim.col_anim==0 )
         {
-            Debug.Break();
+            //Debug.Break();
             par_mob mob = func.mob_list[func.hod_mob_now].GetComponent<par_mob>();
             bool atack = true;
             foreach (par_baf baf in mob.lt_bafs)

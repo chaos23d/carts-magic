@@ -35,6 +35,7 @@ public class par_dialog : MonoBehaviour
 
     public void start_dialog(string type=null)
     {
+        Debug.Log("dialog");
         //Debug.Break();
         par_dialog_now = this;
 
@@ -65,7 +66,7 @@ public class par_dialog : MonoBehaviour
         GameObject.Find("Main Camera").transform.parent = gm_m.transform;
         GameObject.Find("Main Camera").gameObject.GetComponent<par_move_camera>().sets(1,false,(Vector2)gm_m.transform.position);
         Debug.Log(type_now);
-        Debug.Log(lt_dialog[type_now][id_now].text);
+        Debug.Log(lt_dialog[type_now][id_now].text+" "+(lt_dialog[type_now][id_now].action != null));
         parent.Find("Canvas dialog").Find("pn dialog").Find("text dialog").GetComponent<ui_anim_text>().anim_text(lt_dialog[type_now][id_now].text);
         //Debug.Log(lt_dialog[type_now][id_now].state_anim+" " + lt_dialog[type_now][id_now].param);
         if (lt_dialog[type_now][id_now].state_anim != "")
@@ -146,9 +147,10 @@ public class par_dialog : MonoBehaviour
 
             Action a = () =>
             {
-                Debug.Break();
+                //Debug.Break();
                 //func.next_hod();
-                wolk_dialog(9, 7);
+                par_mob mb = gameObject.GetComponent<par_mob>();
+                wolk_dialog(mb.x + 4, mb.y);
                 
                 Action f = () =>
                 {
@@ -165,7 +167,7 @@ public class par_dialog : MonoBehaviour
                 
 
                 par_mob pl= GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>();
-                pl.lt_wolk = func.way_wolk(pl.x, pl.y, 9, 5);
+                pl.lt_wolk = func.way_wolk(pl.x, pl.y, pl.x+4, pl.y);
                 //par_mob.priority_hod = -1;
                 //func.bl_skip_all_friends = true;
                 func.controller_mob_wait.type_wait_now = func.controller_mob_wait.type_wait.skip_all;
@@ -185,7 +187,7 @@ public class par_dialog : MonoBehaviour
             l.Add(new cl_dialog("учитель", "", act_camera: false,param:true,st_anim:"add carts",action:a));
             //Func<GameObject> gg =(()=>{  return func.nature[1, 1]; }); 
             //GameObject gg(x=>{ return func.nature[1, 1]});
-            l.Add(new cl_dialog("учитель", "Видишь этот манекен?", act_camera: true, cn_camera:  func.mob[9,2]));
+            l.Add(new cl_dialog("учитель", "Видишь этот манекен?", act_camera: true, cn_camera:  func.mob[8,4]));
 
 
             a = () =>
@@ -208,7 +210,15 @@ public class par_dialog : MonoBehaviour
             lt_dialog.Add("start", l);
 
             l = new List<cl_dialog>();
-            l.Add(new cl_dialog("учитель", "Неплохо справляешься."));
+            a = () =>
+            {
+                par_mob pl = GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>();
+                foreach (Vector2 v2 in pl.lt_v2_vizited)
+                {
+                    func.clicable_object(true, (int)v2.x, (int)v2.y);
+                }
+            };
+            l.Add(new cl_dialog("учитель", "Неплохо справляешься.",action:a));
             /*
             l.Add(new cl_dialog("учитель", "Прежде чем осваивать комбинации карт, мне стоит рассказать немного о видах магии, которую ты можешь применять"));
             l.Add(new cl_dialog("учитель", "В основном выделяют 11 видов магии:"));
@@ -226,12 +236,14 @@ public class par_dialog : MonoBehaviour
             {
                 //Debug.Break();
                 //func.next_hod();
-                wolk_dialog(13, 7);
+                par_mob mb = gameObject.GetComponent<par_mob>();
+                wolk_dialog(mb.x + 4, mb.y);
 
                 Action f = () =>
                 {
                     func.controller_mob_wait.type_wait_now = func.controller_mob_wait.type_wait.mob;
                     func.controller_mob_wait.num_wait = gameObject.GetComponent<par_mob>().num;
+                    //func.bl_wait_hod = false;
                     id_now++;
                     start_dialog();
                 };
@@ -240,7 +252,7 @@ public class par_dialog : MonoBehaviour
 
 
                 par_mob pl = GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>();
-                pl.lt_wolk = func.way_wolk(pl.x, pl.y, 13, 5);
+                pl.lt_wolk = func.way_wolk(pl.x, pl.y, 12, 7);
 
                 func.controller_mob_wait.type_wait_now = func.controller_mob_wait.type_wait.skip_all;
                 func.bl_wait_hod = true;
@@ -255,23 +267,75 @@ public class par_dialog : MonoBehaviour
                 gameObject.GetComponent<act_d_teacher>().action_anim = gameObject.GetComponent<act_d_teacher>().spawn_cart1;
             };
             l.Add(new cl_dialog("учитель", "", act_camera: false, param: true, st_anim: "add carts",action:a));
-            l.Add(new cl_dialog("учитель", "Видишь этот манекен?", act_camera: true, cn_camera: func.mob[13, 2]));
+            l.Add(new cl_dialog("учитель", "Видишь этот манекен?", act_camera: true, cn_camera: func.mob[12, 4]));
             l.Add(new cl_dialog("учитель", "Тебе также нужно его уничтожить. Но в этот раз я его усилю защитой"));
+
+
 
             a = () =>
             {
-                List<string> q = new List<string>();
-                q.Add("cart barier");
-                q.Add("cart damage");
-                par_mob mb = gameObject.GetComponent<par_mob>();
-                mb.lt_atack_comb.Enqueue(new par_mob.action_atack(q,new Vector2(mb.x,mb.y-3)));
+                wolk_dialog(14, 4);
+
+                Action f = () =>
+                {
+                    func.controller_mob_wait.type_wait_now = func.controller_mob_wait.type_wait.skip_all;
+                    func.controller_mob_wait.num_wait = gameObject.GetComponent<par_mob>().num;
+                    id_now++;
+                    start_dialog();
+                };
+                gameObject.GetComponent<par_mob>().action_after_wolk_now = new par_mob.action_after_wolk(f);
+                //gameObject.GetComponent<par_mob>().wolk_v2();
+
+
+                //par_mob pl = GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>();
+                //pl.lt_wolk = func.way_wolk(pl.x, pl.y, 13, 5);
+
+                func.controller_mob_wait.type_wait_now = func.controller_mob_wait.type_wait.skip_all;
                 func.bl_wait_hod = true;
                 //func.next_hod();
                 //вон тут
             };
 
-            l.Add(new cl_dialog("учитель", "", act_camera: false, action:a));
-            l.Add(new cl_dialog("учитель", "Для этого примени карты в таком порядке: карта взрыва -> карта атаки -> карта электричества"));
+            l.Add(new cl_dialog("учитель", "", act_camera: false, action: a));
+            a = () =>
+            {
+                Debug.Log("BBBB");
+                List<string> q = new List<string>();
+                q.Add("cart barier");
+                q.Add("cart damage");
+                par_mob mb = gameObject.GetComponent<par_mob>();
+                par_mob.action_atack a_a = new par_mob.action_atack(q, new Vector2(mb.x - 2, mb.y),true);
+                a_a.action_after = () =>
+                {
+                    func.controller_mob_wait.type_wait_now = func.controller_mob_wait.type_wait.mob;
+                    func.controller_mob_wait.num_wait = gameObject.GetComponent<par_mob>().num;
+
+                };
+                mb.lt_atack_comb.Enqueue(a_a);
+                func.bl_wait_hod = true;
+                //func.next_hod();
+                //вон тут
+            };
+
+            l.Add(new cl_dialog("учитель", "бубубу", act_camera:false, action:a));
+
+            a = () =>
+            {
+                par_mob pl = GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>();
+                foreach (Vector2 v2 in pl.lt_v2_vizited)
+                {
+                    func.clicable_object(false, (int)v2.x, (int)v2.y);
+                }
+                func.clicable_object(true, pl.x, pl.y - 3);
+                //func.clicable_object(true, pl.x, pl.y);
+                //par_mob.priority_hod = -1;
+                func.controller_mob_wait.type_wait_now = func.controller_mob_wait.type_wait.none;
+                //func.controller_mob_wait.num_wait = gameObject.GetComponent<par_mob>().num;
+                func.bl_wait_hod = true;
+
+            };
+
+            l.Add(new cl_dialog("учитель", "Для этого примени карты в таком порядке: карта атаки -> карта электричества", act_camera: true,action:a));
 
             lt_dialog.Add("start 1", l);
             l = new List<cl_dialog>();
@@ -279,16 +343,26 @@ public class par_dialog : MonoBehaviour
             l.Add(new cl_dialog("учитель", "Ты наверное заметил, что у тебя энергия уменьшилась"));
             l.Add(new cl_dialog("учитель", "Подобные комбинации тратят немало энергии. Удивляться тут нечему."));
             l.Add(new cl_dialog("учитель", "Но ты можешь не переживать.Энергия со временем восстанавливается. Каждые 5 ходов восстанавливается 1 единица энергии ."));
-            l.Add(new cl_dialog("учитель", "В твоём случае"));
 
+            a = () =>
+            {
+                par_mob pl = GameObject.Find(data.data_now.pl_name_now).GetComponent<par_mob>();
+                foreach (Vector2 v2 in pl.lt_v2_vizited)
+                {
+                    func.clicable_object(true, (int)v2.x, (int)v2.y);
+                }
+            };
+            l.Add(new cl_dialog("учитель", "В твоём случае", "think", true,action:a));
+            lt_dialog.Add("start 2", l);
+            /*
             l.Add(new cl_dialog("учитель", "Теперь стоит устроить настоящее сражение"));
             l.Add(new cl_dialog("учитель", "Сейчас перенесу тебя на боевую площадку"));
 
             l.Add(new cl_dialog("учитель", "тебе надо одолеть 3 духов"));
             l.Add(new cl_dialog("учитель", "используй эти карты для сражения."));
             l.Add(new cl_dialog("учитель", "их должно хватить."));
-            lt_dialog.Add("start 2", l);
-
+            
+            */
 
         }
     }

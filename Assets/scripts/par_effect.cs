@@ -1138,8 +1138,17 @@ public class par_effect : MonoBehaviour
             }
             else
             {
+                if (lt_type_carts[1] == par_cart.type_cart.damage)
+                {
+                    if (mb != null)
+                    {
 
-                if (lt_type_carts[1] == par_cart.type_cart.rock)
+                        type_dm = par_baf.type_baf.bar_rock;
+
+                    }
+
+                }
+                else if (lt_type_carts[1] == par_cart.type_cart.rock)
                 {
                     if (mb != null)
                     {

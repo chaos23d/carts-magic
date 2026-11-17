@@ -9,6 +9,8 @@ using static UnityEngine.EventSystems.EventTrigger;
 using System.Linq;
 using JetBrains.Annotations;
 using Unity.Android.Gradle.Manifest;
+using type_wait= func.controller_mob_wait.type_wait;
+
 //using System;
 
 public class par_mob : parametrs, IPointerClickHandler, interfase_click
@@ -2513,46 +2515,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
         }
 
-        /*
-        else if (art1.type == par_cart.type_cart.art_dych_sp)
-        {
-            //carts_count_max["cart crystall" + aa]++;
-            int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
-            for (int i = 0; i < a_f; i++)
-            {
-                carts_count_max["cart dych" + a_[i]] -= 2;
-            }
-        }
-        else if (art1.type == par_cart.type_cart.art_bomb_sp)
-        {
-            int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
-            for (int i = 0; i < a_f; i++)
-            {
-                carts_count_max["cart crystall" + a_[i]] -= 2;
-            }
-            //C:\Program Files\Unity\Hub\Editor\2022.3.40f1\Editor\Data\PlaybackEngines\AndroidPlayer\Tools\gradle
-        }
 
-
-        else if (art1.type == par_cart.type_cart.art_att_sp)
-        {
-            //carts_count_max["cart damage" + aa] -= 2;
-            int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
-            for (int i = 0; i < a_f; i++)
-            {
-                carts_count_max["cart damage" + a_[i]] -= 2;
-            }
-        }
-        else if (art1.type == par_cart.type_cart.art_bar_sp)
-        {
-            //carts_count_max["cart barier" + aa]--;
-            int a_f = ((par_cart)art1).lvl - (((par_cart)art1).lvl / 4);
-            for (int i = 0; i < a_f; i++)
-            {
-                carts_count_max["cart barier" + a_[i]] -= 1;
-            }
-        }
-        */
         else if (art1.type == par_cart.type_cart.art_base_st)
         {
             carts_count_max["cart damage"] -= 4;
@@ -3043,7 +3006,9 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         gameObject.GetComponent<Animator>().SetBool("perehod", true);
         selected_anim = false;
         cart_active_now = null;
-        if ((!friend || friend_type == type_friend.auto || atack_auto_comb) && !nps)
+
+        //func.controller_mob_wait contrl = func.controller_mob_wait;
+        if (  func.bl_wait_hod )
         {
             atack_mob(cel);
         }
@@ -3236,6 +3201,11 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
         if (name != null && name != "")
             gameObject.GetComponent<Animator>().SetBool(name, false);
         anim.col_anim--;
+        if (atack_comb_now!=null && atack_comb_now.action_after != null)
+        {
+            atack_comb_now.action_after.Invoke();
+        }
+        atack_comb_now = null;
         //skill_mob_now = null;
         //func.hod_next_mob = true;
 
@@ -6096,7 +6066,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                 mb.gameObject.GetComponent<Animator>().SetBool("select_now", false);
 
                 mb.gameObject.GetComponent<Animator>().SetBool("atack", true);
-                anim.col_anim++;
+                //anim.col_anim++;
                 data.data_now.cl_carts_speed++;
 
                 mb.lt_carts_active_now.Clear();
@@ -7335,11 +7305,12 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
                         }
                         //func.drop(cart, x, y).active = func.eath[x, y].active;
                     }
-                if(gameObject.name=="manecen" &&(x==9 && y==2)&& data.data_now.lt_dialog.Contains("start") && !data.data_now.lt_dialog.Contains("start 1"))
+                Debug.Log((gameObject.name == "manecen") + " " + (x == 8 && y == 4) + " " + (data.data_now.lt_dialog.Contains("start") )+" "+( !data.data_now.lt_dialog.Contains("start 1")));
+                if(gameObject.name=="manecen" &&(x==8 && y==4)&& data.data_now.lt_dialog.Contains("start") && !data.data_now.lt_dialog.Contains("start 1"))
                 {
                     par_dialog.par_dialog_now.start_dialog("start 1");
                 }
-                if (gameObject.name == "manecen" && (x == 11 && y == 2) && data.data_now.lt_dialog.Contains("start 1") && !data.data_now.lt_dialog.Contains("start 2"))
+                if (gameObject.name == "manecen" && (x == 12 && y == 4) && data.data_now.lt_dialog.Contains("start 1") && !data.data_now.lt_dialog.Contains("start 2"))
                 {
                     par_dialog.par_dialog_now.start_dialog("start 2");
                 }
@@ -8254,14 +8225,21 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
     {
         public List<string> carts = new List<string>();
         public Vector2 v2;
-        public action_atack(List<string> carts,Vector2 v2)
+        public System.Action action_began;
+        public System.Action action_after;
+        public action_atack(List<string> carts,Vector2 v2,bool bl=false)
         {
             this.carts = carts;
             this.v2 = v2;
+            if(!bl)
+                this.action_began = null;
+            else
+                this.action_began = () => {anim.next_dialog=true; };
         }
     }
     public action_after_wolk action_after_wolk_now = null;
     public Queue<action_atack> lt_atack_comb = new Queue<action_atack>();
+    public action_atack atack_comb_now = null;
     public Queue<System.Func<func.status_next_hod>> actions_hod = new Queue<System.Func<func.status_next_hod>>();
     //public Material mat;
     public bool outline_mat = true;
@@ -8303,7 +8281,7 @@ public class par_mob : parametrs, IPointerClickHandler, interfase_click
             }
 
         }
-        if (outline_mat)
+        if (outline_mat && gameObject.GetComponent<SpriteRenderer>().sprite!=null)
         {
             Texture v2_t = gameObject.GetComponent<SpriteRenderer>().sprite.texture;
             gameObject.GetComponent<SpriteRenderer>().material.SetFloat("_texture_w", v2_t.width);

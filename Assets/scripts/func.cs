@@ -6,6 +6,7 @@ using System.Runtime.ConstrainedExecution;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 using static par_cart;
 using static par_mob;
@@ -584,7 +585,7 @@ public class func : MonoBehaviour
                         {
                             mb.gameObject.GetComponent<Animator>().Play("atack", -1, 0);
                         }
-                        //anim.col_anim++;
+                        anim.col_anim++;
                         mb.cart_active_now = type;
                         mb.lt_carts_active_now.Add(type);
                         mb.lt_carts_added_now.Add(type);
@@ -801,16 +802,20 @@ public class func : MonoBehaviour
                     {
 
                         List<string> lt1 = new List<string>(mb.lt_carts_active_now);
+                        anim.col_anim++;
                         if (mb.atack_mob(gm_click))
                         {
+                            //anim.col_anim++;
                             //anim.col_anim++;
                             mb.proverka_atack(new List<string>(lt1), true, true);
                             bl_wait_hod = true;
                         }
+                        else
+                        {
+                            anim.col_anim--;
+                        }
 
                     }
-
-
 
                 }
             }
@@ -2011,18 +2016,40 @@ if (bl_leg)
         else
             lt_fr.Add(GameObject.Find(data.data_now.pl_name_now));
 
-        int st_x = 5;
-        int st_y = 5;
+        int st_x = 4;
+        int st_y = 7;
         par_mob pr_teacher = null;
+
+        List<Tilemap> maps = new List<Tilemap>();
+        foreach (Transform tr in GameObject.Find("tilemap start").transform.GetChild(0).transform)
+        {
+            Tilemap map = tr.gameObject.GetComponent<Tilemap>();
+            maps.Add(tr.gameObject.GetComponent<Tilemap>());
+            foreach (Vector3Int cell_coord in map.cellBounds.allPositionsWithin)
+            {
+                TileBase cell= map.GetTile(cell_coord);
+                if (cell != null)
+                {
+                    Debug.Log(cell_coord + " " + cell.name);
+                    
+                    GameObject gm = create(cell.name, cell_coord.x, cell_coord.y);
+                    if (cell.name == "teacher")
+                    {
+                        gm.GetComponent<par_mob>().simm(-1);
+                        pr_teacher = gm.GetComponent<par_mob>();
+                    }
+                }
+                
+            }
+        }        
+        /*
         for (int i = 0; i < size_global; i++)
         {
             for (int j = 0; j < size_global; j++)
             {
                 string st_eath = "";
-                if (Random.Range(0, 2) == 0)
-                    st_eath = "grass start 1";
-                else
-                    st_eath = "grass start 2";
+                //if (Random.Range(0, 2) == 0)
+                st_eath = "grass start";
 
                 if(i==5 && (j>=5 && j<=20))
                     st_eath = "eath start";
@@ -2033,7 +2060,9 @@ if (bl_leg)
                 create(st_eath, j, i);
 
                 string st_nature = null;
-                if(j==8 || j == 10 || j == 12 || j == 14)
+                if(j==0 || i==0)
+                    st_nature = "tree";
+                if (j==8 || j == 10 || j == 12 || j == 14)
                 {
                     if(i<=4 && i >= 2)
                     {
@@ -2077,6 +2106,7 @@ if (bl_leg)
 
             }
         }
+        */
         end_generate_room(lt_fr,st_x,st_y);
         
 
@@ -2095,7 +2125,7 @@ if (bl_leg)
         }
         );
         controller_mob_wait.type_wait_now = controller_mob_wait.type_wait.skip_all;
-        pr_teacher.lt_wolk = func.way_wolk(pr_teacher.x, pr_teacher.y, 5, 7);
+        pr_teacher.lt_wolk = func.way_wolk(pr_teacher.x, pr_teacher.y, 4, 9);
         pr_teacher.wolk_v2();
         //pr_teacher.time_wolk = -4;
         //next_hod();
@@ -4854,7 +4884,7 @@ if (bl_leg)
         {
             par_mob pr_mob = mob_list[num].GetComponent<par_mob>();
 
-            if (mob_list[num].GetComponent<par_mob>().friend)
+            if (mob_list[num].GetComponent<par_mob>().friend && !mob_list[num].GetComponent<par_mob>().nps)
             {
                 //test_message = "error wolk mob " + num.ToString() + " 1998";
                 par_mob pr_pl = mob_list[0].GetComponent<par_mob>();
@@ -5004,6 +5034,7 @@ if (bl_leg)
             }
             else
             {
+                //Debug.Log(pr_mob.num + " " + pr_mob.lt_wolk.Count);
                 if (pr_mob.lt_wolk.Count != 0)
                 {
                     if (col_friend > 1)
@@ -5014,7 +5045,10 @@ if (bl_leg)
                 else if (pr_mob.lt_atack_comb.Count > 0)
                 {
                     par_mob.action_atack at = pr_mob.lt_atack_comb.Dequeue();
-                    atack_mob(pr_mob,add_list_attack(at.carts, pr_mob, eath[(int)at.v2.x, (int)at.v2.y]));
+                    pr_mob.atack_comb_now = at;
+                    atack_mob(pr_mob,new List<atack_cart> { new atack_cart(new Queue<string>(at.carts), eath[(int)at.v2.x, (int)at.v2.y]) });
+                    if (at.action_began != null)
+                        at.action_began.Invoke();
                 }
                 else
                 {
@@ -5045,7 +5079,7 @@ if (bl_leg)
         public GameObject cel;
         public int priority=0;
 
-        public atack_cart(Queue<string> que,GameObject cel,int pr)
+        public atack_cart(Queue<string> que,GameObject cel,int pr=1)
         {
             que_cart = que;
             priority = pr;
@@ -6203,6 +6237,8 @@ if (bl_leg)
 
 
         List<List<atack_cart>> lt_rd_atack = new List<List<atack_cart>>();
+
+        /*
         if (mob_list[num].name == "dych")
         {
 
@@ -6238,14 +6274,6 @@ if (bl_leg)
         lt_el_mob.Add("org");
         lt_el_mob.Add("shaman");
 
-        /*
-        lt_el_mob.Add("half-fire spirit");
-        lt_el_mob.Add("half-poition spirit");
-        lt_el_mob.Add("half-energy spirit");
-        lt_el_mob.Add("half-ice spirit");
-        lt_el_mob.Add("half-blood spirit");
-        lt_el_mob.Add("half-rock spirit");
-        */
         lt_el_mob.Add("half-blood spirit");
 
         lt_el_mob.Add("fire defender 1");
@@ -6270,7 +6298,7 @@ if (bl_leg)
         {
             lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-
+        */
         if (mob_list[num].name == "fire elemental")
         {
             if (pr_mob.hp < pr_mob.hp_max)
@@ -6281,7 +6309,7 @@ if (bl_leg)
 
             lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-        if (mob_list[num].name == "poition elemental")
+        else if (mob_list[num].name == "poition elemental")
         {
             if (pr_mob.hp < pr_mob.hp_max)
             {
@@ -6291,7 +6319,7 @@ if (bl_leg)
 
             lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-        if (mob_list[num].name == "rock elemental")
+        else if (mob_list[num].name == "rock elemental")
         {
             if (pr_mob.hp < pr_mob.hp_max)
             {
@@ -6301,7 +6329,7 @@ if (bl_leg)
 
             lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-        if (mob_list[num].name == "ice elemental")
+        else if (mob_list[num].name == "ice elemental")
         {
             if (pr_mob.hp < pr_mob.hp_max)
             {
@@ -6311,7 +6339,7 @@ if (bl_leg)
 
             lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-        if (mob_list[num].name == "energy elemental")
+        else if (mob_list[num].name == "energy elemental")
         {
             bool bl = false;
             lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
@@ -6340,7 +6368,7 @@ if (bl_leg)
         }
 
 
-        if (mob_list[num].name == "half-fire spirit")
+        else if (mob_list[num].name == "half-fire spirit")
         {
             if (pr_mob.hp < pr_mob.hp_max)
             {
@@ -6353,7 +6381,7 @@ if (bl_leg)
 
             lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-        if (mob_list[num].name == "half-poition spirit")
+        else if (mob_list[num].name == "half-poition spirit")
         {
             if (pr_mob.hp < pr_mob.hp_max)
             {
@@ -6366,7 +6394,7 @@ if (bl_leg)
 
             lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-        if (mob_list[num].name == "half-ice spirit")
+        else if (mob_list[num].name == "half-ice spirit")
         {
             if (pr_mob.hp < pr_mob.hp_max)
             {
@@ -6379,7 +6407,7 @@ if (bl_leg)
 
             lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-        if (mob_list[num].name == "half-rock spirit")
+        else if (mob_list[num].name == "half-rock spirit")
         {
             if (pr_mob.hp < pr_mob.hp_max)
             {
@@ -6392,7 +6420,7 @@ if (bl_leg)
 
             lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-        if (mob_list[num].name == "half-energy spirit")
+        else if (mob_list[num].name == "half-energy spirit")
         {
             bool bl = false;
             lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
@@ -6424,7 +6452,7 @@ if (bl_leg)
             
         }
 
-        if (mob_list[num].name == "org berserk")
+        else if (mob_list[num].name == "org berserk")
         {
 
 
@@ -6494,7 +6522,7 @@ if (bl_leg)
         }
 
 
-        if (mob_list[num].name == "goblin shaman")
+        else if (mob_list[num].name == "goblin shaman")
         {
 
             lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
@@ -6525,98 +6553,15 @@ if (bl_leg)
 
                     }
                 }
-                /*
-                foreach (atack_cart a in lt_rd_atack)
-                {
-                    Queue<string> q_now = new Queue<string>();
-                    bool b = true;
-                    foreach (string st in a.que_cart)
-                    {
-                        par_cart c = GameObject.Find(st).GetComponent<par_cart>();
-
-                        if (b)
-                        {
-                            q_now.Enqueue("cart spirit(boss)");
-                            b = false;
-                        }
-                        q_now.Enqueue(st);
-                    }
-                    lt_at_sp.Add(new atack_cart(q_now, a.cel, pr_mob.get_pr_at(priority_atack.type_atack.sp_boss)));
-                }
-                */
                 if(lt_at_sp.Count>0)
                     lt_rd_atack.Add(lt_at_sp);
             }
 
         }
-
-        
-        if (mob_list[num].name == "goblin blood elit" || mob_list[num].name == "defender blood")
+        else
         {
             lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
         }
-        if (mob_list[num].name == "goblin energy elit" || mob_list[num].name == "defender energy")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-        if (mob_list[num].name == "goblin ice elit" || mob_list[num].name == "defender ice")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-        if (mob_list[num].name == "goblin poition elit" || mob_list[num].name == "defender poition")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-        if (mob_list[num].name == "goblin fire elit" || mob_list[num].name == "defender fire")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-        if (mob_list[num].name == "goblin rock elit" || mob_list[num].name == "defender rock")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-        if (mob_list[num].name == "derlorg")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-        if (mob_list[num].name == "derlorg shaman")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-        if (mob_list[num].name == "derlorg energy")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-        if (mob_list[num].name == "derlorg ice")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-        if (mob_list[num].name == "derlorg fire")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-        if (mob_list[num].name == "derlorg poition")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-        if (mob_list[num].name == "derlorg blood")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-        if (mob_list[num].name == "derlorg rock")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-        if (mob_list[num].name == "derlorg bomb")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-        if (mob_list[num].name == "derlorg necro")
-        {
-            lt_rd_atack.AddRange(base_proverka_atack(pr_mob));
-        }
-
-
         //Debug.Log("atack carts 0");
 
 
@@ -7008,35 +6953,6 @@ if (bl_leg)
         timer_now = 0;
         return status_next_hod.good;
     }
-    /*
-    public static void next_hod()
-    {
-
-
-        Debug.Log("next hod debug");
-
-
-        //if(mb_now.speed_now > 0)    
-
-
-
-
-
-
-        hod_next_mob_art = true;
-
-
-
-        //Debug.Log(mob_list[hod_mob_now_int].name + "  baaaaf 0 "+ anim.col_anim+"   "+ timer_now);
-        if (anim.col_anim == 0 && timer_now == 0.1f)
-        {
-
-            func_next_hod();
-        }
-
-    }
-    */
-
 
 
     public static void clean_func()
@@ -7348,7 +7264,7 @@ if (bl_leg)
         //List<List<string>> lt_lt_st = par_cart.cart_combinations.get_comb_now("cart rock[n]");
         add_lt_ef("cart damage 0", "atack base");
         add_lt_ef("cart damage[n]", "atack base");
-        add_lt_ef("cart barier[n]", "bases bar ef");
+        add_lt_ef("cart barier[n]-cart damage[n]", "bases bar ef");
 
         add_lt_ef("cart rock[n]", "rock ef");
         add_lt_ef("cart blood[n]", "blood ef");
@@ -7407,7 +7323,7 @@ if (bl_leg)
         type_lvl_now = type_lvl.bases;
 
         Debug.Log(data.data_now.first_game);
-        if(data.data_now.first_game)
+        if(data.data_now.first_game )
             generate_room_obych();
         else 
             generate_room();
@@ -7476,7 +7392,7 @@ if (bl_leg)
                     string nm = f.Method.Name;
                     status_next_hod st = f.Invoke();
 
-                    Debug.Log(hod_mob_now + " " + nm + " " + st.ToString());
+                    Debug.Log(hod_mob_now + " " + nm + " " + st.ToString()+"  controller now="+controller_mob_wait.type_wait_now.ToString());
                     if (st == status_next_hod.skip_next && mb_now.actions_hod.Count > 0)
                     {
                         mb_now.actions_hod.Dequeue();

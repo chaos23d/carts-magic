@@ -73,7 +73,7 @@ public class cart_spawn : MonoBehaviour
         this.time = time;
         p1 = v3_p1;
         transform.position = p1;
-        p2 = p1+Vector2.up*2 + new Vector2(Random.Range(-10, 10), Random.Range(-20, 20)) / 20;
+        p2 = p1+Vector2.up*2 + new Vector2(Random.Range(-20, 20) , Random.Range(-10, 10)) / 20;
         p3 = v3_p3;
     }
 }
